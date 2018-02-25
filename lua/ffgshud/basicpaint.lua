@@ -19,6 +19,9 @@ local HUDCommons = DLib.HUDCommons
 local POS_PLAYERSTATS = FFGSHUD:DefinePosition('playerstats', 0.07, 0.68)
 local POS_WEAPONSTATS = FFGSHUD:DefinePosition('weaponstats', 0.93, 0.68)
 local color_white = color_white
+local render = render
+local surface = surface
+local ScreenScale = ScreenScale
 
 function FFGSHUD:PaintPlayerStats()
 	if not self:GetVarAlive() then
@@ -52,7 +55,28 @@ function FFGSHUD:PaintWeaponStats()
 		y = y + h * 0.83
 	end
 
-	if ammoStoredText ~= '' then
+	if self:PlayingStoredAmmoAnim() then
+		local fraction = self:StoredAmmoAnim()
+		surface.SetFont(self.AmmoStored.REGULAR)
+		local W, H = surface.GetTextSize('W')
+		local lineY = (H + ScreenScale(10)) * fraction
+		local lineXLen = ScreenScale(80)
+
+		render.SetScissorRect(x - lineXLen, y, x, y + lineY, true)
+
+		self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, color_white)
+
+		render.SetScissorRect(x - lineXLen, y + lineY, x, y + 400, true)
+
+		if ammoStoredText ~= '' then
+			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+		end
+
+		render.SetScissorRect(0, 0, 0, 0, false)
+
+		surface.SetDrawColor(color_white)
+		surface.DrawRect(x - lineXLen, y + lineY, lineXLen, ScreenScale(1))
+	else
 		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
 	end
 end

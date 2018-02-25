@@ -22,22 +22,34 @@ local IsValid = FindMetaTable('Entity').IsValid
 FFGSHUD.ammoHUDAnimationTime = 0
 FFGSHUD.ammoStoredHUDAnimationTime = 0
 
+function FFGSHUD:PlayingStoredAmmoAnim()
+	return self.ammoStoredHUDAnimationTime > RealTime()
+end
+
 function FFGSHUD:StoredAmmoAnim()
-	return LerpCubic((self.ammoStoredHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
+	return LerpCosine((self.ammoStoredHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
 end
 
 function FFGSHUD:ReadyAmmoAnim()
-	return LerpCubic((self.ammoHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
+	return LerpCosine((self.ammoHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
+end
+
+function FFGSHUD:PlayingReadyAmmoAnim()
+	return self.ammoHUDAnimationTime > RealTime()
 end
 
 function FFGSHUD:OnWeaponChanged(old, new)
 	if not IsValid(old) or not IsValid(new) then return end
 
+	local ammoReadyText, ammoStoredText = self:GetAmmoDisplayText()
+
 	if old:GetPrimaryAmmoType() ~= new:GetPrimaryAmmoType() or old:GetSecondaryAmmoType() ~= new:GetSecondaryAmmoType() then
 		self.animateStoredAmmoHUD = true
 		self.ammoStoredHUDAnimationTime = RealTime() + 0.4
+		self.oldStoredAmmoString = ammoStoredText
 	end
 
 	self.animateAmmoHUD = true
 	self.ammoHUDAnimationTime = RealTime() + 0.4
+	self.oldReadyAmmoString = ammoReadyText
 end
