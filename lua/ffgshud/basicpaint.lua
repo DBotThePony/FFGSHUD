@@ -50,9 +50,36 @@ function FFGSHUD:PaintWeaponStats()
 
 	local ammoReadyText, ammoStoredText = self:GetAmmoDisplayText()
 
-	if ammoReadyText ~= '' then
-		w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
-		y = y + h * 0.83
+	if self:PlayingReadyAmmoAnim() then
+		local fraction = 1 - self:ReadyAmmoAnim()
+		surface.SetFont(self.AmmoStored.REGULAR)
+		local W, H = surface.GetTextSize('W')
+		local lineY = (H + ScreenScale(10)) * fraction
+		local lineXLen = ScreenScale(80)
+
+		render.SetScissorRect(x - lineXLen, y, x, y + lineY, true)
+
+		if ammoReadyText ~= '' then
+			w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
+		end
+
+		render.SetScissorRect(x - lineXLen, y + lineY, x, y + 400, true)
+
+		self:DrawShadowedTextAligned(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white)
+
+		render.SetScissorRect(0, 0, 0, 0, false)
+
+		surface.SetDrawColor(color_white)
+		surface.DrawRect(x - lineXLen, y + lineY, lineXLen, ScreenScale(1))
+
+		if ammoReadyText ~= '' then
+			y = y + h * 0.83
+		end
+	else
+		if ammoReadyText ~= '' then
+			w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
+			y = y + h * 0.83
+		end
 	end
 
 	if self:PlayingStoredAmmoAnim() then
