@@ -35,7 +35,7 @@ function FFGSHUD:PaintPlayerStats()
 	w, h = self:DrawShadowedText(self.Health, self:GetVarHealth(), x, y, color_white)
 	y = y + h * 0.89
 
-	self:DrawShadowedText(self.Armor, ('%i / %i'):format(self:GetVarArmor(), self:GetVarMaxArmor()), x, y, color_white)
+	self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, color_white)
 end
 
 function FFGSHUD:PaintWeaponStats()
