@@ -45,47 +45,15 @@ function FFGSHUD:PaintWeaponStats()
 	local w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName(), x, y, color_white)
 	y = y + h * 0.83
 
-	if self:ShouldDisplayAmmo() then
-		if self:ShouldDisplayAmmoStored() then
-			local ammoReadyText = ''
-			local ammoStoredText = self:GetVarAmmo1()
+	local ammoReadyText, ammoStoredText = self:GetAmmoDisplayText()
 
-			if self:GetVarClipMax1() ~= 1 then
-				if self:GetVarClipMax1() < self:GetVarClip1() then
-					ammoReadyText = ('%i + %i / %i'):format(self:GetVarClipMax1(), self:GetVarClip1() - self:GetVarClipMax1(), self:GetVarClipMax1())
-				else
-					ammoReadyText = ('%i / %i'):format(self:GetVarClip1(), self:GetVarClipMax1())
-				end
-			else
-				ammoReadyText = self:GetVarClip1()
-			end
+	if ammoReadyText ~= '' then
+		w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
+		y = y + h * 0.83
+	end
 
-			if self:ShouldDisplaySecondaryAmmo() then
-				local ready = self:SelectSecondaryAmmoReady()
-				local stored = self:SelectSecondaryAmmoStored()
-
-				if ready ~= -1 then
-					ammoReadyText = ammoReadyText .. (' (%i / %i)'):format(self:GetVarClip2(), self:GetVarClipMax2())
-				end
-
-				if stored ~= -1 then
-					ammoStoredText = ammoStoredText .. (' / %i'):format(stored)
-				end
-			end
-
-			w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
-			y = y + h * 0.83
-
-			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
-		else
-			if not self:ShouldDisplaySecondaryAmmo() then
-				self:DrawShadowedTextAligned(self.AmmoAmount, self:GetVarAmmo1(), x, y, color_white)
-			else
-				self:DrawShadowedTextAligned(self.AmmoAmount, ('%i / %i'):format(self:GetVarAmmo1(), self:GetVarClip2()), x, y, color_white)
-			end
-		end
-	else
-		self:DrawShadowedTextAligned(self.AmmoAmount, '-', x, y, color_white)
+	if ammoStoredText ~= '' then
+		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
 	end
 end
 

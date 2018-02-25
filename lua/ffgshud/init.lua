@@ -111,4 +111,6 @@ FFGSHUD:AddHook('HUDShouldDraw')
 
 include('vars.lua')
 include('basicpaint.lua')
+include('functions.lua')
 include('targetid.lua')
+include('anims.lua')

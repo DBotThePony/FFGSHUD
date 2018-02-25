@@ -1,0 +1,56 @@
+
+-- Copyright (C) 2018 DBot
+
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+
+--     http://www.apache.org/licenses/LICENSE-2.0
+
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+
+local FFGSHUD = FFGSHUD
+
+function FFGSHUD:GetAmmoDisplayText()
+	local ammoReadyText = ''
+	local ammoStoredText = ''
+
+	if self:ShouldDisplayAmmo() then
+		if self:ShouldDisplayAmmoStored() then
+			ammoStoredText = self:GetVarAmmo1()
+
+			if self:GetVarClipMax1() < self:GetVarClip1() then
+				ammoReadyText = ('%i + %i'):format(self:GetVarClipMax1(), self:GetVarClip1() - self:GetVarClipMax1())
+			else
+				ammoReadyText = ('%i'):format(self:GetVarClip1())
+			end
+
+			if self:ShouldDisplaySecondaryAmmo() then
+				local ready = self:SelectSecondaryAmmoReady()
+				local stored = self:SelectSecondaryAmmoStored()
+
+				if ready ~= -1 then
+					ammoReadyText = ammoReadyText .. (' (%i / %i)'):format(self:GetVarClip2(), self:GetVarClipMax2())
+				end
+
+				if stored ~= -1 then
+					ammoStoredText = ammoStoredText .. (' / %i'):format(stored)
+				end
+			end
+		else
+			if not self:ShouldDisplaySecondaryAmmo() then
+				ammoReadyText = self:GetVarAmmo1()
+			else
+				ammoReadyText = ('%i / %i'):format(self:GetVarAmmo1(), self:GetVarClip2())
+			end
+		end
+	else
+		ammoReadyText = '-'
+	end
+
+	return ammoReadyText, ammoStoredText
+end

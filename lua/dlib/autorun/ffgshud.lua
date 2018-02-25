@@ -20,4 +20,6 @@ else
 	AddCSLuaFile('ffgshud/vars.lua')
 	AddCSLuaFile('ffgshud/basicpaint.lua')
 	AddCSLuaFile('ffgshud/targetid.lua')
+	AddCSLuaFile('ffgshud/anims.lua')
+	AddCSLuaFile('ffgshud/functions.lua')
 end
