@@ -95,6 +95,20 @@ function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
 	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 end
 
+function FFGSHUD:HUDShouldDraw(target)
+	if
+		target == 'CHudAmmo' or
+		target == 'CHudBattery' or
+		target == 'CHudHealth' or
+		target == 'CHudPoisonDamageIndicator' or
+		target == 'CHudSecondaryAmmo'
+	then
+		return false
+	end
+end
+
+FFGSHUD:AddHook('HUDShouldDraw')
+
 include('vars.lua')
 include('basicpaint.lua')
 include('targetid.lua')
