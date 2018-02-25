@@ -54,16 +54,41 @@ FFGSHUD.Armor = FFGSHUD:CreateScalableFont('Armor', {
 	size = 32,
 })
 
+FFGSHUD.TargetID_Name = FFGSHUD:CreateScalableFont('TargetID_Name', {
+	font = 'PT Sans',
+	size = 26,
+	weight = 600,
+})
+
+FFGSHUD.TargetID_Health = FFGSHUD:CreateScalableFont('TargetID_Health', {
+	font = 'Exo 2',
+	size = 18,
+})
+
+FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
+	font = 'Exo 2',
+	size = 14,
+})
+
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
-	HUDCommons.SimpleText(text, fontBase.BLURRY_ROUGH, x, y, color_black)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
 	return surface.GetTextSize(text)
 end
 
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY_ROUGH, x, y, color_black)
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
 	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+end
+
+function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
+	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
+	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 end
 
 include('vars.lua')
 include('basicpaint.lua')
+include('targetid.lua')
