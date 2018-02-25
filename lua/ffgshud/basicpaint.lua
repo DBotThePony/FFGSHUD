@@ -22,6 +22,7 @@ local color_white = color_white
 local render = render
 local surface = surface
 local ScreenScale = ScreenScale
+local RealTime = RealTime
 
 function FFGSHUD:PaintPlayerStats()
 	if not self:GetVarAlive() then
@@ -38,9 +39,23 @@ function FFGSHUD:PaintPlayerStats()
 	self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, color_white)
 end
 
+local color_white = Color()
+
 function FFGSHUD:PaintWeaponStats()
 	if not self:HasWeapon() then
 		return
+	end
+
+	if self:CanHideAmmoCounter() then
+		if self.LastWeaponUpdateFadeOutEnd < RealTime() then return end
+
+		if self.LastWeaponUpdateFadeOutStart > RealTime() then
+			color_white.a = (1 - (self.LastWeaponUpdateFadeIn - RealTime()):progression(0, 0.5)) * 255
+		else
+			color_white.a = (self.LastWeaponUpdateFadeOutEnd - RealTime()):progression(0, 0.5) * 255
+		end
+	else
+		color_white.a = 255
 	end
 
 	local x, y = POS_WEAPONSTATS()

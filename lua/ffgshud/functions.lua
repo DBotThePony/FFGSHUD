@@ -54,3 +54,7 @@ function FFGSHUD:GetAmmoDisplayText()
 
 	return ammoReadyText, ammoStoredText
 end
+
+function FFGSHUD:CanHideAmmoCounter()
+	return self:GetVarClipMax1() <= self:GetVarClip1() and self:GetVarClipMax2() <= self:GetVarClip2()
+end

@@ -21,6 +21,10 @@ local IsValid = FindMetaTable('Entity').IsValid
 
 FFGSHUD.ammoHUDAnimationTime = 0
 FFGSHUD.ammoStoredHUDAnimationTime = 0
+FFGSHUD.LastWeaponUpdate = RealTime()
+FFGSHUD.LastWeaponUpdateFadeIn = RealTime()
+FFGSHUD.LastWeaponUpdateFadeOutStart = RealTime()
+FFGSHUD.LastWeaponUpdateFadeOutEnd = RealTime()
 
 function FFGSHUD:PlayingStoredAmmoAnim()
 	return self.ammoStoredHUDAnimationTime > RealTime()
@@ -38,6 +42,19 @@ function FFGSHUD:PlayingReadyAmmoAnim()
 	return self.ammoHUDAnimationTime > RealTime()
 end
 
+local function changes(s, self, lply, old, new)
+	self.LastWeaponUpdate = RealTime()
+
+	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart < RealTime() then
+		self.LastWeaponUpdateFadeIn = RealTime() + 0.5
+	else
+		self.LastWeaponUpdateFadeIn = RealTime() - 0.5
+	end
+
+	self.LastWeaponUpdateFadeOutStart = RealTime() + 3
+	self.LastWeaponUpdateFadeOutEnd = RealTime() + 3.5
+end
+
 function FFGSHUD:OnWeaponChanged(old, new)
 	if not IsValid(old) or not IsValid(new) then return end
 
@@ -52,4 +69,13 @@ function FFGSHUD:OnWeaponChanged(old, new)
 	self.animateAmmoHUD = true
 	self.ammoHUDAnimationTime = RealTime() + 0.4
 	self.oldReadyAmmoString = ammoReadyText
+	changes(nil, self)
 end
+
+FFGSHUD:SetOnChangeHook('ammoType1', changes)
+FFGSHUD:SetOnChangeHook('ammoType2', changes)
+FFGSHUD:SetOnChangeHook('clip1', changes)
+FFGSHUD:SetOnChangeHook('clip2', changes)
+FFGSHUD:SetOnChangeHook('clipMax1', changes)
+FFGSHUD:SetOnChangeHook('clipMax2', changes)
+FFGSHUD:SetOnChangeHook('weaponName', changes)
