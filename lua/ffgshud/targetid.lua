@@ -20,21 +20,35 @@ local MousePos = gui.MousePos
 local team = team
 local ScreenSize = ScreenScale
 local color_white = color_white
+local math = math
+local RealTime = RealTime
 local IsValid = FindMetaTable('Entity').IsValid
 
 function FFGSHUD:HUDDrawTargetID()
 	return false
 end
 
-local POS = FFGSHUD:DefinePosition('targetid', 0.5, 0.54)
+local POS = FFGSHUD:DefinePosition('targetid', 0.5, 0.52)
+
+FFGSHUD.targetID_Fade = 0
+
+function FFGSHUD:ThinkTargetID(ply)
+	local tr = ply:GetEyeTrace()
+	local ent = tr.Entity
+
+	if not IsValid(ent) or not ent:IsPlayer()then
+		self.drawTargetID = RealTime() < self.targetID_Fade and IsValid(self.targetID_Ply)
+		return
+	end
+
+	self.drawTargetID = true
+	self.targetID_Ply = ent
+	self.targetID_Fade = RealTime() + 0.4
+end
 
 function FFGSHUD:PaintTargetID(ply)
-	local tr = ply:GetEyeTrace()
-
-	if not tr.Hit then return end
-	local ent = tr.Entity
-	if not IsValid(ent) then return end
-	if not ent:IsPlayer() then return end
+	if not self.drawTargetID then return end
+	local ent = self.targetID_Ply
 
 	local name = ent:Nick()
 	local health = ent:GetHealth()
@@ -43,6 +57,7 @@ function FFGSHUD:PaintTargetID(ply)
 	local maxArmor = ent:GetMaxArmor()
 	local pteam = ent:Team()
 	local color = Color(team.GetColor(pteam or 0) or color_white)
+	color.a = math.max((self.targetID_Fade - RealTime()) / 0.4 * 255, 0)
 
 	local x, y = MousePos()
 
@@ -65,3 +80,4 @@ function FFGSHUD:PaintTargetID(ply)
 end
 
 FFGSHUD:AddPaintHook('PaintTargetID')
+FFGSHUD:AddThinkHook('ThinkTargetID')

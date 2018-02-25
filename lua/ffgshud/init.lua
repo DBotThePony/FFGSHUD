@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-_G.FFGSHUD = _G.FFGSHUD or DLib.ConsturctClass('HUDCommonsBase', 'ffgs_hud', 'FFGS HUD')
+_G.FFGSHUD = DLib.ConsturctClass('HUDCommonsBase', 'ffgs_hud', 'FFGS HUD')
 local FFGSHUD = FFGSHUD
 local DLib = DLib
 local surface = surface
@@ -71,21 +71,27 @@ FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
 })
 
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
+	color_black.a = color.a
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
 	return surface.GetTextSize(text)
 end
 
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
+	color_black.a = color.a
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
 	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
+	color_black.a = color.a
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
 	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 end
 
