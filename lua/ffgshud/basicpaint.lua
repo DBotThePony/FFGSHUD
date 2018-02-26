@@ -70,7 +70,7 @@ function FFGSHUD:PaintWeaponStats()
 		surface.SetFont(self.AmmoStored.REGULAR)
 		local W, H = surface.GetTextSize('W')
 		local lineY = (H + ScreenScale(10)) * fraction
-		local lineXLen = ScreenScale(80)
+		local lineXLen = ScreenScale(120)
 
 		render.SetScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
 
@@ -104,7 +104,7 @@ function FFGSHUD:PaintWeaponStats()
 		surface.SetFont(self.AmmoStored.REGULAR)
 		local W, H = surface.GetTextSize('W')
 		local lineY = (H + ScreenScale(10)) * fraction
-		local lineXLen = ScreenScale(80)
+		local lineXLen = ScreenScale(120)
 
 		render.SetScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
 
