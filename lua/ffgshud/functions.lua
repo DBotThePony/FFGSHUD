@@ -60,6 +60,15 @@ function FFGSHUD:GetAmmoDisplayText()
 		ammoReadyText = '-'
 	end
 
+	if ammoStoredText ~= '' and ammoStoredText < 0 then
+		ammoStoredText = self:GetVarAmmo2()
+		stored2AmmoText = ''
+
+		if ammoStoredText < 0 then
+			ammoStoredText = ''
+		end
+	end
+
 	return ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText
 end
 
