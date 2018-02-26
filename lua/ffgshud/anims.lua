@@ -74,6 +74,28 @@ function FFGSHUD:OnWeaponChanged(old, new)
 	changes(nil, self)
 end
 
+local input = input
+
+function FFGSHUD:WatchdogForReload()
+	if not self:CanHideAmmoCounter() then self.reloadWatchdog = false return end
+	local bind = input.LookupBinding('reload')
+	if not bind then self.reloadWatchdog = false return end
+	local key = DLib.KeyMap.GetKeyFromString(bind)
+
+	if input.IsKeyDown(key) then
+		self.LastWeaponUpdate = RealTime()
+		self.LastWeaponUpdateFadeOutStart = RealTime() + 3
+		self.LastWeaponUpdateFadeOutEnd = RealTime() + 3.5
+
+		if not self.reloadWatchdog then
+			self.reloadWatchdog = true
+			self.LastWeaponUpdateFadeIn = RealTime() + 0.5
+		end
+	else
+		self.reloadWatchdog = self.LastWeaponUpdateFadeOutStart > RealTime()
+	end
+end
+
 FFGSHUD:SetOnChangeHook('ammoType1', changes)
 FFGSHUD:SetOnChangeHook('ammoType2', changes)
 FFGSHUD:SetOnChangeHook('clip1', changes)
@@ -81,3 +103,4 @@ FFGSHUD:SetOnChangeHook('clip2', changes)
 FFGSHUD:SetOnChangeHook('clipMax1', changes)
 FFGSHUD:SetOnChangeHook('clipMax2', changes)
 FFGSHUD:SetOnChangeHook('weaponName', changes)
+FFGSHUD:AddThinkHook('WatchdogForReload')
