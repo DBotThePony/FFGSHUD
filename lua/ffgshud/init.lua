@@ -148,9 +148,7 @@ function FFGSHUD:DrawShadowedTextPercInv2(fontBase, text, x, y, color, perc, col
 
 	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
 
-	if perc ~= 1 then
-		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
-	end
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
 
 	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
@@ -169,9 +167,7 @@ function FFGSHUD:DrawShadowedTextPercCustomInv2(fontBase, text, x, y, color, sha
 
 	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
 
-	if perc ~= 1 then
-		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
-	end
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
 
 	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)

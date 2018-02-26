@@ -26,13 +26,33 @@ local RealTime = RealTime
 local math = math
 
 local FillageColorHealth = Color(80, 80, 80)
+local FillageColorHealthStatic = Color(80, 80, 80)
 local FillageColorHealthShadow = Color(230, 0, 0)
+local FillageColorHealthShadowStatic = Color(230, 0, 0)
 local pi = math.pi * 16
 local function RealTimeAnim()
 	return RealTime() % pi
 end
 
 function FFGSHUD:PaintPlayerStats()
+	if self.isPlayingDeathAnim then
+		local x, y = POS_PLAYERSTATS()
+		local time = RealTime()
+
+		if self.deathAnimTimeFadeStart > time then
+			FillageColorHealthShadowStatic.a = 255
+			FillageColorHealthStatic.a = 255
+			self:DrawShadowedTextPercCustomInv2(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+		elseif self.deathAnimTimeFadeEnd > time then
+			local perc = (self.deathAnimTimeFadeEnd - time):progression(0, 2) * 255
+			FillageColorHealthShadowStatic.a = perc
+			FillageColorHealthStatic.a = perc
+			self:DrawShadowedTextPercCustomInv2(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+		else
+			return
+		end
+	end
+
 	if not self:GetVarAlive() then
 		return
 	end

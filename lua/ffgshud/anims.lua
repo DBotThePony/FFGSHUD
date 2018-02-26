@@ -107,4 +107,15 @@ FFGSHUD:SetOnChangeHook('clipMax2', changes)
 FFGSHUD:SetOnChangeHook('ammo1', changes)
 FFGSHUD:SetOnChangeHook('ammo2', changes)
 FFGSHUD:SetOnChangeHook('weaponName', changes)
+
+FFGSHUD:SetOnChangeHook('alive', function(s, self, ply, old, new)
+	if new then
+		self.isPlayingDeathAnim = false
+	else
+		self.isPlayingDeathAnim = true
+		self.deathAnimTimeFadeStart = RealTime() + 2.5
+		self.deathAnimTimeFadeEnd = RealTime() + 4.5
+	end
+end)
+
 FFGSHUD:AddThinkHook('WatchdogForReload')
