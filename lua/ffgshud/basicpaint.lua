@@ -25,6 +25,13 @@ local ScreenScale = ScreenScale
 local RealTime = RealTime
 local math = math
 
+local FillageColorHealth = Color(80, 80, 80)
+local FillageColorHealthShadow = Color(230, 0, 0)
+local pi = math.pi * 16
+local function RealTimeAnim()
+	return RealTime() % pi
+end
+
 function FFGSHUD:PaintPlayerStats()
 	if not self:GetVarAlive() then
 		return
@@ -34,7 +41,25 @@ function FFGSHUD:PaintPlayerStats()
 	local w, h = self:DrawShadowedText(self.PlayerName, self:GetVarNick(), x, y, color_white)
 	y = y + h * 0.83
 
-	w, h = self:DrawShadowedText(self.Health, self:GetVarHealth(), x, y, color_white)
+	local mhp = self:GetVarMaxHealth()
+	if mhp == 0 then mhp = 1 end
+	local fillage = 1 - math.min(1, self:GetVarHealth() / mhp)
+
+	if fillage == 0 then
+		FillageColorHealth.a = 0
+	elseif fillage == 1 then
+		FillageColorHealth.a = 255
+	else
+		FillageColorHealth.a = 255
+	end
+
+	if fillage < 0.5 then
+		w, h = self:DrawShadowedTextPercInv2(self.Health, self:GetVarHealth(), x, y, color_white, fillage, FillageColorHealth)
+	else
+		FillageColorHealthShadow.r = math.sin(RealTimeAnim() * fillage * 30) * 64 + 130
+		w, h = self:DrawShadowedTextPercCustomInv2(self.Health, self:GetVarHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
+	end
+
 	y = y + h * 0.89
 
 	self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, color_white)
@@ -78,7 +103,7 @@ function FFGSHUD:PaintWeaponStats()
 		FillageColor1.a = 230
 	else
 		FillageColor1.r = 230
-		FillageColor1.a = math.sin(RealTime() * fillage1 * 30) * 64 + 160
+		FillageColor1.a = math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 160
 	end
 
 	if fillage2 == 0 then
@@ -89,7 +114,7 @@ function FFGSHUD:PaintWeaponStats()
 		FillageColor2.a = 230
 	else
 		FillageColor2.r = 230
-		FillageColor2.a = math.sin(RealTime() * fillage2 * 30) * 64 + 160
+		FillageColor2.a = math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 160
 	end
 
 	if self:PlayingReadyAmmoAnim() then

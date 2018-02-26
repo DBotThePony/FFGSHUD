@@ -114,6 +114,72 @@ function FFGSHUD:DrawShadowedTextPerc(fontBase, text, x, y, color, perc, colorPe
 	return w, h
 end
 
+function FFGSHUD:DrawShadowedTextPerc2(fontBase, text, x, y, color, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+	color_black.a = color.a
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
+
+	local w, h = surface.GetTextSize(text)
+
+	render.SetScissorRect(x - w, y, x + w, y + h * (1 - perc), true)
+
+	if perc ~= 1 then
+		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
+	end
+
+	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	render.SetScissorRect(0, 0, 0, 0, false)
+
+	return w, h
+end
+
+function FFGSHUD:DrawShadowedTextPercInv2(fontBase, text, x, y, color, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+
+	color_black.a = color.a
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
+
+	local w, h = surface.GetTextSize(text)
+
+	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
+
+	if perc ~= 1 then
+		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	end
+
+	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
+	render.SetScissorRect(0, 0, 0, 0, false)
+
+	return w, h
+end
+
+function FFGSHUD:DrawShadowedTextPercCustomInv2(fontBase, text, x, y, color, shadowColor, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+
+	local w, h = surface.GetTextSize(text)
+
+	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
+
+	if perc ~= 1 then
+		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	end
+
+	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
+	render.SetScissorRect(0, 0, 0, 0, false)
+
+	return w, h
+end
+
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
