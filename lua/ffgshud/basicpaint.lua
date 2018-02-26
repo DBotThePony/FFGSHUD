@@ -63,7 +63,7 @@ function FFGSHUD:PaintWeaponStats()
 	local w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName(), x, y, color_white)
 	y = y + h * 0.83
 
-	local ammoReadyText, ammoStoredText, clip2AmmoText = self:GetAmmoDisplayText()
+	local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
 
 	if self:PlayingReadyAmmoAnim() then
 		local fraction = 1 - self:ReadyAmmoAnim()
@@ -119,12 +119,12 @@ function FFGSHUD:PaintWeaponStats()
 		render.SetScissorRect(x - lineXLen, y, x, y + lineY, true)
 
 		self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, color_white)
+		self:DrawShadowedText(self.AmmoStored, self.oldStored2AmmoText, x, y, color_white)
 
 		render.SetScissorRect(x - lineXLen, y + lineY, x, y + 400, true)
 
-		if ammoStoredText ~= '' then
-			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
-		end
+		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
 
 		render.SetScissorRect(0, 0, 0, 0, false)
 
@@ -132,6 +132,7 @@ function FFGSHUD:PaintWeaponStats()
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen, ScreenScale(1))
 	else
 		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
 	end
 end
 

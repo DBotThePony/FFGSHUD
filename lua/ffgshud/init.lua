@@ -49,6 +49,12 @@ FFGSHUD.AmmoStored = FFGSHUD:CreateScalableFont('AmmoStored', {
 	weight = 600
 })
 
+FFGSHUD.AmmoStored2 = FFGSHUD:CreateScalableFont('AmmoStored2', {
+	font = 'Exo 2',
+	size = 38,
+	weight = 600
+})
+
 FFGSHUD.Health = FFGSHUD:CreateScalableFont('Health', {
 	font = 'Exo 2',
 	size = 64,

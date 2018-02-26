@@ -18,6 +18,7 @@ local FFGSHUD = FFGSHUD
 function FFGSHUD:GetAmmoDisplayText()
 	local ammoReadyText = ''
 	local ammoStoredText = ''
+	local stored2AmmoText = ''
 	local clip2AmmoText = ''
 
 	if self:ShouldDisplayAmmo() then
@@ -39,7 +40,7 @@ function FFGSHUD:GetAmmoDisplayText()
 				end
 
 				if stored ~= -1 then
-					ammoStoredText = ammoStoredText .. (' / %i'):format(stored)
+					stored2AmmoText = ' / ' .. stored
 				end
 			end
 		else
@@ -53,7 +54,7 @@ function FFGSHUD:GetAmmoDisplayText()
 		ammoReadyText = '-'
 	end
 
-	return ammoReadyText, ammoStoredText, clip2AmmoText
+	return ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText
 end
 
 function FFGSHUD:CanHideAmmoCounter()
