@@ -81,3 +81,4 @@ end
 
 FFGSHUD:AddPaintHook('PaintTargetID')
 FFGSHUD:AddThinkHook('ThinkTargetID')
+FFGSHUD:AddHook('HUDDrawTargetID')
