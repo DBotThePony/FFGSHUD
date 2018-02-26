@@ -58,7 +58,7 @@ end
 function FFGSHUD:OnWeaponChanged(old, new)
 	if not IsValid(old) or not IsValid(new) then return end
 
-	local ammoReadyText, ammoStoredText = self:GetAmmoDisplayText()
+	local ammoReadyText, ammoStoredText, clip2AmmoText = self:GetAmmoDisplayText()
 
 	if old:GetPrimaryAmmoType() ~= new:GetPrimaryAmmoType() or old:GetSecondaryAmmoType() ~= new:GetSecondaryAmmoType() then
 		self.animateStoredAmmoHUD = true
@@ -69,6 +69,7 @@ function FFGSHUD:OnWeaponChanged(old, new)
 	self.animateAmmoHUD = true
 	self.ammoHUDAnimationTime = RealTime() + 0.4
 	self.oldReadyAmmoString = ammoReadyText
+	self.oldReady2AmmoString = clip2AmmoText
 	changes(nil, self)
 end
 

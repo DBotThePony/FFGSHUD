@@ -37,6 +37,12 @@ FFGSHUD.AmmoAmount = FFGSHUD:CreateScalableFont('AmmoAmount', {
 	weight = 600
 })
 
+FFGSHUD.AmmoAmount2 = FFGSHUD:CreateScalableFont('AmmoAmount2', {
+	font = 'Exo 2',
+	size = 38,
+	weight = 600
+})
+
 FFGSHUD.AmmoStored = FFGSHUD:CreateScalableFont('AmmoStored', {
 	font = 'Exo 2',
 	size = 38,
@@ -71,6 +77,7 @@ FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
 })
 
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
@@ -80,6 +87,7 @@ function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
@@ -88,6 +96,7 @@ function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
