@@ -43,6 +43,12 @@ function FFGSHUD:GetAmmoDisplayText()
 					stored2AmmoText = '/' .. stored
 				end
 			end
+		elseif self:ShouldDisplayAmmoReady() then
+			if self:GetVarClipMax1() < self:GetVarClip1() then
+				ammoReadyText = ('%i+%i'):format(self:GetVarClipMax1(), self:GetVarClip1() - self:GetVarClipMax1())
+			else
+				ammoReadyText = ('%i'):format(self:GetVarClip1())
+			end
 		else
 			if not self:ShouldDisplaySecondaryAmmo() then
 				ammoReadyText = self:GetVarAmmo1()
