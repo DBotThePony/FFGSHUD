@@ -49,6 +49,7 @@ end
 function FFGSHUD:PaintTargetID(ply)
 	if not self.drawTargetID then return end
 	local ent = self.targetID_Ply
+	if not IsValid(self.targetID_Ply) then return end
 
 	local name = ent:Nick()
 	local health = ent:GetHealth()
