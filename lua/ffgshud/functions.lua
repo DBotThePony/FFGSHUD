@@ -26,7 +26,7 @@ function FFGSHUD:GetAmmoDisplayText()
 			ammoStoredText = self:GetVarAmmo1()
 
 			if self:GetVarClipMax1() < self:GetVarClip1() then
-				ammoReadyText = ('%i + %i'):format(self:GetVarClipMax1(), self:GetVarClip1() - self:GetVarClipMax1())
+				ammoReadyText = ('%i+%i'):format(self:GetVarClipMax1(), self:GetVarClip1() - self:GetVarClipMax1())
 			else
 				ammoReadyText = ('%i'):format(self:GetVarClip1())
 			end
@@ -47,7 +47,7 @@ function FFGSHUD:GetAmmoDisplayText()
 			if not self:ShouldDisplaySecondaryAmmo() then
 				ammoReadyText = self:GetVarAmmo1()
 			else
-				ammoReadyText = ('%i / %i'):format(self:GetVarAmmo1(), self:GetVarClip2())
+				ammoReadyText = ('%i/%i'):format(self:GetVarAmmo1(), self:GetVarClip2())
 			end
 		end
 	else
