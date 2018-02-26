@@ -82,6 +82,8 @@ FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
 	size = 14,
 })
 
+local render = render
+
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
@@ -92,6 +94,26 @@ function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
 	return surface.GetTextSize(text)
 end
 
+function FFGSHUD:DrawShadowedTextPerc(fontBase, text, x, y, color, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+	color_black.a = color.a
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
+
+	if perc ~= 1 then
+		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
+	end
+
+	local w, h = surface.GetTextSize(text)
+
+	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	render.SetScissorRect(0, 0, 0, 0, false)
+
+	return w, h
+end
+
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
@@ -99,6 +121,28 @@ function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
 	color_black.a = 255
 	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+end
+
+function FFGSHUD:DrawShadowedTextAlignedPerc(fontBase, text, x, y, color, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+	color_black.a = color.a
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
+
+	local w, h
+
+	if perc ~= 1 then
+		w, h = HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+	else
+		w, h = surface.GetTextSize(text)
+	end
+
+	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, colorPerc)
+	render.SetScissorRect(0, 0, 0, 0, false)
+
+	return w, h
 end
 
 function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)

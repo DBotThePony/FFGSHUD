@@ -23,6 +23,7 @@ local render = render
 local surface = surface
 local ScreenScale = ScreenScale
 local RealTime = RealTime
+local math = math
 
 function FFGSHUD:PaintPlayerStats()
 	if not self:GetVarAlive() then
@@ -40,6 +41,8 @@ function FFGSHUD:PaintPlayerStats()
 end
 
 local color_white = Color()
+local FillageColor1 = Color(255, 80, 80, 255)
+local FillageColor2 = Color(255, 80, 80, 255)
 
 function FFGSHUD:PaintWeaponStats()
 	if not self:HasWeapon() then
@@ -64,6 +67,30 @@ function FFGSHUD:PaintWeaponStats()
 	y = y + h * 0.83
 
 	local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
+	local fillage1 = 1 - self:GetAmmoFillage1()
+	local fillage2 = 1 - self:GetAmmoFillage2()
+
+	if fillage1 == 0 then
+		FillageColor1.r = 0
+		FillageColor1.a = 0
+	elseif fillage1 == 1 then
+		FillageColor1.r = 230
+		FillageColor1.a = 230
+	else
+		FillageColor1.r = 230
+		FillageColor1.a = math.sin(RealTime() * fillage1 * 30) * 64 + 160
+	end
+
+	if fillage2 == 0 then
+		FillageColor2.r = 0
+		FillageColor2.a = 0
+	elseif fillage2 == 1 then
+		FillageColor2.r = 230
+		FillageColor2.a = 230
+	else
+		FillageColor2.r = 230
+		FillageColor2.a = math.sin(RealTime() * fillage2 * 30) * 64 + 160
+	end
 
 	if self:PlayingReadyAmmoAnim() then
 		local fraction = 1 - self:ReadyAmmoAnim()
@@ -74,13 +101,13 @@ function FFGSHUD:PaintWeaponStats()
 
 		render.SetScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
 
-		w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
-		self:DrawShadowedText(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white)
+		w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColor1)
+		self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
 
 		render.SetScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400, true)
 
-		self:DrawShadowedTextAligned(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white)
-		self:DrawShadowedText(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white)
+		self:DrawShadowedTextAlignedPerc(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white, fillage1, FillageColor1)
+		self:DrawShadowedTextPerc(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
 
 		render.SetScissorRect(0, 0, 0, 0, false)
 
@@ -91,8 +118,8 @@ function FFGSHUD:PaintWeaponStats()
 			y = y + h * 0.83
 		end
 	else
-		w, h = self:DrawShadowedTextAligned(self.AmmoAmount, ammoReadyText, x, y, color_white)
-		self:DrawShadowedText(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white)
+		w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColor1)
+		self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
 
 		if ammoReadyText ~= '' then
 			y = y + h * 0.83
