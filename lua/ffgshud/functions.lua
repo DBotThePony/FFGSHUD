@@ -36,11 +36,11 @@ function FFGSHUD:GetAmmoDisplayText()
 				local stored = self:SelectSecondaryAmmoStored()
 
 				if ready ~= -1 then
-					clip2AmmoText = ' / ' .. self:GetVarClip2()
+					clip2AmmoText = '/' .. self:GetVarClip2()
 				end
 
 				if stored ~= -1 then
-					stored2AmmoText = ' / ' .. stored
+					stored2AmmoText = '/' .. stored
 				end
 			end
 		else

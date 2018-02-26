@@ -32,25 +32,25 @@ FFGSHUD.PlayerName = FFGSHUD:CreateScalableFont('PlayerName', {
 })
 
 FFGSHUD.AmmoAmount = FFGSHUD:CreateScalableFont('AmmoAmount', {
-	font = 'Exo 2',
+	font = 'PT Mono',
 	size = 60,
 	weight = 600
 })
 
 FFGSHUD.AmmoAmount2 = FFGSHUD:CreateScalableFont('AmmoAmount2', {
-	font = 'Exo 2',
+	font = 'PT Mono',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.AmmoStored = FFGSHUD:CreateScalableFont('AmmoStored', {
-	font = 'Exo 2',
+	font = 'PT Mono',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.AmmoStored2 = FFGSHUD:CreateScalableFont('AmmoStored2', {
-	font = 'Exo 2',
+	font = 'PT Mono',
 	size = 38,
 	weight = 600
 })
