@@ -144,17 +144,18 @@ function FFGSHUD:PaintWeaponStats()
 		local lineY = (H + ScreenScale(10)) * fraction
 		local lineXLen = ScreenScale(120)
 
-		render.SetScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
+		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY)
 
 		w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColor1)
 		self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
 
-		render.SetScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400, true)
+		render.PopScissorRect()
+		render.PushScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400)
 
 		self:DrawShadowedTextAlignedPerc(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white, fillage1, FillageColor1)
 		self:DrawShadowedTextPerc(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
 
-		render.SetScissorRect(0, 0, 0, 0, false)
+		render.PopScissorRect()
 
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen * 2, ScreenScale(1):max(1))
@@ -178,17 +179,18 @@ function FFGSHUD:PaintWeaponStats()
 		local lineY = (H + ScreenScale(10)) * fraction
 		local lineXLen = ScreenScale(120)
 
-		render.SetScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
+		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
 
 		self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, color_white)
 		self:DrawShadowedText(self.AmmoStored2, self.oldStored2AmmoText, x, y, color_white)
 
-		render.SetScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400, true)
+		render.PopScissorRect()
+		render.PushScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400, true)
 
 		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
 		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
 
-		render.SetScissorRect(0, 0, 0, 0, false)
+		render.PopScissorRect()
 
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen * 2, ScreenScale(1))

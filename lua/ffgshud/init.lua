@@ -63,7 +63,8 @@ FFGSHUD.Health = FFGSHUD:CreateScalableFont('Health', {
 
 FFGSHUD.Armor = FFGSHUD:CreateScalableFont('Armor', {
 	font = 'Exo 2',
-	size = 32,
+	size = 38,
+	weight = 600
 })
 
 FFGSHUD.TargetID_Name = FFGSHUD:CreateScalableFont('TargetID_Name', {
@@ -107,9 +108,9 @@ function FFGSHUD:DrawShadowedTextPerc(fontBase, text, x, y, color, perc, colorPe
 
 	local w, h = surface.GetTextSize(text)
 
-	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	render.PushScissorRect(x - w, y + h * (1 - perc), x + w, y + h)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
-	render.SetScissorRect(0, 0, 0, 0, false)
+	render.PopScissorRect()
 
 	return w, h
 end
@@ -123,15 +124,16 @@ function FFGSHUD:DrawShadowedTextPerc2(fontBase, text, x, y, color, perc, colorP
 
 	local w, h = surface.GetTextSize(text)
 
-	render.SetScissorRect(x - w, y, x + w, y + h * (1 - perc), true)
+	render.PushScissorRect(x - w, y, x + w, y + h * (1 - perc))
 
 	if perc ~= 1 then
 		HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
 	end
 
-	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	render.PopScissorRect()
+	render.PushScissorRect(x - w, y + h * (1 - perc), x + w, y + h)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
-	render.SetScissorRect(0, 0, 0, 0, false)
+	render.PopScissorRect()
 
 	return w, h
 end
@@ -146,13 +148,13 @@ function FFGSHUD:DrawShadowedTextPercInv2(fontBase, text, x, y, color, perc, col
 
 	local w, h = surface.GetTextSize(text)
 
-	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
-
+	render.PushScissorRect(x - w, y, x + w, y + h * perc)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	render.PopScissorRect()
 
-	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
+	render.PushScissorRect(x - w, y + h * perc, x + w, y + h)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
-	render.SetScissorRect(0, 0, 0, 0, false)
+	render.PopScissorRect()
 
 	return w, h
 end
@@ -165,13 +167,13 @@ function FFGSHUD:DrawShadowedTextPercCustomInv2(fontBase, text, x, y, color, sha
 
 	local w, h = surface.GetTextSize(text)
 
-	render.SetScissorRect(x - w, y, x + w, y + h * perc, true)
-
+	render.PushScissorRect(x - w, y, x + w, y + h * perc)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, colorPerc)
+	render.PopScissorRect()
 
-	render.SetScissorRect(x - w, y + h * perc, x + w, y + h, true)
+	render.PushScissorRect(x - w, y + h * perc, x + w, y + h)
 	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
-	render.SetScissorRect(0, 0, 0, 0, false)
+	render.PopScissorRect()
 
 	return w, h
 end
@@ -200,9 +202,52 @@ function FFGSHUD:DrawShadowedTextAlignedPerc(fontBase, text, x, y, color, perc, 
 		w, h = surface.GetTextSize(text)
 	end
 
-	render.SetScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	render.PushScissorRect(x - w, y + h * (1 - perc), x + w, y + h)
 	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, colorPerc)
-	render.SetScissorRect(0, 0, 0, 0, false)
+	render.PopScissorRect()
+
+	return w, h
+end
+
+function FFGSHUD:DrawShadowedTextAlignedPercInv2(fontBase, text, x, y, color, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+	color_black.a = color.a
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+	color_black.a = 255
+
+	local w, h
+
+	if perc ~= 1 then
+		w, h = HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+	else
+		w, h = surface.GetTextSize(text)
+	end
+
+	render.PushScissorRect(x - w, y + h * (1 - perc), x + w, y + h, true)
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, colorPerc)
+	render.PopScissorRect()
+
+	return w, h
+end
+
+function FFGSHUD:DrawShadowedTextAlignedPercCustomInv2(fontBase, text, x, y, color, shadowColor, perc, colorPerc)
+	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
+
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
+	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
+
+	local w, h
+
+	if perc ~= 1 then
+		w, h = HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+	else
+		w, h = surface.GetTextSize(text)
+	end
+
+	render.PushScissorRect(x - w, y + h * (1 - perc), x + w, y + h)
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, colorPerc)
+	render.PopScissorRect()
 
 	return w, h
 end
