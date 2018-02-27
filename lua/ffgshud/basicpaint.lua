@@ -92,19 +92,48 @@ local FillageColorAmmoShadow1 = Color(200, 0, 0)
 local FillageColorAmmoShadow2 = Color(FillageColorAmmoShadow1)
 local ShadowEmpty = Color(FillageColorAmmoShadow1)
 
+function FFGSHUD:PaintWeaponStatsSelect()
+
+end
+
+local function calculateSelectAlpha(self, time)
+	if self.tryToSelectWeaponFadeIn > time then
+		return (1 - (self.tryToSelectWeaponFadeIn - time)):progression(0, 0.5) * 100
+	elseif self.tryToSelectWeaponLast > time then
+		return 100
+	elseif self.tryToSelectWeaponLastEnd > time then
+		return (self.tryToSelectWeaponLastEnd - time):progression(0, 0.5) * 100
+	else
+		return 0
+	end
+
+	return 0
+end
+
+local function calculateHideAlpha(self, time)
+	if self.LastWeaponUpdateFadeOutEnd < time then return 0 end
+
+	if self.LastWeaponUpdateFadeOutStart > time then
+		return (1 - (self.LastWeaponUpdateFadeIn - time):progression(0, 0.5)) * 255
+	else
+		return (self.LastWeaponUpdateFadeOutEnd - time):progression(0, 0.5) * 255
+	end
+
+	return 0
+end
+
 function FFGSHUD:PaintWeaponStats()
 	if not self:HasWeapon() then
 		return
 	end
 
-	if self:CanHideAmmoCounter() then
-		if self.LastWeaponUpdateFadeOutEnd < RealTime() then return end
+	local time = RealTime()
+	local hide = self:CanHideAmmoCounter()
 
-		if self.LastWeaponUpdateFadeOutStart > RealTime() then
-			color_white.a = (1 - (self.LastWeaponUpdateFadeIn - RealTime()):progression(0, 0.5)) * 255
-		else
-			color_white.a = (self.LastWeaponUpdateFadeOutEnd - RealTime()):progression(0, 0.5) * 255
-		end
+	if self:CanDisplayWeaponSelect() and hide then
+		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time))
+	elseif hide then
+		color_white.a = calculateHideAlpha(self, time)
 	else
 		color_white.a = 255
 	end
@@ -177,9 +206,7 @@ function FFGSHUD:PaintWeaponStats()
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen * 2, ScreenScale(1):max(1))
 
-		if ammoReadyText ~= '' then
-			y = y + h * 0.83
-		end
+		y = y + h * 0.83
 	else
 		if fillage1 < 0.5 then
 			w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo)
@@ -193,9 +220,7 @@ function FFGSHUD:PaintWeaponStats()
 			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
 		end
 
-		if ammoReadyText ~= '' then
-			y = y + h * 0.83
-		end
+		y = y + h * 0.83
 	end
 
 	if self:PlayingStoredAmmoAnim() then
@@ -238,6 +263,7 @@ function FFGSHUD:PaintWeaponStats()
 
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen * 2, ScreenScale(1))
+		y = y + self.AmmoStored.REGULAR_SIZE_H
 	else
 		if ammoStoredText == 0 or ammoStoredText == '0' then
 			self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo, ShadowEmpty)
@@ -250,7 +276,15 @@ function FFGSHUD:PaintWeaponStats()
 		else
 			self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
 		end
+
+		y = y + self.AmmoStored.REGULAR_SIZE_H
 	end
+
+	local oX, oY = POS_WEAPONSTATS()
+	local diffX, diffY = oX - x, oY - y
+	x, y = x, oY - diffY
+
+	ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText2()
 end
 
 FFGSHUD:AddPaintHook('PaintPlayerStats')

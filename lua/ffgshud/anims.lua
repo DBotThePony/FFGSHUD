@@ -26,6 +26,11 @@ FFGSHUD.LastWeaponUpdateFadeIn = RealTime()
 FFGSHUD.LastWeaponUpdateFadeOutStart = RealTime()
 FFGSHUD.LastWeaponUpdateFadeOutEnd = RealTime()
 
+FFGSHUD.LastWeaponUpdate2 = RealTime()
+FFGSHUD.LastWeaponUpdateFadeIn2 = RealTime()
+FFGSHUD.LastWeaponUpdateFadeOutStart2 = RealTime()
+FFGSHUD.LastWeaponUpdateFadeOutEnd2 = RealTime()
+
 function FFGSHUD:PlayingStoredAmmoAnim()
 	return self.ammoStoredHUDAnimationTime > RealTime()
 end
@@ -53,6 +58,19 @@ local function changes(s, self, lply, old, new)
 
 	self.LastWeaponUpdateFadeOutStart = RealTime() + 3
 	self.LastWeaponUpdateFadeOutEnd = RealTime() + 3.5
+end
+
+local function changes2(s, self, lply, old, new)
+	self.LastWeaponUpdate2 = RealTime()
+
+	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart2 < RealTime() then
+		self.LastWeaponUpdateFadeIn2 = RealTime() + 0.5
+	else
+		self.LastWeaponUpdateFadeIn2 = RealTime() - 0.5
+	end
+
+	self.LastWeaponUpdateFadeOutStart2 = RealTime() + 1.5
+	self.LastWeaponUpdateFadeOutEnd2 = RealTime() + 2
 end
 
 function FFGSHUD:OnWeaponChanged(old, new)
@@ -107,6 +125,16 @@ FFGSHUD:SetOnChangeHook('clipMax2', changes)
 FFGSHUD:SetOnChangeHook('ammo1', changes)
 FFGSHUD:SetOnChangeHook('ammo2', changes)
 FFGSHUD:SetOnChangeHook('weaponName', changes)
+
+FFGSHUD:SetOnChangeHook('ammoType1_Select', changes2)
+FFGSHUD:SetOnChangeHook('ammoType2_Select', changes2)
+FFGSHUD:SetOnChangeHook('clip1_Select', changes2)
+FFGSHUD:SetOnChangeHook('clip2_Select', changes2)
+FFGSHUD:SetOnChangeHook('clipMax1_Select', changes2)
+FFGSHUD:SetOnChangeHook('clipMax2_Select', changes2)
+FFGSHUD:SetOnChangeHook('ammo1_Select', changes2)
+FFGSHUD:SetOnChangeHook('ammo2_Select', changes2)
+FFGSHUD:SetOnChangeHook('weaponName_Select', changes2)
 
 FFGSHUD:SetOnChangeHook('alive', function(s, self, ply, old, new)
 	if new then
