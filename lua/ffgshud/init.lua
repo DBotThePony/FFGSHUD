@@ -83,6 +83,15 @@ FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
 	size = 14,
 })
 
+FFGSHUD.BattleStats = FFGSHUD:CreateScalableFont('BattleStats', {
+	font = 'Roboto',
+	size = 34,
+})
+
+FFGSHUD.ICON_FRAGS = '♐'
+FFGSHUD.ICON_DEATHS = '☠'
+FFGSHUD.ICON_PING = '☍'
+
 local render = render
 
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
@@ -287,3 +296,4 @@ include('basicpaint.lua')
 include('functions.lua')
 include('targetid.lua')
 include('anims.lua')
+include('binfo.lua')

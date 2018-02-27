@@ -13,10 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-local FFGSHUD = FFGSHUD
+local self = FFGSHUD
 
-function FFGSHUD:InitVaribles()
-	self:RegisterRegularVariable('frags', 'Frags')
-	self:RegisterRegularVariable('deaths', 'Deaths')
-	self:RegisterRegularVariable('ping', 'Ping')
-end
+self:RegisterRegularVariable('frags', 'Frags')
+self:RegisterRegularVariable('deaths', 'Deaths')
+self:RegisterRegularVariable('ping', 'Ping')

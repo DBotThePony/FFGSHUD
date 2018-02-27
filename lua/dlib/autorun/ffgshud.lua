@@ -22,4 +22,5 @@ else
 	AddCSLuaFile('ffgshud/targetid.lua')
 	AddCSLuaFile('ffgshud/anims.lua')
 	AddCSLuaFile('ffgshud/functions.lua')
+	AddCSLuaFile('ffgshud/binfo.lua')
 end
