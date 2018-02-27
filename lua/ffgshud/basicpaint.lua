@@ -89,12 +89,13 @@ local color_white = Color()
 
 local FillageColorAmmo = Color(80, 80, 80)
 local FillageColorAmmoShadow1 = Color(200, 0, 0)
+
+local FillageColorAmmo_Select = Color(FillageColorAmmo)
+local FillageColorAmmoShadow1_Select = Color(FillageColorAmmoShadow1)
 local FillageColorAmmoShadow2 = Color(FillageColorAmmoShadow1)
+local FillageColorAmmoShadow2_Select = Color(FillageColorAmmoShadow1)
 local ShadowEmpty = Color(FillageColorAmmoShadow1)
-
-function FFGSHUD:PaintWeaponStatsSelect()
-
-end
+local ShadowEmpty_Select = Color(FillageColorAmmoShadow1)
 
 local function calculateSelectAlpha(self, time)
 	if self.tryToSelectWeaponFadeIn > time then
@@ -215,7 +216,7 @@ function FFGSHUD:PaintWeaponStats()
 		end
 
 		if fillage2 < 0.5 then
-			self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage1, FillageColorAmmo)
+			self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColorAmmo)
 		else
 			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
 		end
@@ -280,11 +281,71 @@ function FFGSHUD:PaintWeaponStats()
 		y = y + self.AmmoStored.REGULAR_SIZE_H
 	end
 
+	if not self:CanDisplayWeaponSelect() then return end
+
+	if not hide then
+		color_white.a = 100
+	else
+		color_white.a = color_white.a:min(100)
+	end
+
 	local oX, oY = POS_WEAPONSTATS()
 	local diffX, diffY = oX - x, oY - y
-	x, y = x, oY - diffY
+	x, y = x, oY + diffY
 
 	ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText2()
+
+	fillage1 = 1 - self:GetAmmoFillage1_Select()
+	fillage2 = 1 - self:GetAmmoFillage2_Select()
+
+	ShadowEmpty_Select.a = color_white.a
+	FillageColorAmmo_Select.a = color_white.a
+	local multAlpha = math.Clamp(color_white.a / 100, 0, 1)
+
+	if fillage1 == 0 then
+		FillageColorAmmoShadow1_Select.r = 0
+	elseif fillage1 == 1 then
+		FillageColorAmmoShadow1_Select.r = 200
+	else
+		FillageColorAmmoShadow1_Select.r = (math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 130) * multAlpha
+	end
+
+	if fillage2 == 0 then
+		FillageColorAmmoShadow2_Select.r = 0
+	elseif fillage2 == 1 then
+		FillageColorAmmoShadow2_Select.r = 200
+	else
+		FillageColorAmmoShadow2_Select.r = (math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 130) * multAlpha
+	end
+
+	w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName_Select(), x, y, color_white)
+	y = y + h * 0.83
+
+	if fillage1 < 0.5 then
+		w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo_Select)
+	else
+		w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, color_white, FillageColorAmmoShadow1_Select, fillage1, FillageColorAmmo_Select)
+	end
+
+	if fillage2 < 0.5 then
+		self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColorAmmo_Select)
+	else
+		self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2_Select, fillage2, FillageColorAmmo_Select)
+	end
+
+	y = y + h * 0.83
+
+	if ammoStoredText == 0 or ammoStoredText == '0' then
+		self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo_Select, ShadowEmpty_Select)
+	else
+		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+	end
+
+	if stored2AmmoText == 0 or stored2AmmoText == '/0' then
+		self:DrawShadowedTextCustom(self.AmmoStored2, stored2AmmoText, x, y, FillageColorAmmo_Select, ShadowEmpty_Select)
+	else
+		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
+	end
 end
 
 FFGSHUD:AddPaintHook('PaintPlayerStats')

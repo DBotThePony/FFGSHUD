@@ -84,13 +84,13 @@ function FFGSHUD:GetAmmoDisplayText2()
 		if self:ShouldDisplayAmmoStored2() then
 			ammoStoredText = self:GetVarAmmo1_Select()
 
-			if self:GetVarClipMax1() < self:GetVarClip1() then
+			if self:GetVarClipMax1_Select() < self:GetVarClip1_Select() then
 				ammoReadyText = ('%i+%i'):format(self:GetVarClipMax1_Select(), self:GetVarClip1_Select() - self:GetVarClipMax1_Select())
 			else
 				ammoReadyText = ('%i'):format(self:GetVarClip1_Select())
 			end
 
-			if self:ShouldDisplaySecondaryAmmo() then
+			if self:ShouldDisplaySecondaryAmmo2() then
 				local ready = self:SelectSecondaryAmmoReady2()
 				local stored = self:SelectSecondaryAmmoStored2()
 
@@ -120,7 +120,7 @@ function FFGSHUD:GetAmmoDisplayText2()
 	end
 
 	if ammoStoredText ~= '' and ammoStoredText < 0 then
-		ammoStoredText = self:GetVarAmmo2()
+		ammoStoredText = self:GetVarAmmo2_Select()
 		stored2AmmoText = ''
 
 		if ammoStoredText < 0 then
@@ -132,7 +132,7 @@ function FFGSHUD:GetAmmoDisplayText2()
 end
 
 function FFGSHUD:CanDisplayWeaponSelect()
-	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeaponLastEnd > RealTime()
+	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeapon ~= self:GetWeapon() and self.tryToSelectWeaponLastEnd > RealTime()
 end
 
 function FFGSHUD:CanHideAmmoCounter()
