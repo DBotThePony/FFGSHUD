@@ -174,7 +174,7 @@ function FFGSHUD:PaintWeaponStats()
 		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY)
 
 		if fillage1 < 0.5 then
-			w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo)
+			w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo)
 		else
 			w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, color_white, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
 		end
