@@ -131,7 +131,7 @@ function FFGSHUD:PaintWeaponStats()
 	local time = RealTime()
 	local hide = self:CanHideAmmoCounter()
 
-	if self:CanDisplayWeaponSelect() and hide then
+	if self:CanDisplayWeaponSelect2() and hide then
 		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time))
 	elseif hide then
 		color_white.a = calculateHideAlpha(self, time)

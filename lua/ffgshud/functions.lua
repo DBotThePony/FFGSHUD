@@ -135,6 +135,10 @@ function FFGSHUD:CanDisplayWeaponSelect()
 	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeapon ~= self:GetWeapon() and self.tryToSelectWeaponLastEnd > RealTime()
 end
 
+function FFGSHUD:CanDisplayWeaponSelect2()
+	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeaponLastEnd > RealTime()
+end
+
 function FFGSHUD:CanHideAmmoCounter()
 	return self:GetVarClipMax1() <= self:GetVarClip1() and self:GetVarClipMax2() <= self:GetVarClip2()
 end
