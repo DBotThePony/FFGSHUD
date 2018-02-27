@@ -19,6 +19,46 @@ local HUDCommons = DLib.HUDCommons
 local POS_STATS = FFGSHUD:DefinePosition('battlestats', 0.87, 0.12)
 local color_white = Color()
 local ScreenScale = ScreenScale
+local hook = hook
+local amount = amount
+
+local toDraw = {}
+local toDraw2 = {}
+
+local function addLines(...)
+	local amount = select('#', ...)
+
+	for i = 1, amount do
+		table.insert(toDraw, select(i, ...))
+	end
+end
+
+local function addLines2(...)
+	local amount = select('#', ...)
+
+	for i = 1, amount do
+		table.insert(toDraw2, select(i, ...))
+	end
+end
+
+local function doDrawLines(self, x, y)
+	local drawn = toDraw
+	local drawn2 = toDraw2
+	toDraw = {}
+	toDraw2 = {}
+
+	for i = 1, #drawn do
+		local w, h = self:DrawShadowedText(self.BattleStats, drawn[i], x + spacing, y, color_white)
+		y = y + h * 0.83
+	end
+
+	for i = 1, #drawn2 do
+		local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn[i], x + spacing, y, color_white)
+		y = y + h * 0.83
+	end
+
+	return x, y
+end
 
 function FFGSHUD:DrawBattleStats()
 	if not self:GetVarAlive() then
@@ -27,7 +67,12 @@ function FFGSHUD:DrawBattleStats()
 
 	local spacing = ScreenScale(4)
 	local x, y = POS_STATS()
-	local w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarFrags(), x, y, color_white)
+	local w, h
+
+	hook.Run('FFGSHUD_AddStatsLines_Pre', addLines, addLines2, self)
+	x, y = doDrawLines(self, x, y)
+
+	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarFrags(), x, y, color_white)
 	self:DrawShadowedText(self.BattleStats, self.ICON_FRAGS, x + spacing, y, color_white)
 	y = y + h * 0.83
 	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarDeaths(), x, y, color_white)
@@ -36,6 +81,9 @@ function FFGSHUD:DrawBattleStats()
 	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarPing(), x, y, color_white)
 	self:DrawShadowedText(self.BattleStats, self.ICON_PING, x + spacing, y, color_white)
 	y = y + h * 0.83
+
+	hook.Run('FFGSHUD_AddStatsLines_Post', addLines, addLines2, self)
+	x, y = doDrawLines(self, x, y)
 end
 
 FFGSHUD:AddPaintHook('DrawBattleStats')
