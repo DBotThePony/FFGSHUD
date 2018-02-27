@@ -112,7 +112,7 @@ local function calculateSelectAlpha(self, time)
 end
 
 local function calculateHideAlpha(self, time)
-	if self.LastWeaponUpdateFadeOutEnd < time then return 0 end
+	if self.LastWeaponUpdateFadeOutEnd < time then return false end
 
 	if self.LastWeaponUpdateFadeOutStart > time then
 		return (1 - (self.LastWeaponUpdateFadeIn - time):progression(0, 0.5)) * 255
@@ -120,7 +120,7 @@ local function calculateHideAlpha(self, time)
 		return (self.LastWeaponUpdateFadeOutEnd - time):progression(0, 0.5) * 255
 	end
 
-	return 0
+	return false
 end
 
 function FFGSHUD:PaintWeaponStats()
@@ -132,9 +132,11 @@ function FFGSHUD:PaintWeaponStats()
 	local hide = self:CanHideAmmoCounter()
 
 	if self:CanDisplayWeaponSelect2() and hide then
-		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time))
+		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time) or 0)
 	elseif hide then
-		color_white.a = calculateHideAlpha(self, time)
+		local getValue = calculateHideAlpha(self, time)
+		if getValue == false then return end
+		color_white.a = getValue
 	else
 		color_white.a = 255
 	end
