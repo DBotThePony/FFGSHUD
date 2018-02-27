@@ -70,9 +70,9 @@ function FFGSHUD:OnWeaponChanged(old, new)
 	self.animateAmmoHUD = true
 	self.ammoHUDAnimationTime = RealTime() + 0.4
 	self.oldReadyAmmoString = ammoReadyText
-	self.oldReadyAmmoPerc = self:GetAmmoFillage1()
+	self.oldReadyAmmoPerc = 1 - self:GetAmmoFillage1()
 	self.oldReady2AmmoString = clip2AmmoText
-	self.oldReady2AmmoPerc = self:GetAmmoFillage2()
+	self.oldReady2AmmoPerc = 1 - self:GetAmmoFillage2()
 	changes(nil, self)
 end
 

@@ -42,12 +42,12 @@ function FFGSHUD:PaintPlayerStats()
 		if self.deathAnimTimeFadeStart > time then
 			FillageColorHealthShadowStatic.a = 255
 			FillageColorHealthStatic.a = 255
-			self:DrawShadowedTextPercCustomInv2(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
 		elseif self.deathAnimTimeFadeEnd > time then
 			local perc = (self.deathAnimTimeFadeEnd - time):progression(0, 2) * 255
 			FillageColorHealthShadowStatic.a = perc
 			FillageColorHealthStatic.a = perc
-			self:DrawShadowedTextPercCustomInv2(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
 		else
 			return
 		end
@@ -74,10 +74,10 @@ function FFGSHUD:PaintPlayerStats()
 	end
 
 	if fillage < 0.5 then
-		w, h = self:DrawShadowedTextPercInv2(self.Health, self:GetVarHealth(), x, y, color_white, fillage, FillageColorHealth)
+		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, color_white, fillage, FillageColorHealth)
 	else
 		FillageColorHealthShadow.r = math.sin(RealTimeAnim() * fillage * 30) * 64 + 130
-		w, h = self:DrawShadowedTextPercCustomInv2(self.Health, self:GetVarHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
+		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
 	end
 
 	y = y + h * 0.89
@@ -86,8 +86,11 @@ function FFGSHUD:PaintPlayerStats()
 end
 
 local color_white = Color()
-local FillageColor1 = Color(255, 80, 80, 255)
-local FillageColor2 = Color(255, 80, 80, 255)
+
+local FillageColorAmmo = Color(80, 80, 80)
+local FillageColorAmmoShadow1 = Color(200, 0, 0)
+local FillageColorAmmoShadow2 = Color(FillageColorAmmoShadow1)
+local ShadowEmpty = Color(FillageColorAmmoShadow1)
 
 function FFGSHUD:PaintWeaponStats()
 	if not self:HasWeapon() then
@@ -116,25 +119,19 @@ function FFGSHUD:PaintWeaponStats()
 	local fillage2 = 1 - self:GetAmmoFillage2()
 
 	if fillage1 == 0 then
-		FillageColor1.r = 0
-		FillageColor1.a = 0
+		FillageColorAmmoShadow1.r = 0
 	elseif fillage1 == 1 then
-		FillageColor1.r = 230
-		FillageColor1.a = 230
+		FillageColorAmmoShadow1.r = 200
 	else
-		FillageColor1.r = 230
-		FillageColor1.a = math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 160
+		FillageColorAmmoShadow1.r = math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 130
 	end
 
 	if fillage2 == 0 then
-		FillageColor2.r = 0
-		FillageColor2.a = 0
+		FillageColorAmmoShadow2.r = 0
 	elseif fillage2 == 1 then
-		FillageColor2.r = 230
-		FillageColor2.a = 230
+		FillageColorAmmoShadow2.r = 200
 	else
-		FillageColor2.r = 230
-		FillageColor2.a = math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 160
+		FillageColorAmmoShadow2.r = math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 130
 	end
 
 	if self:PlayingReadyAmmoAnim() then
@@ -146,14 +143,34 @@ function FFGSHUD:PaintWeaponStats()
 
 		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY)
 
-		w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColor1)
-		self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
+		if fillage1 < 0.5 then
+			w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo)
+		else
+			w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, color_white, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
+		end
+
+		if fillage2 < 0.5 then
+			self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColorAmmo)
+		else
+			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
+		end
 
 		render.PopScissorRect()
 		render.PushScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400)
 
-		self:DrawShadowedTextAlignedPerc(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white, fillage1, FillageColor1)
-		self:DrawShadowedTextPerc(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
+		if self.oldReadyAmmoPerc < 0.5 then
+			self:DrawShadowedTextAlignedPerc(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white, self.oldReadyAmmoPerc, FillageColorAmmo)
+		else
+			FillageColorAmmoShadow1.r = math.sin(RealTimeAnim() * self.oldReadyAmmoPerc * 30) * 64 + 130
+			self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, self.oldReadyAmmoString, x, y, color_white, FillageColorAmmoShadow1, self.oldReadyAmmoPerc, FillageColorAmmo)
+		end
+
+		if self.oldReady2AmmoPerc < 0.5 then
+			self:DrawShadowedTextPerc(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, self.oldReady2AmmoPerc, FillageColorAmmo)
+		else
+			FillageColorAmmoShadow2.r = math.sin(RealTimeAnim() * self.oldReady2AmmoPerc * 30) * 64 + 130
+			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2, self.oldReady2AmmoPerc, FillageColorAmmo)
+		end
 
 		render.PopScissorRect()
 
@@ -164,8 +181,17 @@ function FFGSHUD:PaintWeaponStats()
 			y = y + h * 0.83
 		end
 	else
-		w, h = self:DrawShadowedTextAlignedPerc(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColor1)
-		self:DrawShadowedTextPerc(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage2, FillageColor2)
+		if fillage1 < 0.5 then
+			w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, color_white, fillage1, FillageColorAmmo)
+		else
+			w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, color_white, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
+		end
+
+		if fillage2 < 0.5 then
+			self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, fillage1, FillageColorAmmo)
+		else
+			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, color_white, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
+		end
 
 		if ammoReadyText ~= '' then
 			y = y + h * 0.83
@@ -179,24 +205,51 @@ function FFGSHUD:PaintWeaponStats()
 		local lineY = (H + ScreenScale(10)) * fraction
 		local lineXLen = ScreenScale(120)
 
-		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY, true)
+		render.PushScissorRect(x - lineXLen, y, x + lineXLen, y + lineY)
 
-		self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, color_white)
-		self:DrawShadowedText(self.AmmoStored2, self.oldStored2AmmoText, x, y, color_white)
+		if self.oldStoredAmmoString == 0 or self.oldStoredAmmoString == '0' then
+			self:DrawShadowedTextAlignedCustom(self.AmmoStored, self.oldStoredAmmoString, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, color_white)
+		end
+
+		if self.oldStored2AmmoText == 0 or self.oldStored2AmmoText == '0' then
+			self:DrawShadowedTextCustom(self.AmmoStored2, self.oldStored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedText(self.AmmoStored2, self.oldStored2AmmoText, x, y, color_white)
+		end
 
 		render.PopScissorRect()
-		render.PushScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400, true)
+		render.PushScissorRect(x - lineXLen, y + lineY, x + lineXLen, y + 400)
 
-		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
-		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
+		if ammoStoredText == 0 or ammoStoredText == '0' then
+			self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+		end
+
+		if stored2AmmoText == 0 or stored2AmmoText == '/0' then
+			self:DrawShadowedTextCustom(self.AmmoStored2, stored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
+		end
 
 		render.PopScissorRect()
 
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(x - lineXLen, y + lineY, lineXLen * 2, ScreenScale(1))
 	else
-		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
-		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
+		if ammoStoredText == 0 or ammoStoredText == '0' then
+			self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, color_white)
+		end
+
+		if stored2AmmoText == 0 or stored2AmmoText == '/0' then
+			self:DrawShadowedTextCustom(self.AmmoStored2, stored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
+		else
+			self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, color_white)
+		end
 	end
 end
 
