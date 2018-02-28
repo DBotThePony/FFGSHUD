@@ -136,7 +136,7 @@ FFGSHUD:SetOnChangeHook('ammo1_Select', changes2)
 FFGSHUD:SetOnChangeHook('ammo2_Select', changes2)
 FFGSHUD:SetOnChangeHook('weaponName_Select', changes2)
 
-FFGSHUD:SetOnChangeHook('alive', function(s, self, ply, old, new)
+FFGSHUD:PatchOnChangeHook('alive', function(s, self, ply, old, new)
 	if new then
 		self.isPlayingDeathAnim = false
 	else
