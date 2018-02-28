@@ -75,9 +75,9 @@ local function generateGlitches(iterations)
 	local rTime = RealTime()
 	local w, h = ScrW(), ScrH()
 	local initial = (rTime / repeats):floor()
-	minCut = ScreenScale(20)
-	maxCut = ScreenScale(40)
-	maxStrength = ScreenScale(15)
+	minCut = ScreenScale(7)
+	maxCut = ScreenScale(16)
+	maxStrength = ScreenScale(10)
 	maxDistort = ScreenScale(6)
 
 	for i = 1, iterations do
@@ -101,20 +101,21 @@ local function generateGlitches(iterations)
 		local lastStrength
 		local g = 0
 
+		-- generate
 		while ty < h do
 			g = g + 1
 			if g > 200 then break end -- wtf
 			local height = util.SharedRandom('ffgs_hud_glitch_ycut', minCut, maxCut, lookupSeed + g)
 			local strengthValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xStrength, data.yStrength + data.xStrength, lookupSeed + g)
-			local distortValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xDistort, data.yDistort + data.xDistort, lookupSeed + g)
+			local distortValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xDistort * 0.25, data.xDistort, lookupSeed + g)
 			lastStrength = lastStrength or strengthValue
-			strengthValue = LerpCubic(height / h, strengthValue, lastStrength)
+			strengthValue = LerpCubic(h / (height + 1 + ty), strengthValue, lastStrength)
 			lastStrength = strengthValue
 
 			local iteration = {
 				ty,
 				height,
-				strengthValue
+				strengthValue + lastStrength
 			}
 
 			iteration[4] = 0
@@ -127,8 +128,11 @@ local function generateGlitches(iterations)
 			table.insert(data.iterations, iteration)
 
 			ty = ty + height
+			iteration[2] = iteration[2] + util.SharedRandom('ffgs_hud_glitch_ycutRand', -minCut, minCut, lookupSeed + g) * 0.65
 			if ty >= h then break end
 		end
+
+		-- smooth
 	end
 
 	return glitchPattern
