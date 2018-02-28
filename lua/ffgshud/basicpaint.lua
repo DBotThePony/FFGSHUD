@@ -29,6 +29,8 @@ local FillageColorHealth = Color(80, 80, 80)
 local FillageColorHealthStatic = Color(80, 80, 80)
 local FillageColorHealthShadow = Color(230, 0, 0)
 local FillageColorHealthShadowStatic = Color(230, 0, 0)
+local FillageShield = Color(177, 255, 252)
+local FillageShieldShadow = Color(39, 225, 247, 200)
 local pi = math.pi * 16
 local function RealTimeAnim()
 	return RealTime() % pi
@@ -58,7 +60,8 @@ function FFGSHUD:PaintPlayerStats()
 	end
 
 	local x, y = POS_PLAYERSTATS()
-	local w, h = self:DrawShadowedText(self.PlayerName, self:GetVarNick(), x, y, color_white)
+	local fillageArmor = self:GetVarArmor() / self:GetVarMaxArmor()
+	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, color_white, fillageArmor:min(1), FillageShield, FillageShieldShadow)
 	y = y + h * 0.83
 
 	local mhp = self:GetVarMaxHealth()
@@ -82,7 +85,13 @@ function FFGSHUD:PaintPlayerStats()
 
 	y = y + h * 0.89
 
-	self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, color_white)
+	if self:GetVarArmor() > 0 then
+		if self:GetVarMaxArmor() ~= 100 then
+			self:DrawShadowedText(self.Armor, ('%i/%i'):format(self:GetVarArmor(), self:GetVarMaxArmor()), x, y, color_white)
+		else
+			self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, color_white)
+		end
+	end
 end
 
 local color_white = Color()
