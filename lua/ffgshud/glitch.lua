@@ -62,12 +62,12 @@ end)
 
 local glitchPattern = {}
 
-local maxStrength = 20
-local maxDistort = 6
+local maxStrength = 6
+local maxDistort = 4
 local minCut = 30
 local maxCut = 120
 
-local repeats = 0.1
+local repeats = 0.04
 local rndInt = math.random(1, 1000)
 
 local function generateGlitches(iterations)
@@ -106,8 +106,8 @@ local function generateGlitches(iterations)
 			g = g + 1
 			if g > 200 then break end -- wtf
 			local height = util.SharedRandom('ffgs_hud_glitch_ycut', minCut, maxCut, lookupSeed + g)
-			local strengthValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xStrength, data.yStrength + data.xStrength, lookupSeed + g)
-			local distortValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xDistort * 0.25, data.xDistort, lookupSeed + g)
+			local strengthValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xStrength, data.yStrength + data.xStrength, lookupSeed + g) * 0.4
+			local distortValue = util.SharedRandom('ffgs_hud_glitch_xdistort2', data.xDistort * 0.25, data.xDistort, lookupSeed + g)
 			lastStrength = lastStrength or strengthValue
 			strengthValue = LerpCubic(h / (height + 1 + ty), strengthValue, lastStrength)
 			lastStrength = strengthValue
