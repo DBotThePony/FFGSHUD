@@ -13,18 +13,17 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-if CLIENT then
-	include('ffgshud/init.lua')
-	return
+local FFGSHUD = FFGSHUD
+local net = net
+local RealTime = RealTime
+
+local function onDamge()
+	local dmgType = net.ReadUInt64()
+	local dmg = net.ReadFloat()
+
+	FFGSHUD:TriggerGlitch(math.Clamp(dmg / 5, 0, 3))
 end
 
-AddCSLuaFile('ffgshud/init.lua')
-AddCSLuaFile('ffgshud/vars.lua')
-AddCSLuaFile('ffgshud/basicpaint.lua')
-AddCSLuaFile('ffgshud/targetid.lua')
-AddCSLuaFile('ffgshud/anims.lua')
-AddCSLuaFile('ffgshud/functions.lua')
-AddCSLuaFile('ffgshud/binfo.lua')
-AddCSLuaFile('ffgshud/dmgtrack.lua')
-AddCSLuaFile('ffgshud/glitch.lua')
-include('ffgshud/sv/dmgtrack.lua')
+net.receive('ffgs.damagereceived', onDamge)
+
+-- TODO: Damage Sense

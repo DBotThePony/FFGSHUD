@@ -13,18 +13,19 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-if CLIENT then
-	include('ffgshud/init.lua')
-	return
+local net = net
+
+net.pool('ffgs.damagereceived')
+local IsValid = FindMetaTable('Entity').IsValid
+
+local function EntityTakeDamage(self, dmg)
+	if not IsValid(self) then return end
+	if not self:IsPlayer() then return end
+
+	net.Start('ffgs.damagereceived')
+	net.WriteUInt64(dmg:GetDamageType() or 0)
+	net.WriteFloat(dmg:GetDamage())
+	net.Send(self)
 end
 
-AddCSLuaFile('ffgshud/init.lua')
-AddCSLuaFile('ffgshud/vars.lua')
-AddCSLuaFile('ffgshud/basicpaint.lua')
-AddCSLuaFile('ffgshud/targetid.lua')
-AddCSLuaFile('ffgshud/anims.lua')
-AddCSLuaFile('ffgshud/functions.lua')
-AddCSLuaFile('ffgshud/binfo.lua')
-AddCSLuaFile('ffgshud/dmgtrack.lua')
-AddCSLuaFile('ffgshud/glitch.lua')
-include('ffgshud/sv/dmgtrack.lua')
+hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage)
