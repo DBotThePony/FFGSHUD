@@ -21,7 +21,7 @@ local function onDamge()
 	local dmgType = net.ReadUInt64()
 	local dmg = net.ReadFloat()
 
-	FFGSHUD:TriggerGlitch(math.Clamp(dmg / 5, 0, 3))
+	FFGSHUD:ExtendGlitch(math.Clamp(dmg / 15, 0, 3))
 end
 
 net.receive('ffgs.damagereceived', onDamge)
