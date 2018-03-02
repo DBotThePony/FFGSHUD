@@ -13,19 +13,19 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-if CLIENT then
-	include('ffgshud/init.lua')
-	return
+local FFGSHUD = FFGSHUD
+local HUDCommons = DLib.HUDCommons
+
+local POS_VEHICLESTATS = FFGSHUD:DefinePosition('playerstats', 0.07, 0.66)
+local color_white = Color()
+
+function FFGSHUD:DrawVehicleInfo()
+	if not self:GetVarAlive() then return end
+	if self:GetVarVehicleName() == '' then return end
+
+	local x, y = POS_VEHICLESTATS()
+
+	self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, color_white)
 end
 
-AddCSLuaFile('ffgshud/init.lua')
-AddCSLuaFile('ffgshud/vars.lua')
-AddCSLuaFile('ffgshud/basicpaint.lua')
-AddCSLuaFile('ffgshud/targetid.lua')
-AddCSLuaFile('ffgshud/anims.lua')
-AddCSLuaFile('ffgshud/functions.lua')
-AddCSLuaFile('ffgshud/binfo.lua')
-AddCSLuaFile('ffgshud/dmgtrack.lua')
-AddCSLuaFile('ffgshud/glitch.lua')
-AddCSLuaFile('ffgshud/vehicle.lua')
-include('ffgshud/sv/dmgtrack.lua')
+FFGSHUD:AddPaintHook('DrawVehicleInfo')

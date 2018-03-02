@@ -326,6 +326,15 @@ function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
 	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 end
 
+for k, v in pairs(FFGSHUD) do
+	if type(k) == 'string' and k:startsWith('DrawShadowedText') then
+		FFGSHUD[k .. 'Up'] = function(self, fontBase, text, x, y, ...)
+			y = y - fontBase.REGULAR_SIZE_H
+			return v(self, fontBase, text, x, y, ...)
+		end
+	end
+end
+
 function FFGSHUD:HUDShouldDraw(target)
 	if
 		target == 'CHudAmmo' or
@@ -342,6 +351,7 @@ FFGSHUD:AddHook('HUDShouldDraw')
 
 include('vars.lua')
 include('basicpaint.lua')
+include('vehicle.lua')
 include('functions.lua')
 include('targetid.lua')
 include('anims.lua')
