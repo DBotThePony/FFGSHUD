@@ -16,8 +16,17 @@
 local FFGSHUD = FFGSHUD
 local HUDCommons = DLib.HUDCommons
 
-local POS_VEHICLESTATS = FFGSHUD:DefinePosition('playerstats', 0.07, 0.66)
+local POS_VEHICLESTATS = FFGSHUD:DefinePosition('vehiclestats', 0.07, 0.63)
 local color_white = Color()
+local FillageColorHealth = Color(80, 80, 80)
+local FillageColorHealthShadow = Color(230, 0, 0)
+
+local math = math
+local RealTime = RealTime
+local pi = math.pi * 16
+local function RealTimeAnim()
+	return RealTime() % pi
+end
 
 function FFGSHUD:DrawVehicleInfo()
 	if not self:GetVarAlive() then return end
@@ -25,7 +34,21 @@ function FFGSHUD:DrawVehicleInfo()
 
 	local x, y = POS_VEHICLESTATS()
 
-	self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, color_white)
+	local w, h = self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, color_white)
+	y = y - h * 0.83
+
+	local fillage = 1 - self:GetVehicleHealthFillage()
+
+	if self:GetVarVehicleMaxHealth() > 0 then
+		if fillage < 0.5 then
+			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white, fillage, FillageColorHealth)
+		else
+			FillageColorHealthShadow.a = math.sin(RealTimeAnim() * fillage * 30) * 64 + 130
+			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
+		end
+	elseif self:GetVarVehicleHealth() > 0 then
+		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white)
+	end
 end
 
 FFGSHUD:AddPaintHook('DrawVehicleInfo')

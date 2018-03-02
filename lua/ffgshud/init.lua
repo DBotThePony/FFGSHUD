@@ -61,6 +61,12 @@ FFGSHUD.Health = FFGSHUD:CreateScalableFont('Health', {
 	weight = 600
 })
 
+FFGSHUD.VehicleHealth = FFGSHUD:CreateScalableFont('VehicleHealth', {
+	font = 'PT Mono',
+	size = 64,
+	weight = 600
+})
+
 FFGSHUD.Armor = FFGSHUD:CreateScalableFont('Armor', {
 	font = 'Exo 2',
 	size = 38,
