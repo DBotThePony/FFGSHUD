@@ -22,7 +22,7 @@ local function onDamge()
 	local dmg = net.ReadFloat()
 
 	FFGSHUD:ExtendGlitch(dmg / 12.5)
-	FFGSHUD:ClampGlitchTime(8)
+	FFGSHUD:ClampGlitchTime(1)
 end
 
 net.receive('ffgs.damagereceived', onDamge)

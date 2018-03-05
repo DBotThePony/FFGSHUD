@@ -25,12 +25,13 @@ local ScreenScale = ScreenScale
 local RealTime = RealTime
 local math = math
 
-local FillageColorHealth = Color(80, 80, 80)
-local FillageColorHealthStatic = Color(80, 80, 80)
-local FillageColorHealthShadow = Color(230, 0, 0)
-local FillageColorHealthShadowStatic = Color(230, 0, 0)
-local FillageShield = Color(177, 255, 252)
-local FillageShieldShadow = Color(39, 225, 247, 200)
+local FillageColorHealth = FFGSHUD:CreateColorN('fillage_hp', 'Fillage Color for HP', Color(80, 80, 80))
+local FillageColorHealthStatic = FFGSHUD:CreateColorN('fillage_hp_s', 'Fillage Color for HP (Static)', Color(80, 80, 80))
+local FillageColorHealthShadow = FFGSHUD:CreateColorN('fillage_hp_sh', 'Fillage Color for HP Shadow', Color(230, 0, 0))
+local FillageColorHealthShadowStatic = FFGSHUD:CreateColorN('fillage_hp_shs', 'Fillage Color for HP Shadow (Static)', Color(230, 0, 0))
+local FillageShield = FFGSHUD:CreateColorN('fillage_shield', 'Fillage Color for Armor', Color(177, 255, 252))
+local FillageShieldShadow = FFGSHUD:CreateColorN('fillage_shield_s', 'Fillage Color for Armor Shadow', Color(39, 225, 247, 200))
+
 local pi = math.pi * 16
 local function RealTimeAnim()
 	return RealTime() % pi
@@ -42,14 +43,14 @@ function FFGSHUD:PaintPlayerStats()
 		local time = RealTime()
 
 		if self.deathAnimTimeFadeStart > time then
-			FillageColorHealthShadowStatic.a = 255
-			FillageColorHealthStatic.a = 255
-			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+			FillageColorHealthShadowStatic(255)
+			FillageColorHealthStatic(255)
+			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic(), 1, FillageColorHealthStatic())
 		elseif self.deathAnimTimeFadeEnd > time then
 			local perc = (self.deathAnimTimeFadeEnd - time):progression(0, 2) * 255
-			FillageColorHealthShadowStatic.a = perc
-			FillageColorHealthStatic.a = perc
-			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic, 1, FillageColorHealthStatic)
+			FillageColorHealthShadowStatic(perc)
+			FillageColorHealthStatic(perc)
+			self:DrawShadowedTextPercCustomInv(self.Health, 0, x, y + self.PlayerName.REGULAR_SIZE_H, color_white, FillageColorHealthShadowStatic(), 1, FillageColorHealthStatic())
 		else
 			return
 		end
@@ -61,7 +62,7 @@ function FFGSHUD:PaintPlayerStats()
 
 	local x, y = POS_PLAYERSTATS()
 	local fillageArmor = self:GetVarArmor() / self:GetVarMaxArmor()
-	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, color_white, fillageArmor:min(1), FillageShield, FillageShieldShadow)
+	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, color_white, fillageArmor:min(1), FillageShield(), FillageShieldShadow())
 	y = y + h * 0.83
 
 	local mhp = self:GetVarMaxHealth()
@@ -69,18 +70,17 @@ function FFGSHUD:PaintPlayerStats()
 	local fillage = 1 - math.min(1, self:GetVarHealth() / mhp)
 
 	if fillage == 0 then
-		FillageColorHealth.a = 0
+		FillageColorHealth(0)
 	elseif fillage == 1 then
-		FillageColorHealth.a = 255
+		FillageColorHealth(255)
 	else
-		FillageColorHealth.a = 255
+		FillageColorHealth(255)
 	end
 
 	if fillage < 0.5 then
-		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, color_white, fillage, FillageColorHealth)
+		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, color_white, fillage, FillageColorHealth())
 	else
-		FillageColorHealthShadow.r = math.sin(RealTimeAnim() * fillage * 30) * 64 + 130
-		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
+		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, color_white, FillageColorHealthShadow():SetRed(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
 	end
 
 	y = y + h * 0.89
@@ -96,15 +96,15 @@ end
 
 local color_white = Color()
 
-local FillageColorAmmo = Color(80, 80, 80)
-local FillageColorAmmoShadow1 = Color(200, 0, 0)
+local FillageColorAmmo = 				FFGSHUD:CreateColorN2('fillage_ammo', 'Fillage Color for Ammo', Color(80, 80, 80))
+local FillageColorAmmoShadow1 = 		FFGSHUD:CreateColorN2('fillage_ammo_s', 'Fillage Color for Ammo Shadow', Color(200, 0, 0))
 
-local FillageColorAmmo_Select = Color(FillageColorAmmo)
-local FillageColorAmmoShadow1_Select = Color(FillageColorAmmoShadow1)
-local FillageColorAmmoShadow2 = Color(FillageColorAmmoShadow1)
-local FillageColorAmmoShadow2_Select = Color(FillageColorAmmoShadow1)
-local ShadowEmpty = Color(FillageColorAmmoShadow1)
-local ShadowEmpty_Select = Color(FillageColorAmmoShadow1)
+local FillageColorAmmo_Select = 		FFGSHUD:CreateColorN2('fillage_ammo_se', 'Fillage Color for Ammo Select', FillageColorAmmo)
+local FillageColorAmmoShadow1_Select = 	FFGSHUD:CreateColorN2('fillage_ammo_s1se', 'Fillage Color for Ammo Shadow 1 Select', FillageColorAmmoShadow1)
+local FillageColorAmmoShadow2 = 		FFGSHUD:CreateColorN2('fillage_ammo_s2', 'Fillage Color for Ammo Shadow 2', FillageColorAmmoShadow1)
+local FillageColorAmmoShadow2_Select = 	FFGSHUD:CreateColorN2('fillage_ammo_s2se', 'Fillage Color for Ammo Shadow 2 Select', FillageColorAmmoShadow1)
+local ShadowEmpty = 					FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty', FillageColorAmmoShadow1)
+local ShadowEmpty_Select = 				FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty Select', FillageColorAmmoShadow1)
 
 local function calculateSelectAlpha(self, time)
 	if self.tryToSelectWeaponFadeIn > time then
