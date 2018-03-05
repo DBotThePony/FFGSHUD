@@ -18,8 +18,11 @@ local HUDCommons = DLib.HUDCommons
 
 local POS_VEHICLESTATS = FFGSHUD:DefinePosition('vehiclestats', 0.07, 0.63)
 local color_white = Color()
-local FillageColorHealth = Color(80, 80, 80)
-local FillageColorHealthShadow = Color(230, 0, 0)
+
+local FillageColorHealth = FFGSHUD:CreateColorN('fillage_hp', 'Fillage Color for HP', Color(80, 80, 80))
+local FillageColorHealthShadow = FFGSHUD:CreateColorN('fillage_hp_sh', 'Fillage Color for HP Shadow', Color(230, 0, 0))
+local VehicleName = FFGSHUD:CreateColorN('vehname', 'Vehicle Name', Color())
+local HPColor = FFGSHUD:CreateColorN('vehcolor', 'Vehicle Health', Color())
 
 local math = math
 local RealTime = RealTime
@@ -34,20 +37,19 @@ function FFGSHUD:DrawVehicleInfo()
 
 	local x, y = POS_VEHICLESTATS()
 
-	local w, h = self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, color_white)
+	local w, h = self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, VehicleName())
 	y = y - h * 0.83
 
 	local fillage = 1 - self:GetVehicleHealthFillage()
 
 	if self:GetVarVehicleMaxHealth() > 0 then
 		if fillage < 0.5 then
-			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white, fillage, FillageColorHealth)
+			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), fillage, FillageColorHealth())
 		else
-			FillageColorHealthShadow.a = math.sin(RealTimeAnim() * fillage * 30) * 64 + 130
-			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white, FillageColorHealthShadow, fillage, FillageColorHealth)
+			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth)
 		end
 	elseif self:GetVarVehicleHealth() > 0 then
-		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, color_white)
+		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor())
 	end
 end
 
