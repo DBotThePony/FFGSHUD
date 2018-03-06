@@ -21,7 +21,7 @@ local function onDamge()
 	local dmgType = net.ReadUInt64()
 	local dmg = net.ReadFloat()
 
-	FFGSHUD:ExtendGlitch(dmg / 12.5)
+	FFGSHUD:ExtendGlitch(dmg:sqrt() / 14)
 	FFGSHUD:ClampGlitchTime(1)
 end
 
