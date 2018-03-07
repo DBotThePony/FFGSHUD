@@ -88,16 +88,12 @@ local function generateGlitches(iterations)
 	maxDistort = ScreenScale(3.5)
 
 	for i = 1, iterations do
-		local id = initial + i
-		local lookupSeed = rndInt + id
-
 		local data = {
-			xStrength = util.SharedRandom('ffgs_hud_glitch_xStrength', -maxStrength, maxStrength, lookupSeed),
-			yStrength = util.SharedRandom('ffgs_hud_glitch_yStrength', -maxStrength, maxStrength, lookupSeed),
-			xDistort = util.SharedRandom('ffgs_hud_glitch_xDistort', 0, maxDistort, lookupSeed),
-			yDistort = util.SharedRandom('ffgs_hud_glitch_yDistort', 0, maxDistort, lookupSeed),
+			xStrength = math.random(-maxStrength, maxStrength),
+			yStrength = math.random(-maxStrength, maxStrength),
+			xDistort = math.random(0, maxDistort),
+			yDistort = math.random(0, maxDistort),
 			ttl = rTime + i * repeats,
-			id = id,
 			seed = lookupSeed,
 			iterations = {}
 		}
@@ -105,15 +101,12 @@ local function generateGlitches(iterations)
 		table.insert(glitchPattern, data)
 
 		local ty = 0
-		local g = 0
 
 		-- generate
 		while ty < h do
-			g = g + 1
-			if g > 200 then break end -- wtf
-			local height = util.SharedRandom('ffgs_hud_glitch_ycut', minCut, maxCut, lookupSeed + g)
-			local strengthValue = util.SharedRandom('ffgs_hud_glitch_xcut', data.xStrength, data.yStrength + data.xStrength, lookupSeed + g) * 0.4
-			local distortValue = util.SharedRandom('ffgs_hud_glitch_xdistort2', data.xDistort * 0.25, data.xDistort, lookupSeed + g)
+			local height = math.random(minCut, maxCut)
+			local strengthValue = math.random(data.xStrength, data.yStrength + data.xStrength) * 0.4
+			local distortValue = math.random(data.xDistort * 0.25, data.xDistort)
 
 			local iteration = {
 				ty,
