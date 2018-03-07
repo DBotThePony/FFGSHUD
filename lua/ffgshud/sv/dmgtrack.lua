@@ -14,18 +14,41 @@
 -- limitations under the License.
 
 local net = net
+local DLib = DLib
 
 net.pool('ffgs.damagereceived')
 local IsValid = FindMetaTable('Entity').IsValid
 
 local function EntityTakeDamage(self, dmg)
-	if not IsValid(self) then return end
-	if not self:IsPlayer() then return end
+	local players = DLib.combat.findPlayers(self)
+	if not players then return end
+
+	local attacker = dmg:GetAttacker()
+	local reportedPos = dmg:GetReportedPosition()
+	local validReportedPos = false
+
+	if not dmg:IsFallDamage() then
+		if reportedPos:IsZero() then
+			if IsValid(attacker) then
+				reportedPos = attacker:GetPos()
+				validReportedPos = true
+			end
+		else
+			validReportedPos = true
+		end
+	end
 
 	net.Start('ffgs.damagereceived')
 	net.WriteUInt64(dmg:GetDamageType() or 0)
 	net.WriteFloat(dmg:GetDamage())
-	net.Send(self)
+
+	net.WriteBool(validReportedPos)
+
+	if validReportedPos then
+		net.WriteVector(reportedPos)
+	end
+
+	net.Send(players)
 end
 
 hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage)

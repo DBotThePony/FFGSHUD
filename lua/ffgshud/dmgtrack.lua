@@ -17,14 +17,19 @@ local FFGSHUD = FFGSHUD
 local net = net
 local RealTime = RealTime
 
-local function onDamge()
+local function onDamage()
 	local dmgType = net.ReadUInt64()
 	local dmg = net.ReadFloat()
+	local reportedPosition
+
+	if net.ReadBool() then
+		reportedPosition = net.ReadVector()
+	end
 
 	FFGSHUD:ExtendGlitch(dmg:sqrt() / 14)
 	FFGSHUD:ClampGlitchTime(1)
 end
 
-net.receive('ffgs.damagereceived', onDamge)
+net.receive('ffgs.damagereceived', onDamage)
 
 -- TODO: Damage Sense
