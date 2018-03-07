@@ -24,10 +24,11 @@ local RealTime = RealTime
 local ScrW, ScrH = ScrW, ScrH
 local LerpCubic = LerpCubic
 local ScreenScale = ScreenScale
+local math = math
 
 timer.Simple(0, function()
 	rt = GetRenderTarget('ffgshud_glitch_rt', ScrW(), ScrH(), false)
-	local salt = '_3'
+	local salt = '_6'
 
 	rtmat = CreateMaterial('ffgshud_glitch_rtmat' .. salt, 'UnlitGeneric', {
 		['$basetexture'] = 'models/debug/debugwhite',
@@ -42,7 +43,7 @@ timer.Simple(0, function()
 		['$halflambert'] = '1',
 		['$color'] = '0 0.98 1',
 		['$color2'] = '0 0.98 1',
-		['$alpha'] = '0.5',
+		['$alpha'] = '0.6',
 		['$additive'] = '1',
 	})
 
@@ -52,7 +53,7 @@ timer.Simple(0, function()
 		['$halflambert'] = '1',
 		['$color'] = '0.96 0 1',
 		['$color2'] = '0.96 0 1',
-		['$alpha'] = '0.5',
+		['$alpha'] = '0.6',
 		['$additive'] = '1',
 	})
 
@@ -143,7 +144,13 @@ end
 function FFGSHUD:PreDrawGlitch()
 	if not self:IsGlitching() then return end
 	render.PushRenderTarget(rt)
-	render.Clear(0, 0, 0, 0)
+
+	if math.random() >= 0.5 then
+		render.Clear(0, 100, 120, 0, true, true)
+	else
+		render.Clear(120, 0, 120, 0, true, true)
+	end
+
 	cam.Start2D()
 end
 
