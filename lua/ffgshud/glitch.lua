@@ -27,27 +27,33 @@ local ScreenScale = ScreenScale
 
 timer.Simple(0, function()
 	rt = GetRenderTarget('ffgshud_glitch_rt', ScrW(), ScrH(), false)
+	local salt = '_3'
 
-	rtmat = CreateMaterial('ffgshud_glitch_rtmat', 'UnlitGeneric', {
+	rtmat = CreateMaterial('ffgshud_glitch_rtmat' .. salt, 'UnlitGeneric', {
 		['$basetexture'] = 'models/debug/debugwhite',
 		['$translucent'] = '1',
 		['$halflambert'] = '1',
+		['$alpha'] = '1',
 	})
 
-	rtmat1 = CreateMaterial('ffgshud_glitch_rtmat1', 'UnlitGeneric', {
+	rtmat1 = CreateMaterial('ffgshud_glitch_rtmat1' .. salt, 'UnlitGeneric', {
 		['$basetexture'] = 'models/debug/debugwhite',
 		['$translucent'] = '1',
 		['$halflambert'] = '1',
 		['$color'] = '0 0.98 1',
 		['$color2'] = '0 0.98 1',
+		['$alpha'] = '0.5',
+		['$additive'] = '1',
 	})
 
-	rtmat2 = CreateMaterial('ffgshud_glitch_rtmat2', 'UnlitGeneric', {
+	rtmat2 = CreateMaterial('ffgshud_glitch_rtmat2' .. salt, 'UnlitGeneric', {
 		['$basetexture'] = 'models/debug/debugwhite',
 		['$translucent'] = '1',
 		['$halflambert'] = '1',
 		['$color'] = '0.96 0 1',
 		['$color2'] = '0.96 0 1',
+		['$alpha'] = '0.5',
+		['$additive'] = '1',
 	})
 
 	rtmat:SetTexture('$basetexture', rt)
@@ -164,17 +170,15 @@ function FFGSHUD:PostDrawGlitch()
 
 	local w, h = ScrW(), ScrH()
 
-	surface.SetDrawColor(255, 255, 255)
-
 	for i, iteration in ipairs(glitch.iterations) do
+		surface.SetMaterial(rtmat)
+		surface.DrawTexturedRectUV(iteration[3], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
 		surface.SetMaterial(rtmat1)
 		surface.DrawTexturedRectUV(iteration[3] - iteration[8], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
 
 		surface.SetMaterial(rtmat2)
 		surface.DrawTexturedRectUV(iteration[3] + iteration[8], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
-
-		surface.SetMaterial(rtmat)
-		surface.DrawTexturedRectUV(iteration[3], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
 	end
 end
 
