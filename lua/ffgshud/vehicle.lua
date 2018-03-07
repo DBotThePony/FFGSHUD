@@ -42,11 +42,11 @@ function FFGSHUD:DrawVehicleInfo()
 
 	local fillage = 1 - self:GetVehicleHealthFillage()
 
-	if self:GetVarVehicleMaxHealth() > 0 then
+	if self:GetVarVehicleMaxHealth() > 1 then
 		if fillage < 0.5 then
 			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), fillage, FillageColorHealth())
 		else
-			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth)
+			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
 		end
 	elseif self:GetVarVehicleHealth() > 0 then
 		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor())
