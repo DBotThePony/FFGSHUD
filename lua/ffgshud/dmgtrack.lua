@@ -24,33 +24,82 @@ local ScrH = ScrH
 
 local history = {}
 
+-- DHUD/2 Color palette
+local dmgColorsPalette = {
+	-- [DMG_GENERIC] = color_white,
+	[DMG_CRUSH] = Color(255, 210, 60),
+	[DMG_CLUB] = Color(255, 210, 60),
+	[DMG_BULLET] = Color(154, 199, 245),
+	[DMG_SLASH] = Color(255, 165, 165),
+	[DMG_BURN] = Color(255, 64, 64),
+	[DMG_SLOWBURN] = Color(255, 64, 64),
+	[DMG_VEHICLE] = Color(255, 210, 60),
+	[DMG_FALL] = Color(250, 55, 255),
+	[DMG_BLAST] = Color(255, 170, 64),
+	[DMG_SHOCK] = Color(64, 198, 255),
+	[DMG_SONIC] = Color(64, 198, 255),
+	[DMG_ENERGYBEAM] = Color(255, 255, 60),
+	[DMG_DROWN] = Color(64, 128, 255),
+	[DMG_PARALYZE] = Color(115, 255, 60),
+	[DMG_NERVEGAS] = Color(115, 255, 60),
+	[DMG_POISON] = Color(115, 255, 60),
+	[DMG_ACID] = Color(0, 200, 50),
+	[DMG_RADIATION] = Color(0, 200, 50),
+	[DMG_AIRBOAT] = Color(192, 220, 216),
+	[DMG_BLAST_SURFACE] = Color(255, 170, 64),
+	[DMG_DIRECT] = Color(0, 0, 0),
+	[DMG_DISSOLVE] = Color(175, 36, 255),
+	[DMG_DROWNRECOVER] = Color(64, 128, 255),
+	[DMG_PHYSGUN] = Color(255, 210, 60),
+	[DMG_PLASMA] = Color(131, 155, 255),
+}
+
+local dmgColors = {}
+
+for k, v in pairs(dmgColorsPalette) do
+	table.insert(dmgColors, {k, v})
+end
+
 local function onDamage()
 	local dmgType = net.ReadUInt64()
 	local dmg = net.ReadFloat()
 	local reportedPosition
+	local colors = {}
 
 	if net.ReadBool() then
 		reportedPosition = net.ReadVector()
 	end
 
-	if not reportedPosition then
-		reportedPosition = Vector()
+	if dmgType == DMG_GENERIC then -- stopid addons
+		table.insert(colors, Color())
+	else
+		for i, clr in ipairs(dmgColors) do
+			if clr[1]:band(dmgType) == clr[1] then
+				table.insert(colors, clr[2]:Copy())
+			end
+		end
 	end
 
 	FFGSHUD:ExtendGlitch(dmg:sqrt() / 14)
 	FFGSHUD:ClampGlitchTime(1)
+
+	if #colors == 0 then
+		table.insert(colors, Color())
+	end
 
 	table.insert(history, {
 		damage = dmg,
 		start = RealTime(),
 		endtime = RealTime() + dmg:sqrt() * 0.7,
 		pos = reportedPosition,
-		arc1 = reportedPosition and 0 or -185,
+		arc1 = reportedPosition and 0 or -195,
 		arc2 = reportedPosition and 0 or 10,
 		arcsize = (dmg * ScreenSize(5)):min(ScreenSize(40)),
 		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(25)),
 		shouldDraw = reportedPosition == nil,
 		reportedPosition = reportedPosition,
+		colors = colors,
+		alpha = 1,
 	})
 end
 
@@ -74,9 +123,11 @@ function FFGSHUD:ThinkDamageSense(ply)
 			local dist = entry.reportedPosition:Distance(pos)
 			local size = (entry.arcsize / dist:sqrt()):max(s)
 			entry.shouldDraw = yaw < -160 and yaw > -200
-			entry.arc1 = yaw - size / 2
+			entry.arc1 = yaw - size
 			entry.arc2 = size
 		end
+
+		entry.alpha = 1 - time:progression(entry.start, entry.endtime)
 	end
 
 	if toremove then
@@ -85,13 +136,17 @@ function FFGSHUD:ThinkDamageSense(ply)
 end
 
 function FFGSHUD:DrawDamageSense(ply)
-	local time = RealTime()
 	local y = ScrH() * 0.3
 
 	for i, entry in ipairs(history) do
 		if entry.shouldDraw then
-			local alpha = 1 - time:progression(entry.start, entry.endtime)
-			HUDCommons.DrawArcHollow2(ScrW() * -1, y, ScrW() * 3, 120, entry.inLen, entry.arc1, entry.arc2, Color(255, 255, 255, alpha * 200))
+			local m = #entry.colors
+			local slice = entry.arc2 / m
+
+			for i2, color in ipairs(entry.colors) do
+				HUDCommons.DrawArcHollow2(ScrW() * -1, y, ScrW() * 3, 120, entry.inLen, entry.arc1 + slice * i2, slice, color:SetAlpha(entry.alpha * 200))
+			end
+
 			y = y + entry.inLen * 0.54
 		end
 	end
