@@ -95,7 +95,7 @@ local function onDamage()
 		arc1 = reportedPosition and 0 or -195,
 		arc2 = reportedPosition and 0 or 10,
 		arcsize = (dmg * ScreenSize(5)):min(ScreenSize(40)),
-		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(25)),
+		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
 		shouldDraw = reportedPosition == nil,
 		reportedPosition = reportedPosition,
 		colors = colors,
@@ -106,6 +106,7 @@ end
 net.receive('ffgs.damagereceived', onDamage)
 
 function FFGSHUD:ThinkDamageSense(ply)
+	if not self:GetVarAlive() then return end
 	local toremove
 	local time = RealTime()
 	local pos = ply:EyePos()
@@ -136,6 +137,7 @@ function FFGSHUD:ThinkDamageSense(ply)
 end
 
 function FFGSHUD:DrawDamageSense(ply)
+	if not self:GetVarAlive() then return end
 	local y = ScrH() * 0.3
 
 	for i, entry in ipairs(history) do
