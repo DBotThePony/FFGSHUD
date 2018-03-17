@@ -21,6 +21,7 @@ local IsValid = FindMetaTable('Entity').IsValid
 
 FFGSHUD.ammoHUDAnimationTime = 0
 FFGSHUD.ammoStoredHUDAnimationTime = 0
+FFGSHUD.swipeAnimationTime = 0
 FFGSHUD.LastWeaponUpdate = RealTime()
 FFGSHUD.LastWeaponUpdateFadeIn = RealTime()
 FFGSHUD.LastWeaponUpdateFadeOutStart = RealTime()
@@ -31,20 +32,12 @@ FFGSHUD.LastWeaponUpdateFadeIn2 = RealTime()
 FFGSHUD.LastWeaponUpdateFadeOutStart2 = RealTime()
 FFGSHUD.LastWeaponUpdateFadeOutEnd2 = RealTime()
 
-function FFGSHUD:PlayingStoredAmmoAnim()
-	return self.ammoStoredHUDAnimationTime > RealTime()
+function FFGSHUD:PlayingSwipeAnimation()
+	return self.swipeAnimationTime > RealTime()
 end
 
-function FFGSHUD:StoredAmmoAnim()
-	return LerpCosine((self.ammoStoredHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
-end
-
-function FFGSHUD:ReadyAmmoAnim()
-	return LerpCosine((self.ammoHUDAnimationTime - RealTime()):progression(0, 0.4), 0, 1)
-end
-
-function FFGSHUD:PlayingReadyAmmoAnim()
-	return self.ammoHUDAnimationTime > RealTime()
+function FFGSHUD:SwipeAnimationDuration()
+	return RealTime():progression(self.swipeAnimationTime - 0.4, self.swipeAnimationTime)
 end
 
 local function changes(s, self, lply, old, new)
@@ -78,19 +71,18 @@ function FFGSHUD:OnWeaponChanged(old, new)
 
 	local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
 
-	if old:GetPrimaryAmmoType() ~= new:GetPrimaryAmmoType() or old:GetSecondaryAmmoType() ~= new:GetSecondaryAmmoType() then
-		self.animateStoredAmmoHUD = true
-		self.ammoStoredHUDAnimationTime = RealTime() + 0.4
-		self.oldStoredAmmoString = ammoStoredText
-		self.oldStored2AmmoText = stored2AmmoText
-	end
+	self.swipeAnimationTime = RealTime() + 0.4
 
-	self.animateAmmoHUD = true
-	self.ammoHUDAnimationTime = RealTime() + 0.4
+	self.oldWeaponName = self:GetVarWeaponName()
+	self.oldStoredAmmoString = ammoStoredText
+	self.oldStored2AmmoText = stored2AmmoText
 	self.oldReadyAmmoString = ammoReadyText
 	self.oldReadyAmmoPerc = 1 - self:GetAmmoFillage1()
 	self.oldReady2AmmoString = clip2AmmoText
 	self.oldReady2AmmoPerc = 1 - self:GetAmmoFillage2()
+
+	self.swipeDirection = old:GetSlot() ~= new:GetSlot() or old:GetSlotPos() < new:GetSlotPos()
+
 	changes(nil, self)
 end
 
