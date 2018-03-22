@@ -27,7 +27,15 @@ local ScreenScale = ScreenScale
 local math = math
 
 timer.Simple(0, function()
-	rt = GetRenderTarget('ffgshud_glitch_rt', ScrW(), ScrH(), false)
+	local textureFlags = 0
+	textureFlags = textureFlags + 16 -- anisotropic
+	textureFlags = textureFlags + 256 -- no mipmaps
+	textureFlags = textureFlags + 2048 -- Texture is procedural
+	textureFlags = textureFlags + 32768 -- Texture is a render target
+	-- textureFlags = textureFlags + 67108864 -- Usable as a vertex texture
+
+	rt = GetRenderTargetEx('ffgshud_glitch_rt3', ScrW(), ScrH(), RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_ONLY, textureFlags, CREATERENDERTARGETFLAGS_UNFILTERABLE_OK, IMAGE_FORMAT_RGBA8888)
+	-- rt = GetRenderTarget('ffgshud_glitch_rt', ScrW(), ScrH(), false)
 	local salt = '_6'
 
 	rtmat = CreateMaterial('ffgshud_glitch_rtmat' .. salt, 'UnlitGeneric', {
@@ -77,15 +85,17 @@ local maxCut = 120
 local repeats = 0.04
 local rndInt = math.random(1, 1000)
 
-local function generateGlitches(iterations)
+local function generateGlitches(iterations, frameRepeats, strength)
+	strength = strength or 1
+	frameRepeats = frameRepeats or repeats
 	iterations = iterations or 100
 	local rTime = RealTime()
 	local w, h = ScrW(), ScrH()
 	local initial = (rTime / repeats):floor()
-	minCut = ScreenScale(7)
-	maxCut = ScreenScale(16)
-	maxStrength = ScreenScale(24)
-	maxDistort = ScreenScale(3.5)
+	minCut = ScreenScale(7) * strength
+	maxCut = ScreenScale(16) * strength
+	maxStrength = ScreenScale(24) * strength
+	maxDistort = ScreenScale(3.5) * strength
 
 	for i = 1, iterations do
 		local data = {
@@ -93,14 +103,14 @@ local function generateGlitches(iterations)
 			yStrength = math.random(-maxStrength, maxStrength),
 			xDistort = math.random(0, maxDistort),
 			yDistort = math.random(0, maxDistort),
-			ttl = rTime + i * repeats,
+			ttl = rTime + i * frameRepeats,
 			seed = lookupSeed,
 			iterations = {}
 		}
 
 		table.insert(glitchPattern, data)
 
-		local ty = 0
+		local ty = -8
 
 		-- generate
 		while ty < h do
@@ -109,7 +119,7 @@ local function generateGlitches(iterations)
 			local distortValue = math.random(data.xDistort * 0.25, data.xDistort)
 
 			local iteration = {
-				ty,
+				ty + 9,
 				height,
 				strengthValue
 			}
@@ -135,20 +145,20 @@ local function generateGlitches(iterations)
 end
 
 function FFGSHUD:PreDrawGlitch()
-	if not self:IsGlitching() then return end
+	if not self:IsGlitching() and self:GetVarAlive() then return end
 	render.PushRenderTarget(rt)
 
 	if math.random() >= 0.5 then
-		render.Clear(0, 100, 120, 0, true, true)
+		render.Clear(0, 40, 50, 0, true, true)
 	else
-		render.Clear(120, 0, 120, 0, true, true)
+		render.Clear(50, 0, 50, 0, true, true)
 	end
 
 	cam.Start2D()
 end
 
 function FFGSHUD:PostDrawGlitch()
-	if not self:IsGlitching() then return end
+	if not self:IsGlitching() and self:GetVarAlive() then return end
 	cam.End2D()
 	render.PopRenderTarget()
 
@@ -164,13 +174,19 @@ function FFGSHUD:PostDrawGlitch()
 	end
 
 	if not glitch then
-		generateGlitches()
+		if self:GetVarAlive() then
+			generateGlitches()
+		else
+			generateGlitches(nil, 0.15, 2)
+		end
+
 		glitch = glitchPattern[1]
 	end
 
 	local w, h = ScrW(), ScrH()
 
 	for i, iteration in ipairs(glitch.iterations) do
+		-- center
 		surface.SetMaterial(rtmat)
 		surface.DrawTexturedRectUV(iteration[3], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
 
@@ -179,6 +195,26 @@ function FFGSHUD:PostDrawGlitch()
 
 		surface.SetMaterial(rtmat2)
 		surface.DrawTexturedRectUV(iteration[3] + iteration[8], iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		-- left
+		surface.SetMaterial(rtmat)
+		surface.DrawTexturedRectUV(iteration[3] - w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		surface.SetMaterial(rtmat1)
+		surface.DrawTexturedRectUV(iteration[3] - iteration[8] - w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		surface.SetMaterial(rtmat2)
+		surface.DrawTexturedRectUV(iteration[3] + iteration[8] - w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		-- right
+		surface.SetMaterial(rtmat)
+		surface.DrawTexturedRectUV(iteration[3] + w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		surface.SetMaterial(rtmat1)
+		surface.DrawTexturedRectUV(iteration[3] - iteration[8] + w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
+
+		surface.SetMaterial(rtmat2)
+		surface.DrawTexturedRectUV(iteration[3] + iteration[8] + w, iteration[1], w, iteration[2], iteration[4], iteration[5], iteration[6], iteration[7])
 	end
 end
 
