@@ -94,7 +94,7 @@ local function onDamage()
 		pos = reportedPosition,
 		arc1 = reportedPosition and 0 or -192,
 		arc2 = reportedPosition and 0 or 10,
-		arcsize = (dmg * ScreenSize(10)):min(ScreenSize(40)),
+		arcsize = (dmg * ScreenSize(40)):min(ScreenSize(40)),
 		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
 		reportedPosition = reportedPosition,
 		colors = colors,
@@ -121,7 +121,7 @@ function FFGSHUD:ThinkDamageSense(ply)
 			local pointer = entry.reportedPosition - pos
 			local yaw = -180 - pointer:Angle().y:AngleDifference(ang.y)
 			local dist = entry.reportedPosition:Distance(pos)
-			local size = (entry.arcsize / dist:sqrt()):max(s)
+			local size = (entry.arcsize / dist:sqrt():sqrt()):max(s)
 			entry.arc1 = yaw - size
 			entry.arc2 = size
 		end
