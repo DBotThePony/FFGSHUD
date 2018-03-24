@@ -16,6 +16,7 @@
 local FFGSHUD = FFGSHUD
 local HUDCommons = DLib.HUDCommons
 
+FFGSHUD.BATTLE_STATS_WIDE = 0
 local POS_STATS = FFGSHUD:DefinePosition('battlestats', 0.87, 0.12)
 local color_white = Color()
 local ScreenScale = ScreenScale
@@ -54,6 +55,7 @@ local function doDrawLines(self, x, y)
 
 	for i = 1, #drawn2 do
 		local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn[i], x + spacing, y, color_white)
+		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
 		y = y + h * 0.83
 	end
 
@@ -68,17 +70,21 @@ function FFGSHUD:DrawBattleStats()
 	local spacing = ScreenScale(4)
 	local x, y = POS_STATS()
 	local w, h
+	FFGSHUD.BATTLE_STATS_WIDE = 0
 
 	hook.Run('FFGSHUD_AddStatsLines_Pre', addLines, addLines2, self)
 	x, y = doDrawLines(self, x, y)
 
 	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarFrags(), x, y, color_white)
+	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
 	self:DrawShadowedText(self.BattleStats, self.ICON_FRAGS, x + spacing, y, color_white)
 	y = y + h * 0.83
 	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarDeaths(), x, y, color_white)
+	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
 	self:DrawShadowedText(self.BattleStats, self.ICON_DEATHS, x + spacing, y, color_white)
 	y = y + h * 0.83
 	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarPing(), x, y, color_white)
+	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
 	self:DrawShadowedText(self.BattleStats, self.ICON_PING, x + spacing, y, color_white)
 	y = y + h * 0.83
 

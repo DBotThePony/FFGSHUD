@@ -79,6 +79,12 @@ FFGSHUD.TargetID_Name = FFGSHUD:CreateScalableFont('TargetID_Name', {
 	weight = 600,
 })
 
+FFGSHUD.KillfeedFont = FFGSHUD:CreateScalableFont('KillfeedFont', {
+	font = 'Roboto',
+	size = 13,
+	weight = 600,
+})
+
 FFGSHUD.TargetID_Health = FFGSHUD:CreateScalableFont('TargetID_Health', {
 	font = 'Exo 2',
 	size = 18,
@@ -364,3 +370,4 @@ include('anims.lua')
 include('binfo.lua')
 include('dmgtrack.lua')
 include('glitch.lua')
+include('killfeed.lua')
