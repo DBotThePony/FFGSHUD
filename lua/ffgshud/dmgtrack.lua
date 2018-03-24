@@ -94,9 +94,8 @@ local function onDamage()
 		pos = reportedPosition,
 		arc1 = reportedPosition and 0 or -192,
 		arc2 = reportedPosition and 0 or 10,
-		arcsize = (dmg * ScreenSize(5)):min(ScreenSize(40)),
+		arcsize = (dmg * ScreenSize(10)):min(ScreenSize(40)),
 		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
-		shouldDraw = reportedPosition == nil,
 		reportedPosition = reportedPosition,
 		colors = colors,
 		alpha = 1,
@@ -120,10 +119,9 @@ function FFGSHUD:ThinkDamageSense(ply)
 			table.insert(toremove, i)
 		elseif entry.reportedPosition then
 			local pointer = entry.reportedPosition - pos
-			local yaw = -180 - pointer:Angle().y:AngleDifference(ang.y) * 0.2
+			local yaw = -180 - pointer:Angle().y:AngleDifference(ang.y)
 			local dist = entry.reportedPosition:Distance(pos)
 			local size = (entry.arcsize / dist:sqrt()):max(s)
-			entry.shouldDraw = yaw < -160 and yaw > -200
 			entry.arc1 = yaw - size
 			entry.arc2 = size
 		end
@@ -138,19 +136,25 @@ end
 
 function FFGSHUD:DrawDamageSense(ply)
 	if not self:GetVarAlive() then return end
-	local y = ScrH() * 0.3
+	local sw, sh = ScrW(), ScrH()
+	local x = (sw - sh * 0.6) / 2
+	local y = sh * 0.2
+	sh = sh * 0.6
 
 	for i, entry in ipairs(history) do
-		if entry.shouldDraw then
-			local m = #entry.colors
-			local slice = entry.arc2 / m
+		local m = #entry.colors
+		local slice = entry.arc2 / m
 
-			for i2, color in ipairs(entry.colors) do
-				HUDCommons.DrawArcHollow2(ScrW() * -1, y, ScrW() * 3, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
-			end
-
-			y = y + entry.inLen * 0.54
+		for i2, color in ipairs(entry.colors) do
+			HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
 		end
+
+		--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
+		--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
+
+		y = y + entry.inLen * 0.5
+		sh = sh - entry.inLen
+		x = x + entry.inLen * 0.5
 	end
 end
 
