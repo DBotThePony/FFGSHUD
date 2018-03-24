@@ -92,7 +92,7 @@ local function onDamage()
 		start = RealTime(),
 		endtime = RealTime() + dmg:sqrt() * 0.7,
 		pos = reportedPosition,
-		arc1 = reportedPosition and 0 or -195,
+		arc1 = reportedPosition and 0 or -192,
 		arc2 = reportedPosition and 0 or 10,
 		arcsize = (dmg * ScreenSize(5)):min(ScreenSize(40)),
 		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
@@ -146,7 +146,7 @@ function FFGSHUD:DrawDamageSense(ply)
 			local slice = entry.arc2 / m
 
 			for i2, color in ipairs(entry.colors) do
-				HUDCommons.DrawArcHollow2(ScrW() * -1, y, ScrW() * 3, 120, entry.inLen, entry.arc1 + slice * i2, slice, color:SetAlpha(entry.alpha * 200))
+				HUDCommons.DrawArcHollow2(ScrW() * -1, y, ScrW() * 3, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
 			end
 
 			y = y + entry.inLen * 0.54
