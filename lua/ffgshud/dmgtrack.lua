@@ -90,7 +90,7 @@ local function onDamage()
 	table.insert(history, {
 		damage = dmg,
 		start = RealTime(),
-		endtime = RealTime() + dmg:sqrt() * 0.7,
+		endtime = RealTime() + (dmg:sqrt() * 0.7):clamp(1, 10),
 		pos = reportedPosition,
 		arc1 = reportedPosition and 0 or -192,
 		arc2 = reportedPosition and 0 or 10,
