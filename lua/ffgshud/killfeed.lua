@@ -35,8 +35,12 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	local validAttacker = attacker ~= nil and attacker ~= victim
 	local worldspawn = attacker == '#world'
 
-	local isSuicide = not validWeapon and not validAttacker
-	local weapon = worldspawn and 'fall damage' or isSuicide and language.GetPhrase('suicide') or (inflictor and language.GetPhrase(inflictor)) or '???'
+	local isSuicide = not validWeapon and not validAttacker or attacker == victim
+	local weapon = worldspawn and 'fall damage'
+		or isSuicide and language.GetPhrase('suicide') or
+		(inflictor and (inflictor ~= 'worldspawn' and language.GetPhrase(inflictor) or language.GetPhrase(attacker))) or
+		'???'
+
 	weapon = weapon:upper()
 
 	local entry = {}
@@ -46,13 +50,22 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	entry.isSuicide = isSuicide
 	entry.weapon = '[' .. weapon .. ']'
 	entry.validAttacker = validAttacker
-	entry.ttl = RealTime() + 4
+
+	local displayTime = ((not isSuicide and (attacker and #attacker / 8 or 0) or 0) + (#weapon / 8) + (#victim / 5)):clamp(4, 8)
+	local animtime = displayTime * 0.1
+
+	entry.ttl = RealTime() + displayTime
+	entry.fadeInStart = RealTime()
+	entry.fadeInEnd = RealTime() + animtime
+
+	entry.fadeOutStart = RealTime() + displayTime - animtime
+	entry.fadeOutEnd = RealTime() + displayTime
 
 	entry.victim = victim
 	entry.attacker = attacker
 
 	if validAttacker then
-		if attackerTeam and attackerTeam ~= 0 and attackerTeam ~= -1 and attackerTeam ~= 1000 then
+		if attackerTeam and attackerTeam > 0 and attackerTeam ~= TEAM_UNASSIGNED then
 			entry.attackerColor = team.GetColor(attackerTeam)
 		else
 			entry.attackerColor = npcColor(attacker)
@@ -61,7 +74,7 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 		entry.attackerColor = Color(67, 158, 184)
 	end
 
-	if victimTeam and victimTeam ~= 0 and victimTeam ~= -1 and victimTeam ~= 1000 then
+	if victimTeam and victimTeam > 0 and victimTeam ~= TEAM_UNASSIGNED then
 		entry.victimColor = team.GetColor(victimTeam)
 	else
 		entry.victimColor = npcColor(victim)
@@ -75,14 +88,30 @@ end
 local DRAW_POS = FFGSHUD:DefinePosition('killfeed', 0.85, 0.12)
 local surface = surface
 local ScreenSize = ScreenSize
+local render = render
 
 function FFGSHUD:DrawDeathNotice()
 	local x, y = DRAW_POS()
 	x = x - self.BATTLE_STATS_WIDE
 	local space = ScreenSize(3)
+	local time = RealTime()
+	local H = self.KillfeedFont.REGULAR_SIZE_H
 
 	for i, entry in ipairs(notices) do
 		local x = x
+		local mult = 1
+		local cut = false
+
+		if entry.fadeInEnd > time then
+			cut = true
+			mult = time:progression(entry.fadeInStart, entry.fadeInEnd)
+			render.PushScissorRect(0, y, x, y + H * mult)
+		elseif entry.fadeOutStart < time then
+			cut = true
+			mult = 1 - time:progression(entry.fadeOutStart, entry.fadeOutEnd)
+			render.PushScissorRect(0, y, x, y + H * mult)
+		end
+
 		local w, h = self:DrawShadowedTextAligned(self.KillfeedFont, entry.victim, x, y, entry.victimColor)
 		x = x - w - ScreenSize(5)
 		w, h = self:DrawShadowedTextAligned(self.KillfeedFont, entry.weapon, x, y, entry.weaponColor)
@@ -92,7 +121,11 @@ function FFGSHUD:DrawDeathNotice()
 			self:DrawShadowedTextAligned(self.KillfeedFont, entry.attacker, x, y, entry.attackerColor)
 		end
 
-		y = y + h + space
+		y = y + (h + space) * mult
+
+		if cut then
+			render.PopScissorRect()
+		end
 	end
 end
 
