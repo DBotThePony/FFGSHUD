@@ -21,33 +21,13 @@ local table = table
 
 local notices = {}
 local function npcColor(npc)
-	local r, g, b = 127, 127, 127
-	local i = 0
-
-	for char in npc:gmatch('.') do
-		i = i + 1
-		local byte = char:byte()
-
-		if byte < 60 then
-			r = r + (13 * (byte / 60)):floor()
-			g = g - (byte / 15):floor()
-			b = b + 3
-		elseif byte < 90 then
-			r = r + (15 * (byte / 125)):floor()
-			g = g + 3 * i
-			b = b - 2 * i
-		elseif byte < 140 then
-			r = r - 6 * i
-			g = g + (byte / 70):floor() * 3
-			b = b + 3
-		else
-			r = r - 3 * (byte / 95):floor()
-			g = (g * 1.1):floor()
-			b = b + 1 + i
-		end
-	end
-
-	return Color(r:abs() % 255, g:abs() % 255, b:abs() % 255)
+	local crc = tonumber(util.CRC(npc))
+	local r = crc % 255
+	crc = crc - r
+	local g = (crc / 255) % 255
+	crc = crc / 255 - g
+	local b = (crc / 255) % 255
+	return Color(r:abs(), g:abs(), b:abs())
 end
 
 function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victimTeam)
