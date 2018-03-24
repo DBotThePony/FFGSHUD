@@ -64,7 +64,7 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	entry.weaponColor = Color(255, 255, 255)
 	entry.isFallDamage = worldspawn
 	entry.isSuicide = isSuicide
-	entry.weapon = weapon
+	entry.weapon = '[' .. weapon .. ']'
 	entry.validAttacker = validAttacker
 	entry.ttl = RealTime() + 4
 
@@ -72,7 +72,7 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	entry.attacker = attacker
 
 	if validAttacker then
-		if attackerTeam and attackerTeam ~= 0 and attackerTeam ~= 1000 or attacker:lower() == attacker then
+		if attackerTeam and attackerTeam ~= 0 and attackerTeam ~= -1 and attackerTeam ~= 1000 then
 			entry.attackerColor = team.GetColor(attackerTeam)
 		else
 			entry.attackerColor = npcColor(attacker)
@@ -81,7 +81,7 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 		entry.attackerColor = Color(67, 158, 184)
 	end
 
-	if victimTeam and victimTeam ~= 0 and victimTeam ~= 1000 or victim and victim:lower() == victim then
+	if victimTeam and victimTeam ~= 0 and victimTeam ~= -1 and victimTeam ~= 1000 then
 		entry.victimColor = team.GetColor(victimTeam)
 	else
 		entry.victimColor = npcColor(victim)
