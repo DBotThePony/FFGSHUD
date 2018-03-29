@@ -15,7 +15,7 @@
 
 local FFGSHUD = FFGSHUD
 local net = net
-local RealTime = RealTime
+local CurTime = CurTime
 local table = table
 local ipairs = ipairs
 local ScreenSize = ScreenSize
@@ -89,8 +89,8 @@ local function onDamage()
 
 	table.insert(history, {
 		damage = dmg,
-		start = RealTime(),
-		endtime = RealTime() + (dmg:sqrt() * 0.7):clamp(1, 10),
+		start = CurTime(),
+		endtime = CurTime() + (dmg:sqrt() * 0.7):clamp(1, 10),
 		pos = reportedPosition,
 		arc1 = 0,
 		arc2 = 0,
@@ -107,7 +107,7 @@ net.receive('ffgs.damagereceived', onDamage)
 function FFGSHUD:ThinkDamageSense(ply)
 	if not self:GetVarAlive() then return end
 	local toremove
-	local time = RealTime()
+	local time = CurTime()
 	local pos = ply:EyePos()
 	local ang = ply:EyeAnglesFixed()
 	local s = ScreenSize(1)

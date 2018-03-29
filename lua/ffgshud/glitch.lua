@@ -20,7 +20,7 @@ local cam = cam
 local rt, rtmat, rtmat1, rtmat2
 local util = util
 local table = table
-local RealTime = RealTime
+local CurTime = CurTime
 local ScrW, ScrH = ScrW, ScrH
 local LerpCubic = LerpCubic
 local ScreenScale = ScreenScale
@@ -89,7 +89,7 @@ local function generateGlitches(iterations, frameRepeats, strength)
 	strength = strength or 1
 	frameRepeats = frameRepeats or repeats
 	iterations = iterations or 100
-	local rTime = RealTime()
+	local rTime = CurTime()
 	local w, h = ScrW(), ScrH()
 	local initial = (rTime / repeats):floor()
 	minCut = ScreenScale(7) * strength
@@ -165,7 +165,7 @@ function FFGSHUD:PostDrawGlitch()
 	--render.SetMaterial(rtmat)
 	--render.DrawScreenQuad()
 
-	local rTime = RealTime()
+	local rTime = CurTime()
 	local glitch = glitchPattern[1]
 
 	while glitch and glitch.ttl < rTime do
