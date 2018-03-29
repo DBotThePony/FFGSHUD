@@ -109,7 +109,7 @@ function FFGSHUD:ThinkDamageSense(ply)
 	local toremove
 	local time = RealTime()
 	local pos = ply:EyePos()
-	local ang = ply:EyeAngles()
+	local ang = ply:EyeAnglesFixed()
 	local s = ScreenSize(1)
 	local s2 = ScreenSize(12)
 
