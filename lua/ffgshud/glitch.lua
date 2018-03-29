@@ -20,8 +20,8 @@ local cam = cam
 local rt, rtmat, rtmat1, rtmat2
 local util = util
 local table = table
-local CurTime = CurTime
-local ScrW, ScrH = ScrW, ScrH
+local CurTimeL = CurTimeL
+local ScrWL, ScrHL = ScrWL, ScrHL
 local LerpCubic = LerpCubic
 local ScreenScale = ScreenScale
 local math = math
@@ -34,8 +34,8 @@ timer.Simple(0, function()
 	textureFlags = textureFlags + 32768 -- Texture is a render target
 	-- textureFlags = textureFlags + 67108864 -- Usable as a vertex texture
 
-	rt = GetRenderTargetEx('ffgshud_glitch_rt3', ScrW(), ScrH(), RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_ONLY, textureFlags, CREATERENDERTARGETFLAGS_UNFILTERABLE_OK, IMAGE_FORMAT_RGBA8888)
-	-- rt = GetRenderTarget('ffgshud_glitch_rt', ScrW(), ScrH(), false)
+	rt = GetRenderTargetEx('ffgshud_glitch_rt3', ScrWL(), ScrHL(), RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_ONLY, textureFlags, CREATERENDERTARGETFLAGS_UNFILTERABLE_OK, IMAGE_FORMAT_RGBA8888)
+	-- rt = GetRenderTarget('ffgshud_glitch_rt', ScrWL(), ScrHL(), false)
 	local salt = '_6'
 
 	rtmat = CreateMaterial('ffgshud_glitch_rtmat' .. salt, 'UnlitGeneric', {
@@ -89,8 +89,8 @@ local function generateGlitches(iterations, frameRepeats, strength)
 	strength = strength or 1
 	frameRepeats = frameRepeats or repeats
 	iterations = iterations or 100
-	local rTime = CurTime()
-	local w, h = ScrW(), ScrH()
+	local rTime = CurTimeL()
+	local w, h = ScrWL(), ScrHL()
 	local initial = (rTime / repeats):floor()
 	minCut = ScreenScale(7) * strength
 	maxCut = ScreenScale(16) * strength
@@ -165,7 +165,7 @@ function FFGSHUD:PostDrawGlitch()
 	--render.SetMaterial(rtmat)
 	--render.DrawScreenQuad()
 
-	local rTime = CurTime()
+	local rTime = CurTimeL()
 	local glitch = glitchPattern[1]
 
 	while glitch and glitch.ttl < rTime do
@@ -183,7 +183,7 @@ function FFGSHUD:PostDrawGlitch()
 		glitch = glitchPattern[1]
 	end
 
-	local w, h = ScrW(), ScrH()
+	local w, h = ScrWL(), ScrHL()
 
 	for i, iteration in ipairs(glitch.iterations) do
 		-- center

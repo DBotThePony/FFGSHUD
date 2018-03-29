@@ -16,7 +16,7 @@
 local FFGSHUD = FFGSHUD
 local language = language
 local Color = Color
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local table = table
 
 local notices = {}
@@ -54,12 +54,12 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	local displayTime = ((not isSuicide and (attacker and #attacker / 4 or 0) or 0) + (#weapon / 4) + (#victim / 2)):clamp(4, 8)
 	local animtime = displayTime * 0.1
 
-	entry.ttl = RealTime() + displayTime
-	entry.fadeInStart = RealTime()
-	entry.fadeInEnd = RealTime() + animtime
+	entry.ttl = RealTimeL() + displayTime
+	entry.fadeInStart = RealTimeL()
+	entry.fadeInEnd = RealTimeL() + animtime
 
-	entry.fadeOutStart = RealTime() + displayTime - animtime
-	entry.fadeOutEnd = RealTime() + displayTime
+	entry.fadeOutStart = RealTimeL() + displayTime - animtime
+	entry.fadeOutEnd = RealTimeL() + displayTime
 
 	entry.victim = victim
 	entry.attacker = attacker
@@ -94,7 +94,7 @@ function FFGSHUD:DrawDeathNotice()
 	local x, y = DRAW_POS()
 	x = x - self.BATTLE_STATS_WIDE
 	local space = ScreenSize(3)
-	local time = RealTime()
+	local time = RealTimeL()
 	local H = self.KillfeedFont.REGULAR_SIZE_H
 
 	for i, entry in ipairs(notices) do
@@ -131,7 +131,7 @@ end
 
 function FFGSHUD:ThinkDeathNotice()
 	local toRemove
-	local time = RealTime()
+	local time = RealTimeL()
 
 	for i, entry in ipairs(notices) do
 		if entry.ttl < time then

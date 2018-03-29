@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local DLib = DLib
 local FFGSHUD = FFGSHUD
 local LerpCubic = LerpCubic
@@ -22,48 +22,48 @@ local IsValid = FindMetaTable('Entity').IsValid
 FFGSHUD.ammoHUDAnimationTime = 0
 FFGSHUD.ammoStoredHUDAnimationTime = 0
 FFGSHUD.swipeAnimationTime = 0
-FFGSHUD.LastWeaponUpdate = RealTime()
-FFGSHUD.LastWeaponUpdateFadeIn = RealTime()
-FFGSHUD.LastWeaponUpdateFadeOutStart = RealTime()
-FFGSHUD.LastWeaponUpdateFadeOutEnd = RealTime()
+FFGSHUD.LastWeaponUpdate = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeIn = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeOutStart = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeOutEnd = RealTimeL()
 
-FFGSHUD.LastWeaponUpdate2 = RealTime()
-FFGSHUD.LastWeaponUpdateFadeIn2 = RealTime()
-FFGSHUD.LastWeaponUpdateFadeOutStart2 = RealTime()
-FFGSHUD.LastWeaponUpdateFadeOutEnd2 = RealTime()
+FFGSHUD.LastWeaponUpdate2 = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeIn2 = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeOutStart2 = RealTimeL()
+FFGSHUD.LastWeaponUpdateFadeOutEnd2 = RealTimeL()
 
 function FFGSHUD:PlayingSwipeAnimation()
-	return self.swipeAnimationTime > RealTime()
+	return self.swipeAnimationTime > RealTimeL()
 end
 
 function FFGSHUD:SwipeAnimationDuration()
-	return RealTime():progression(self.swipeAnimationTime - 0.4, self.swipeAnimationTime)
+	return RealTimeL():progression(self.swipeAnimationTime - 0.4, self.swipeAnimationTime)
 end
 
 local function changes(s, self, lply, old, new)
-	self.LastWeaponUpdate = RealTime()
+	self.LastWeaponUpdate = RealTimeL()
 
-	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart < RealTime() then
-		self.LastWeaponUpdateFadeIn = RealTime() + 0.5
+	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart < RealTimeL() then
+		self.LastWeaponUpdateFadeIn = RealTimeL() + 0.5
 	else
-		self.LastWeaponUpdateFadeIn = RealTime() - 0.5
+		self.LastWeaponUpdateFadeIn = RealTimeL() - 0.5
 	end
 
-	self.LastWeaponUpdateFadeOutStart = RealTime() + 3
-	self.LastWeaponUpdateFadeOutEnd = RealTime() + 3.5
+	self.LastWeaponUpdateFadeOutStart = RealTimeL() + 3
+	self.LastWeaponUpdateFadeOutEnd = RealTimeL() + 3.5
 end
 
 local function changes2(s, self, lply, old, new)
-	self.LastWeaponUpdate2 = RealTime()
+	self.LastWeaponUpdate2 = RealTimeL()
 
-	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart2 < RealTime() then
-		self.LastWeaponUpdateFadeIn2 = RealTime() + 0.5
+	if (not old or old > new) and self.LastWeaponUpdateFadeOutStart2 < RealTimeL() then
+		self.LastWeaponUpdateFadeIn2 = RealTimeL() + 0.5
 	else
-		self.LastWeaponUpdateFadeIn2 = RealTime() - 0.5
+		self.LastWeaponUpdateFadeIn2 = RealTimeL() - 0.5
 	end
 
-	self.LastWeaponUpdateFadeOutStart2 = RealTime() + 1.5
-	self.LastWeaponUpdateFadeOutEnd2 = RealTime() + 2
+	self.LastWeaponUpdateFadeOutStart2 = RealTimeL() + 1.5
+	self.LastWeaponUpdateFadeOutEnd2 = RealTimeL() + 2
 end
 
 function FFGSHUD:OnWeaponChanged(old, new)
@@ -71,7 +71,7 @@ function FFGSHUD:OnWeaponChanged(old, new)
 
 	local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
 
-	self.swipeAnimationTime = RealTime() + 0.4
+	self.swipeAnimationTime = RealTimeL() + 0.4
 
 	self.oldWeaponName = self:GetVarWeaponName()
 	self.oldStoredAmmoString = ammoStoredText
@@ -95,16 +95,16 @@ function FFGSHUD:WatchdogForReload()
 	local key = DLib.KeyMap.GetKeyFromString(bind)
 
 	if input.IsKeyDown(key) then
-		self.LastWeaponUpdate = RealTime()
-		self.LastWeaponUpdateFadeOutStart = RealTime() + 3
-		self.LastWeaponUpdateFadeOutEnd = RealTime() + 3.5
+		self.LastWeaponUpdate = RealTimeL()
+		self.LastWeaponUpdateFadeOutStart = RealTimeL() + 3
+		self.LastWeaponUpdateFadeOutEnd = RealTimeL() + 3.5
 
 		if not self.reloadWatchdog then
 			self.reloadWatchdog = true
-			self.LastWeaponUpdateFadeIn = RealTime() + 0.5
+			self.LastWeaponUpdateFadeIn = RealTimeL() + 0.5
 		end
 	else
-		self.reloadWatchdog = self.LastWeaponUpdateFadeOutStart > RealTime()
+		self.reloadWatchdog = self.LastWeaponUpdateFadeOutStart > RealTimeL()
 	end
 end
 
@@ -133,8 +133,8 @@ FFGSHUD:PatchOnChangeHook('alive', function(s, self, ply, old, new)
 		self.isPlayingDeathAnim = false
 	else
 		self.isPlayingDeathAnim = true
-		self.deathAnimTimeFadeStart = RealTime() + 2.5
-		self.deathAnimTimeFadeEnd = RealTime() + 4.5
+		self.deathAnimTimeFadeStart = RealTimeL() + 2.5
+		self.deathAnimTimeFadeEnd = RealTimeL() + 4.5
 	end
 end)
 

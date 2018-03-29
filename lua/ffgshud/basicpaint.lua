@@ -22,7 +22,7 @@ local color_white = color_white
 local render = render
 local surface = surface
 local ScreenScale = ScreenScale
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local math = math
 
 local FillageColorHealth = FFGSHUD:CreateColorN('fillage_hp', 'Fillage Color for HP', Color(80, 80, 80))
@@ -37,14 +37,14 @@ local HPColor = FFGSHUD:CreateColorN('plyhp', 'Player Health', Color())
 local ArmorColor = FFGSHUD:CreateColorN('armorcolor', 'Player Armor', Color())
 
 local pi = math.pi * 16
-local function RealTimeAnim()
-	return RealTime() % pi
+local function RealTimeLAnim()
+	return RealTimeL() % pi
 end
 
 function FFGSHUD:PaintPlayerStats()
 	if self.isPlayingDeathAnim then
 		local x, y = POS_PLAYERSTATS()
-		local time = RealTime()
+		local time = RealTimeL()
 
 		if self.deathAnimTimeFadeStart > time then
 			FillageColorHealthShadowStatic(255)
@@ -84,7 +84,7 @@ function FFGSHUD:PaintPlayerStats()
 	if fillage < 0.5 then
 		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, HPColor(), fillage, FillageColorHealth())
 	else
-		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, HPColor(), FillageColorHealthShadow():SetRed(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
+		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, HPColor(), FillageColorHealthShadow():SetRed(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
 	end
 
 	y = y + h * 0.89
@@ -153,7 +153,7 @@ function FFGSHUD:PaintWeaponStats()
 		return
 	end
 
-	local time = RealTime()
+	local time = RealTimeL()
 	local hide = self:CanHideAmmoCounter()
 
 	if self:CanDisplayWeaponSelect2() and hide then
@@ -196,7 +196,7 @@ function FFGSHUD:PaintWeaponStats()
 		elseif fillage1 == 1 then
 			FillageColorAmmoShadow1.r = 200
 		else
-			FillageColorAmmoShadow1.r = math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 130
+			FillageColorAmmoShadow1.r = math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130
 		end
 
 		if fillage2 == 0 then
@@ -204,7 +204,7 @@ function FFGSHUD:PaintWeaponStats()
 		elseif fillage2 == 1 then
 			FillageColorAmmoShadow2.r = 200
 		else
-			FillageColorAmmoShadow2.r = math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 130
+			FillageColorAmmoShadow2.r = math.sin(RealTimeLAnim() * fillage2 * 30) * 64 + 130
 		end
 
 		if fillage1 < 0.5 then
@@ -252,7 +252,7 @@ function FFGSHUD:PaintWeaponStats()
 	elseif fillage1 == 1 then
 		FillageColorAmmoShadow1.r = 200
 	else
-		FillageColorAmmoShadow1.r = math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 130
+		FillageColorAmmoShadow1.r = math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130
 	end
 
 	if fillage2 == 0 then
@@ -260,7 +260,7 @@ function FFGSHUD:PaintWeaponStats()
 	elseif fillage2 == 1 then
 		FillageColorAmmoShadow2.r = 200
 	else
-		FillageColorAmmoShadow2.r = math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 130
+		FillageColorAmmoShadow2.r = math.sin(RealTimeLAnim() * fillage2 * 30) * 64 + 130
 	end
 
 	if fillage1 < 0.5 then
@@ -326,7 +326,7 @@ function FFGSHUD:PaintWeaponStats()
 	elseif fillage1 == 1 then
 		FillageColorAmmoShadow1_Select.r = 200
 	else
-		FillageColorAmmoShadow1_Select.r = (math.sin(RealTimeAnim() * fillage1 * 30) * 64 + 130) * multAlpha
+		FillageColorAmmoShadow1_Select.r = (math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130) * multAlpha
 	end
 
 	if fillage2 == 0 then
@@ -334,7 +334,7 @@ function FFGSHUD:PaintWeaponStats()
 	elseif fillage2 == 1 then
 		FillageColorAmmoShadow2_Select.r = 200
 	else
-		FillageColorAmmoShadow2_Select.r = (math.sin(RealTimeAnim() * fillage2 * 30) * 64 + 130) * multAlpha
+		FillageColorAmmoShadow2_Select.r = (math.sin(RealTimeLAnim() * fillage2 * 30) * 64 + 130) * multAlpha
 	end
 
 	w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName_Select(), x, y, WeaponNameColor_Select)

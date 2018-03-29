@@ -17,10 +17,11 @@ local net = net
 local DLib = DLib
 
 net.pool('ffgs.damagereceived')
+net.pool('ffgs.damagedealed')
 local IsValid = FindMetaTable('Entity').IsValid
 
-local function EntityTakeDamage(self, dmg)
-	local players = DLib.combat.findPlayers(self)
+local function damagereceived(self, dmg)
+local players = DLib.combat.findPlayers(self)
 	if not players then return end
 
 	local attacker = dmg:GetAttacker()
@@ -45,7 +46,7 @@ local function EntityTakeDamage(self, dmg)
 		end
 	end
 
-	net.Start('ffgs.damagereceived')
+	net.Start('ffgs.damagereceived', true)
 	net.WriteUInt64(dmg:GetDamageType() or 0)
 	net.WriteFloat(dmg:GetDamage())
 
@@ -56,6 +57,10 @@ local function EntityTakeDamage(self, dmg)
 	end
 
 	net.Send(players)
+end
+
+local function EntityTakeDamage(self, dmg)
+	damagereceived(self, dmg)
 end
 
 hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage)

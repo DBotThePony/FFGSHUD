@@ -21,7 +21,7 @@ local team = team
 local ScreenSize = ScreenScale
 local color_white = color_white
 local math = math
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local IsValid = FindMetaTable('Entity').IsValid
 
 function FFGSHUD:HUDDrawTargetID()
@@ -37,13 +37,13 @@ function FFGSHUD:ThinkTargetID(ply)
 	local ent = tr.Entity
 
 	if not IsValid(ent) or not ent:IsPlayer()then
-		self.drawTargetID = RealTime() < self.targetID_Fade and IsValid(self.targetID_Ply)
+		self.drawTargetID = RealTimeL() < self.targetID_Fade and IsValid(self.targetID_Ply)
 		return
 	end
 
 	self.drawTargetID = true
 	self.targetID_Ply = ent
-	self.targetID_Fade = RealTime() + 0.4
+	self.targetID_Fade = RealTimeL() + 0.4
 end
 
 function FFGSHUD:PaintTargetID(ply)
@@ -58,7 +58,7 @@ function FFGSHUD:PaintTargetID(ply)
 	local maxArmor = ent:GetMaxArmor()
 	local pteam = ent:Team()
 	local color = Color(team.GetColor(pteam or 0) or color_white)
-	color.a = math.max((self.targetID_Fade - RealTime()) / 0.4 * 255, 0)
+	color.a = math.max((self.targetID_Fade - RealTimeL()) / 0.4 * 255, 0)
 
 	local x, y = MousePos()
 

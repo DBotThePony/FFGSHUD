@@ -25,10 +25,10 @@ local VehicleName = FFGSHUD:CreateColorN('vehname', 'Vehicle Name', Color())
 local HPColor = FFGSHUD:CreateColorN('vehcolor', 'Vehicle Health', Color())
 
 local math = math
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local pi = math.pi * 16
-local function RealTimeAnim()
-	return RealTime() % pi
+local function RealTimeLAnim()
+	return RealTimeL() % pi
 end
 
 function FFGSHUD:DrawVehicleInfo()
@@ -46,7 +46,7 @@ function FFGSHUD:DrawVehicleInfo()
 		if fillage < 0.5 then
 			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), fillage, FillageColorHealth())
 		else
-			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
+			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
 		end
 	elseif self:GetVarVehicleHealth() > 0 then
 		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor())

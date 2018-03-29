@@ -15,12 +15,12 @@
 
 local FFGSHUD = FFGSHUD
 local net = net
-local CurTime = CurTime
+local CurTimeL = CurTimeL
 local table = table
 local ipairs = ipairs
 local ScreenSize = ScreenSize
 local HUDCommons = DLib.HUDCommons
-local ScrH = ScrH
+local ScrHL = ScrHL
 
 local history = {}
 
@@ -89,8 +89,8 @@ local function onDamage()
 
 	table.insert(history, {
 		damage = dmg,
-		start = CurTime(),
-		endtime = CurTime() + (dmg:sqrt() * 0.7):clamp(1, 10),
+		start = CurTimeL(),
+		endtime = CurTimeL() + (dmg:sqrt() * 0.7):clamp(1, 10),
 		pos = reportedPosition,
 		arc1 = 0,
 		arc2 = 0,
@@ -106,7 +106,7 @@ net.receive('ffgs.damagereceived', onDamage)
 
 function FFGSHUD:ThinkDamageSense(ply)
 	local toremove
-	local time = CurTime()
+	local time = CurTimeL()
 	local pos = ply:EyePos()
 	local ang = ply:EyeAnglesFixed()
 	local s = ScreenSize(1)
@@ -134,7 +134,7 @@ function FFGSHUD:ThinkDamageSense(ply)
 end
 
 function FFGSHUD:DrawDamageSense(ply)
-	local sw, sh = ScrW(), ScrH()
+	local sw, sh = ScrWL(), ScrHL()
 	local x = (sw - sh * 0.6) / 2
 	local y = sh * 0.2
 	sh = sh * 0.6
@@ -157,7 +157,7 @@ function FFGSHUD:DrawDamageSense(ply)
 		end
 	end
 
-	local sw, sh = ScrW(), ScrH()
+	local sw, sh = ScrWL(), ScrHL()
 	local x = (sw - sh * 0.6) / 2
 	local y = sh * 0.2
 	sh = sh * 0.6

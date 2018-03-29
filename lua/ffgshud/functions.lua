@@ -14,7 +14,7 @@
 -- limitations under the License.
 
 local FFGSHUD = FFGSHUD
-local RealTime = RealTime
+local RealTimeL = RealTimeL
 local IsValid = FindMetaTable('Entity').IsValid
 
 function FFGSHUD:GetAmmoDisplayText()
@@ -132,11 +132,11 @@ function FFGSHUD:GetAmmoDisplayText2()
 end
 
 function FFGSHUD:CanDisplayWeaponSelect()
-	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeapon ~= self:GetWeapon() and self.tryToSelectWeaponLastEnd > RealTime()
+	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeapon ~= self:GetWeapon() and self.tryToSelectWeaponLastEnd > RealTimeL()
 end
 
 function FFGSHUD:CanDisplayWeaponSelect2()
-	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeaponLastEnd > RealTime()
+	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeaponLastEnd > RealTimeL()
 end
 
 function FFGSHUD:CanHideAmmoCounter()
