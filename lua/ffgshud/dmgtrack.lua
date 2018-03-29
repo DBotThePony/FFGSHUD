@@ -92,8 +92,8 @@ local function onDamage()
 		start = RealTime(),
 		endtime = RealTime() + (dmg:sqrt() * 0.7):clamp(1, 10),
 		pos = reportedPosition,
-		arc1 = reportedPosition and 0 or -192,
-		arc2 = reportedPosition and 0 or 10,
+		arc1 = 0,
+		arc2 = 0,
 		arcsize = (dmg * ScreenSize(40)):min(ScreenSize(40)),
 		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
 		reportedPosition = reportedPosition,
@@ -142,19 +142,46 @@ function FFGSHUD:DrawDamageSense(ply)
 	sh = sh * 0.6
 
 	for i, entry in ipairs(history) do
-		local m = #entry.colors
-		local slice = entry.arc2 / m
+		if entry.reportedPosition then
+			local m = #entry.colors
+			local slice = entry.arc2 / m
 
-		for i2, color in ipairs(entry.colors) do
-			HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
+			for i2, color in ipairs(entry.colors) do
+				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
+			end
+
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
+
+			y = y + entry.inLen * 0.5
+			sh = sh - entry.inLen
+			x = x + entry.inLen * 0.5
 		end
+	end
 
-		--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
-		--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
+	local sw, sh = ScrW(), ScrH()
+	local x = (sw - sh * 0.6) / 2
+	local y = sh * 0.2
+	sh = sh * 0.6
 
-		y = y + entry.inLen * 0.5
-		sh = sh - entry.inLen
-		x = x + entry.inLen * 0.5
+	for i, entry in ipairs(history) do
+		if not entry.reportedPosition then
+			local m = #entry.colors
+			local slice = 120 / m
+
+			for i2, color in ipairs(entry.colors) do
+				local i = i2 - 1
+				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, -150 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
+				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 30 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
+			end
+
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
+
+			y = y - entry.inLen * 0.5
+			sh = sh + entry.inLen
+			x = x - entry.inLen * 0.5
+		end
 	end
 end
 

@@ -26,8 +26,9 @@ local function EntityTakeDamage(self, dmg)
 	local attacker = dmg:GetAttacker()
 	local reportedPos = dmg:GetReportedPosition()
 	local validReportedPos = false
+	local attackerClass = attacker:IsValid() and attacker:GetClass() or ''
 
-	if not dmg:IsFallDamage() then
+	if not dmg:IsFallDamage() and not attackerClass:startsWith('trigger_')  and not attackerClass:startsWith('func_') then
 		if reportedPos:IsZero() then
 			if IsValid(attacker) then
 				reportedPos = attacker:GetPos()

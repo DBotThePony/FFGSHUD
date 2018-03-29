@@ -51,7 +51,7 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	entry.weapon = '[' .. weapon .. ']'
 	entry.validAttacker = validAttacker
 
-	local displayTime = ((not isSuicide and (attacker and #attacker / 8 or 0) or 0) + (#weapon / 8) + (#victim / 5)):clamp(4, 8)
+	local displayTime = ((not isSuicide and (attacker and #attacker / 4 or 0) or 0) + (#weapon / 4) + (#victim / 2)):clamp(4, 8)
 	local animtime = displayTime * 0.1
 
 	entry.ttl = RealTime() + displayTime
