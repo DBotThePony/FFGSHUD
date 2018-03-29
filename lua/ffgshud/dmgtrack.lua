@@ -95,7 +95,7 @@ local function onDamage()
 		arc1 = 0,
 		arc2 = 0,
 		arcsize = (dmg * ScreenSize(40)):min(ScreenSize(40)),
-		inLen = (dmg:pow(2) * ScreenSize(0.1)):min(ScreenSize(50)),
+		inLen = (dmg:pow(2) * ScreenSize(0.1)):clamp(ScreenSize(3), ScreenSize(50)),
 		reportedPosition = reportedPosition,
 		colors = colors,
 		alpha = 1,
