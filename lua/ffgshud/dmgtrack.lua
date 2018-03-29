@@ -105,7 +105,6 @@ end
 net.receive('ffgs.damagereceived', onDamage)
 
 function FFGSHUD:ThinkDamageSense(ply)
-	if not self:GetVarAlive() then return end
 	local toremove
 	local time = CurTime()
 	local pos = ply:EyePos()
@@ -135,7 +134,6 @@ function FFGSHUD:ThinkDamageSense(ply)
 end
 
 function FFGSHUD:DrawDamageSense(ply)
-	if not self:GetVarAlive() then return end
 	local sw, sh = ScrW(), ScrH()
 	local x = (sw - sh * 0.6) / 2
 	local y = sh * 0.2
