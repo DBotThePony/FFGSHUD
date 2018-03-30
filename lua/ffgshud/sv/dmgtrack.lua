@@ -25,6 +25,7 @@ local players = DLib.combat.findPlayers(self)
 	if not players then return end
 
 	local attacker = dmg:GetAttacker()
+	local inflictor = dmg:GetInflictor()
 	local reportedPos = dmg:GetReportedPosition()
 	local validReportedPos = false
 	local validAttacker = attacker:IsValid()
@@ -33,11 +34,15 @@ local players = DLib.combat.findPlayers(self)
 		not attackerClass:startsWith('trigger_') and
 		not attackerClass:startsWith('func_') and
 		attackerClass ~= 'env_fire' and
-		(not validAttacker or attacker:GetParent() ~= self)
+		(not validAttacker or attacker:GetParent() ~= self) and
+		attacker ~= self
 
 	if cond then
 		if reportedPos:IsZero() then
-			if IsValid(attacker) then
+			if IsValid(inflictor) and not inflictor:IsWeapon() then
+				reportedPos = inflictor:GetPos()
+				validReportedPos = true
+			elseif IsValid(attacker) then
 				reportedPos = attacker:GetPos()
 				validReportedPos = true
 			end
