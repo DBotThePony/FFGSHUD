@@ -111,6 +111,7 @@ function FFGSHUD:ThinkDamageSense(ply)
 	local ang = ply:EyeAnglesFixed()
 	local s = ScreenSize(1)
 	local s2 = ScreenSize(12)
+	local vehicle = ply:InVehicle()
 
 	for i, entry in ipairs(history) do
 		if entry.endtime < time then
@@ -120,6 +121,11 @@ function FFGSHUD:ThinkDamageSense(ply)
 			local pointer = entry.reportedPosition - pos
 			local yaw = -180 - pointer:Angle().y:AngleDifference(ang.y)
 			local dist = entry.reportedPosition:Distance(pos)
+
+			if vehicle then
+				dist = dist:sqrt():sqrt()
+			end
+
 			local size = (entry.arcsize / dist:sqrt():sqrt()):max(s)
 			entry.arc1 = yaw - size
 			entry.arc2 = size
@@ -133,11 +139,25 @@ function FFGSHUD:ThinkDamageSense(ply)
 	end
 end
 
+local cam = cam
+
 function FFGSHUD:DrawDamageSense(ply)
 	local sw, sh = ScrWL(), ScrHL()
+	local vehicle = ply:InVehicle()
 	local x = (sw - sh * 0.6) / 2
 	local y = sh * 0.2
-	sh = sh * 0.6
+
+	if vehicle then
+		x = (sw - sh * 0.8) / 2
+		y = sh * 0.1
+		sh = sh * 0.8
+	else
+		sh = sh * 0.6
+	end
+
+	-- if vehicle then
+	-- 	cam.Start3D(Vector(0, 0, 50), Angle(0, 0, 0))
+	-- end
 
 	for i, entry in ipairs(history) do
 		if entry.reportedPosition then
@@ -157,10 +177,23 @@ function FFGSHUD:DrawDamageSense(ply)
 		end
 	end
 
-	local sw, sh = ScrWL(), ScrHL()
-	local x = (sw - sh * 0.6) / 2
-	local y = sh * 0.2
-	sh = sh * 0.6
+	-- if vehicle then
+	-- 	cam.End3D()
+	-- 	cam.Start3D()
+	-- 	cam.End3D()
+	-- end
+
+	sw, sh = ScrWL(), ScrHL()
+
+	if vehicle then
+		x = (sw - sh * 0.8) / 2
+		y = sh * 0.1
+		sh = sh * 0.8
+	else
+		x = (sw - sh * 0.6) / 2
+		y = sh * 0.2
+		sh = sh * 0.6
+	end
 
 	for i, entry in ipairs(history) do
 		if not entry.reportedPosition then
@@ -170,7 +203,7 @@ function FFGSHUD:DrawDamageSense(ply)
 			for i2, color in ipairs(entry.colors) do
 				local i = i2 - 1
 				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, -150 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
-				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 30 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
+				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 30 + slice * i, slice, color)
 			end
 
 			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
