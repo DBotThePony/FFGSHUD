@@ -140,6 +140,8 @@ function FFGSHUD:ThinkDamageSense(ply)
 end
 
 local cam = cam
+local Vector = Vector
+local CAMANG = Angle(0, 0, 0)
 
 function FFGSHUD:DrawDamageSense(ply)
 	local sw, sh = ScrWL(), ScrHL()
@@ -151,13 +153,21 @@ function FFGSHUD:DrawDamageSense(ply)
 		x = (sw - sh * 0.8) / 2
 		y = sh * 0.1
 		sh = sh * 0.8
+
+		local ang = ply:EyeAngles()
+		ang.p = -ang.p:clamp(-45, 40)
+		ang.y = 0
+		-- ang.r = 0
+		local campos = Vector(0, -ScreenSize(400) * ang.p:progression(-35, 0), ScreenSize(300) * ang.p:progression(-140, 90))
+
+		local sceneAng = (Vector(ScreenSize(1200) * ang.p:progression(-15, 0)) - campos):Angle()
+		sceneAng.y = 90
+
+		cam.Start3D(campos, sceneAng)
+		cam.Start3D2D(Vector(-ScrWL() / 2, ScrHL() / 2, 0), CAMANG, 1)
 	else
 		sh = sh * 0.6
 	end
-
-	-- if vehicle then
-	-- 	cam.Start3D(Vector(0, 0, 50), Angle(0, 0, 0))
-	-- end
 
 	for i, entry in ipairs(history) do
 		if entry.reportedPosition then
@@ -167,7 +177,7 @@ function FFGSHUD:DrawDamageSense(ply)
 			for i2, color in ipairs(entry.colors) do
 				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
 			end
-
+			--surface.DrawRect(0, 0, ScrWL(), ScrHL())
 			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
 			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
 
@@ -176,12 +186,6 @@ function FFGSHUD:DrawDamageSense(ply)
 			x = x + entry.inLen * 0.5
 		end
 	end
-
-	-- if vehicle then
-	-- 	cam.End3D()
-	-- 	cam.Start3D()
-	-- 	cam.End3D()
-	-- end
 
 	sw, sh = ScrWL(), ScrHL()
 
@@ -213,6 +217,13 @@ function FFGSHUD:DrawDamageSense(ply)
 			sh = sh + entry.inLen
 			x = x - entry.inLen * 0.5
 		end
+	end
+
+	if vehicle then
+		cam.End3D2D()
+		cam.End3D()
+		cam.Start3D()
+		cam.End3D()
 	end
 end
 
