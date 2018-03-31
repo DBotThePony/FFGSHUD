@@ -366,34 +366,54 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 	render.SetScissorRect(0, 0, 0, 0, false)
 end
 
+local MODE = FFGSHUD:CreateConVar('ldamage_mode', '1', 'Last Damage Dealt mode. 1 - display full damage until entrie fadeout. 0 - display time based last damage (update in real time)')
+
 function FFGSHUD:ThinkLastDamageDealed(ply)
 	local time = CurTimeL()
-	local toRemoveDamage, toRemoveColor
 
-	for i, entry in ipairs(lastDamage) do
-		if entry.endtime < time then
-			toRemoveDamage = toRemoveDamage or {}
-			table.insert(toRemoveDamage, i)
-		end
-	end
+	if not MODE:GetBool() then
+		local toRemoveDamage, toRemoveColor
 
-	for i, entry in ipairs(colorsDraw) do
-		if entry.slideOutEnd < time then
-			toRemoveColor = toRemoveColor or {}
-			table.insert(toRemoveColor, i)
-		end
-	end
-
-	if toRemoveDamage or toRemoveColor then
-		if toRemoveDamage then
-			table.removeValues(lastDamage, toRemoveDamage)
+		for i, entry in ipairs(lastDamage) do
+			if entry.endtime < time then
+				toRemoveDamage = toRemoveDamage or {}
+				table.insert(toRemoveDamage, i)
+			end
 		end
 
-		if toRemoveColor then
-			table.removeValues(colorsDraw, toRemoveColor)
+		for i, entry in ipairs(colorsDraw) do
+			if entry.slideOutEnd < time then
+				toRemoveColor = toRemoveColor or {}
+				table.insert(toRemoveColor, i)
+			end
 		end
 
-		rebuild()
+		if toRemoveDamage or toRemoveColor then
+			if toRemoveDamage then
+				table.removeValues(lastDamage, toRemoveDamage)
+			end
+
+			if toRemoveColor then
+				table.removeValues(colorsDraw, toRemoveColor)
+			end
+
+			rebuild()
+		end
+	else
+		for i, entry in ipairs(lastDamage) do
+			if entry.endtime >= time then
+				return
+			end
+		end
+
+		for i, entry in ipairs(colorsDraw) do
+			if entry.slideOutEnd >= time then
+				return
+			end
+		end
+
+		lastDamage = {}
+		colorsDraw = {}
 	end
 end
 
