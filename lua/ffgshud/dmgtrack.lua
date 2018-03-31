@@ -276,7 +276,7 @@ local function updateColor(dmgtype, color, newvalue)
 		hideAtEnd = hideAtEnd:max(data.slideOutEnd)
 
 		table.insert(colorsDraw, data)
-		return
+		return data
 	end
 
 	data.color = color
@@ -296,27 +296,48 @@ local function updateColor(dmgtype, color, newvalue)
 
 	hideAtStart = hideAtStart:max(data.slideOutStart)
 	hideAtEnd = hideAtEnd:max(data.slideOutEnd)
+
+	return data
 end
 
 local function rebuild()
 	local amount = 0
+	local totalDamage = 0
+
+	for i, entry in ipairs(colorsDraw) do
+		entry.dmg = 0
+	end
 
 	for i, entry in ipairs(lastDamage) do
-		amount = amount - entry.dmg
+		amount = amount + entry.dmg
 		local dmgtype = entry.dmgtype
 
 		if dmgtype == DMG_GENERIC then -- stopid addons
-			updateColor(dmgtype, Color(), entry.endtime)
+			local data = updateColor(dmgtype, Color(), entry.endtime)
+			data.dmg = (data.dmg or 0) + entry.dmg
 		else
+			local hits = 0
+
 			for i, clr in ipairs(dmgColors) do
 				if clr[1]:band(dmgtype) == clr[1] then
-					updateColor(clr[1], clr[2]:Copy(), entry.endtime)
+					hits = hits + 1
+				end
+			end
+
+			for i, clr in ipairs(dmgColors) do
+				if clr[1]:band(dmgtype) == clr[1] then
+					local data = updateColor(clr[1], clr[2]:Copy(), entry.endtime)
+					data.dmg = (data.dmg or 0) + entry.dmg / hits
 				end
 			end
 		end
 	end
 
-	textToDisplay = tostring(amount:floor())
+	for i, entry in ipairs(colorsDraw) do
+		entry.part = entry.dmg / amount
+	end
+
+	textToDisplay = tostring(-amount:floor())
 end
 
 local function damageDealed()
@@ -355,12 +376,20 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 
 	surface.SetFont(self.LastDamageDealed.REGULAR)
 	w, h = surface.GetTextSize(textToDisplay)
-	local step = w / amount
+	local boxX = x - w / 2
+	local BX, BY = boxX, y - ScreenSize(15)
+	local bh = ScreenSize(10)
 
 	for i, entry in ipairs(colorsDraw) do
 		-- performance
-		render.SetScissorRect(x - w / 2 + step * (i - 1), y, x - w / 2 + step * i, y + h, true)
-		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color:SetAlpha(alpha))
+		render.SetScissorRect(boxX, y - h * 2, boxX + w * entry.part, y + h, true)
+
+		surface.SetDrawColor(entry.color:SetAlpha(alpha))
+		surface.DrawRect(BX, BY, w * entry.part, bh)
+		BX = BX + w * entry.part
+
+		boxX = boxX + w * entry.part
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color)
 	end
 
 	render.SetScissorRect(0, 0, 0, 0, false)
