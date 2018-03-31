@@ -21,7 +21,8 @@ net.pool('ffgs.damagedealed')
 local IsValid = FindMetaTable('Entity').IsValid
 
 local function damagereceived(self, dmg)
-local players = DLib.combat.findPlayers(self)
+	if dmg:GetDamage() == 0 then return end
+	local players = DLib.combat.findPlayers(self)
 	if not players then return end
 
 	local attacker = dmg:GetAttacker()
@@ -65,6 +66,7 @@ local players = DLib.combat.findPlayers(self)
 end
 
 local function damagedealed(ent, dmg)
+	if dmg:GetDamage() == 0 then return end
 	local self = dmg:GetAttacker()
 	-- attacker is not a player
 	if ent == self or not IsValid(self) or type(self) ~= 'Player' then return end
