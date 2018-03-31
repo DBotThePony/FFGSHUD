@@ -106,6 +106,18 @@ FFGSHUD.LastDamageDealed = FFGSHUD:CreateScalableFont('LastDamageDealed', {
 	weight = 600
 })
 
+FFGSHUD.CompassDirections = FFGSHUD:CreateScalableFont('CompassDirections', {
+	font = 'Roboto',
+	size = 13,
+	weight = 600
+})
+
+FFGSHUD.CompassAngle = FFGSHUD:CreateScalableFont('CompassAngle', {
+	font = 'Roboto',
+	size = 16,
+	weight = 600
+})
+
 FFGSHUD.ICON_FRAGS = '♐'
 FFGSHUD.ICON_DEATHS = '☠'
 FFGSHUD.ICON_PING = '☍'
@@ -377,3 +389,4 @@ include('binfo.lua')
 include('dmgtrack.lua')
 include('glitch.lua')
 include('killfeed.lua')
+include('compass.lua')
