@@ -64,8 +64,18 @@ local players = DLib.combat.findPlayers(self)
 	net.Send(players)
 end
 
-local function EntityTakeDamage(self, dmg)
-	damagereceived(self, dmg)
+local function damagedealed(ent, dmg)
+	local self = dmg:GetAttacker()
+	if ent == self or not IsValid(self) or type(self) ~= 'Player' then return end
+	net.Start('ffgs.damagedealed', true)
+	net.WriteUInt64(dmg:GetDamageType() or 0)
+	net.WriteFloat(dmg:GetDamage())
+	net.Send(self)
 end
 
-hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage)
+local function EntityTakeDamage(self, dmg)
+	damagereceived(self, dmg)
+	damagedealed(self, dmg)
+end
+
+hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage, 4)

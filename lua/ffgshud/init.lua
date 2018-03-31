@@ -100,6 +100,12 @@ FFGSHUD.BattleStats = FFGSHUD:CreateScalableFont('BattleStats', {
 	size = 34,
 })
 
+FFGSHUD.LastDamageDealed = FFGSHUD:CreateScalableFont('LastDamageDealed', {
+	font = 'PT Mono',
+	size = 64,
+	weight = 600
+})
+
 FFGSHUD.ICON_FRAGS = '♐'
 FFGSHUD.ICON_DEATHS = '☠'
 FFGSHUD.ICON_PING = '☍'

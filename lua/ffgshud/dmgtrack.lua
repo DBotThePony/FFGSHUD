@@ -92,6 +92,9 @@ local function onDamage()
 		start = CurTimeL(),
 		endtime = CurTimeL() + (dmg:sqrt() * 0.7):clamp(1, 10),
 		pos = reportedPosition,
+		shiftOutStart = CurTimeL(),
+		shiftOutMiddle = CurTimeL() + 0.1,
+		shiftOutEnd = CurTimeL() + 0.12,
 		arc1 = 0,
 		arc2 = 0,
 		arcsize = (dmg * ScreenSize(40)):min(ScreenSize(40)),
@@ -148,6 +151,8 @@ function FFGSHUD:DrawDamageSense(ply)
 	local vehicle = ply:InVehicle()
 	local x = (sw - sh * 0.6) / 2
 	local y = sh * 0.2
+	local shiftByValue = ScreenSize(64)
+	local time = CurTimeL()
 
 	if vehicle then
 		x = (sw - sh * 0.8) / 2
@@ -173,9 +178,10 @@ function FFGSHUD:DrawDamageSense(ply)
 		if entry.reportedPosition then
 			local m = #entry.colors
 			local slice = entry.arc2 / m
+			local doshift = (1 - time:progression(entry.shiftOutStart, entry.shiftOutEnd)) * shiftByValue
 
 			for i2, color in ipairs(entry.colors) do
-				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
+				HUDCommons.DrawArcHollow2(x + doshift / 2, y + doshift / 2, sh - doshift, 120, entry.inLen, entry.arc1 + slice * i2 - 3, slice, color:SetAlpha(entry.alpha * 200))
 			end
 			--surface.DrawRect(0, 0, ScrWL(), ScrHL())
 			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
@@ -203,19 +209,20 @@ function FFGSHUD:DrawDamageSense(ply)
 		if not entry.reportedPosition then
 			local m = #entry.colors
 			local slice = 120 / m
-
-			for i2, color in ipairs(entry.colors) do
-				local i = i2 - 1
-				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, -150 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
-				HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 30 + slice * i, slice, color)
-			end
-
-			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
-			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
+			local doshift = time:progression(entry.shiftOutStart, entry.shiftOutEnd, entry.shiftOutMiddle) * shiftByValue * 2
 
 			y = y - entry.inLen * 0.5
 			sh = sh + entry.inLen
 			x = x - entry.inLen * 0.5
+
+			for i2, color in ipairs(entry.colors) do
+				local i = i2 - 1
+				HUDCommons.DrawArcHollow2(x - doshift / 2, y - doshift / 2, sh + doshift, 120, entry.inLen, -150 + slice * i, slice, color:SetAlpha(entry.alpha * 200))
+				HUDCommons.DrawArcHollow2(x - doshift / 2, y - doshift / 2, sh + doshift, 120, entry.inLen, 30 + slice * i, slice, color)
+			end
+
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 180, 180, Color())
+			--HUDCommons.DrawArcHollow2(x, y, sh, 120, entry.inLen, 0, 180, Color())
 		end
 	end
 
@@ -229,3 +236,166 @@ end
 
 FFGSHUD:AddThinkHook('ThinkDamageSense')
 FFGSHUD:AddPaintHook('DrawDamageSense')
+
+local lastDamage = {}
+local colorsDraw = {}
+local textToDisplay = ''
+local hideAtStart = 0
+local hideAtEnd = 0
+local hideInStart = 0
+local hideInEnd = 0
+
+local function updateColor(dmgtype, color, newvalue)
+	local data
+
+	for i, entry in ipairs(colorsDraw) do
+		if entry.dmgtype == dmgtype then
+			data = entry
+			break
+		end
+	end
+
+	local time = CurTimeL()
+
+	if not data then
+		data = {
+			color = color,
+			slideInStart = time,
+			slideInEnd = time + 0.65,
+			slideOutStart = newvalue - 0.65,
+			slideOutEnd = newvalue,
+			dmgtype = dmgtype,
+		}
+
+		if hideAtEnd < time then
+			hideInStart = hideInStart:max(data.slideInStart)
+			hideInEnd = hideInEnd:max(data.slideInEnd)
+		end
+
+		hideAtStart = hideAtStart:max(data.slideOutStart)
+		hideAtEnd = hideAtEnd:max(data.slideOutEnd)
+
+		table.insert(colorsDraw, data)
+		return
+	end
+
+	data.color = color
+
+	if data.slideOutStart < time then
+		data.slideInStart = data.slideOutStart
+		data.slideInEnd = data.slideOutEnd
+	end
+
+	data.slideOutEnd = data.slideOutEnd:max(newvalue)
+	data.slideOutStart = data.slideOutEnd - 0.65
+
+	if hideAtEnd < time then
+		hideInStart = hideInStart:max(data.slideInStart)
+		hideInEnd = hideInEnd:max(data.slideInEnd)
+	end
+
+	hideAtStart = hideAtStart:max(data.slideOutStart)
+	hideAtEnd = hideAtEnd:max(data.slideOutEnd)
+end
+
+local function rebuild()
+	local amount = 0
+
+	for i, entry in ipairs(lastDamage) do
+		amount = amount - entry.dmg
+		local dmgtype = entry.dmgtype
+
+		if dmgtype == DMG_GENERIC then -- stopid addons
+			updateColor(dmgtype, Color(), entry.endtime)
+		else
+			for i, clr in ipairs(dmgColors) do
+				if clr[1]:band(dmgtype) == clr[1] then
+					updateColor(clr[1], clr[2]:Copy(), entry.endtime)
+				end
+			end
+		end
+	end
+
+	textToDisplay = tostring(amount:floor())
+end
+
+local function damageDealed()
+	local dmgtype = net.ReadUInt64()
+	local dmg = net.ReadFloat()
+
+	table.insert(lastDamage, {
+		start = CurTimeL(),
+		endtime = CurTimeL() + dmg:sqrt():clamp(2, 8),
+		dmgtype = dmgtype,
+		dmg = dmg,
+	})
+
+	rebuild()
+end
+
+net.receive('ffgs.damagedealed', damageDealed)
+
+local surface = surface
+local DRAWPOS = FFGSHUD:DefinePosition('lastdealed', 0.5, 0.85)
+local render = render
+
+function FFGSHUD:DrawLastDamageDealed(ply)
+	local time = CurTimeL()
+	if hideAtEnd < time then return end
+	local x, y = ScrW() * 0.5, ScrH() * 0.85
+	surface.SetFont(self.LastDamageDealed.BLURRY)
+	local w, h = surface.GetTextSize(textToDisplay)
+
+	local alpha = 255 * (time < hideAtStart and time:progression(hideInStart, hideInEnd) or (1 - time:progression(hideAtStart, hideAtEnd)))
+	local color_black = Color(0, 0, 0, alpha)
+
+	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black)
+	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black)
+	local amount = #colorsDraw
+
+	surface.SetFont(self.LastDamageDealed.REGULAR)
+	w, h = surface.GetTextSize(textToDisplay)
+	local step = w / amount
+
+	for i, entry in ipairs(colorsDraw) do
+		-- performance
+		render.SetScissorRect(x - w / 2 + step * (i - 1), y, x - w / 2 + step * i, y + h, true)
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color:SetAlpha(alpha))
+	end
+
+	render.SetScissorRect(0, 0, 0, 0, false)
+end
+
+function FFGSHUD:ThinkLastDamageDealed(ply)
+	local time = CurTimeL()
+	local toRemoveDamage, toRemoveColor
+
+	for i, entry in ipairs(lastDamage) do
+		if entry.endtime < time then
+			toRemoveDamage = toRemoveDamage or {}
+			table.insert(toRemoveDamage, i)
+		end
+	end
+
+	for i, entry in ipairs(colorsDraw) do
+		if entry.slideOutEnd < time then
+			toRemoveColor = toRemoveColor or {}
+			table.insert(toRemoveColor, i)
+		end
+	end
+
+	if toRemoveDamage or toRemoveColor then
+		if toRemoveDamage then
+			table.removeValues(lastDamage, toRemoveDamage)
+		end
+
+		if toRemoveColor then
+			table.removeValues(colorsDraw, toRemoveColor)
+		end
+
+		rebuild()
+	end
+end
+
+FFGSHUD:AddThinkHook('ThinkLastDamageDealed')
+FFGSHUD:AddPaintHook('DrawLastDamageDealed')
