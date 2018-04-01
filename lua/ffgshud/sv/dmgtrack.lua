@@ -21,9 +21,9 @@ net.pool('ffgs.damagedealed')
 local IsValid = FindMetaTable('Entity').IsValid
 
 local function damagereceived(self, dmg)
-	if dmg:GetDamage() == 0 then return end
+	if dmg:GetDamage() == 0 then return false end
 	local players = DLib.combat.findPlayers(self)
-	if not players then return end
+	if not players then return false end
 
 	local attacker = dmg:GetAttacker()
 	local inflictor = dmg:GetInflictor()
@@ -63,6 +63,8 @@ local function damagereceived(self, dmg)
 	end
 
 	net.Send(players)
+
+	return true
 end
 
 local function damagedealed(ent, dmg)
@@ -71,7 +73,7 @@ local function damagedealed(ent, dmg)
 	-- attacker is not a player
 	if ent == self or not IsValid(self) or type(self) ~= 'Player' then return end
 	-- entity is not alive
-	if type(ent) ~= 'Player' and type(ent) ~= 'Vehicle' and type(ent) ~= 'NPC' and type(ent) ~= 'NextBot' then return end
+	-- if type(ent) ~= 'Player' and type(ent) ~= 'Vehicle' and type(ent) ~= 'NPC' and type(ent) ~= 'NextBot' then return end
 	net.Start('ffgs.damagedealed', true)
 	net.WriteUInt64(dmg:GetDamageType() or 0)
 	net.WriteFloat(dmg:GetDamage())
@@ -79,8 +81,11 @@ local function damagedealed(ent, dmg)
 end
 
 local function EntityTakeDamage(self, dmg)
-	damagereceived(self, dmg)
-	damagedealed(self, dmg)
+	local status = damagereceived(self, dmg)
+
+	if status then
+		damagedealed(self, dmg)
+	end
 end
 
 hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage, 4)
