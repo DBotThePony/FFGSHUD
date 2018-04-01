@@ -88,4 +88,4 @@ local function EntityTakeDamage(self, dmg)
 	end
 end
 
-hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage, 4)
+hook.Add('EntityTakeDamage', 'FFGSHUD', EntityTakeDamage, -4)
