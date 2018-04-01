@@ -83,7 +83,7 @@ end
 local function EntityTakeDamage(self, dmg)
 	local status = damagereceived(self, dmg)
 
-	if status then
+	if status or type(self) == 'Player' or type(self) == 'Vehicle' or type(self) == 'NPC' or type(self) == 'NextBot' then
 		damagedealed(self, dmg)
 	end
 end
