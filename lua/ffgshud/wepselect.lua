@@ -297,10 +297,10 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 	FFGSHUD.SelectWeaponPos = FFGSHUD.SelectWeaponPos + (bind == 'invnext' and 1 or -1)
 
 	if FFGSHUD.SelectWeaponPos < 1 then
-		for i = 1, 7 do
+		for i = 1, 6 do
 			slot = slot - 1
 
-			if slot < 0 then
+			if slot < 1 then
 				slot = 6
 			end
 
