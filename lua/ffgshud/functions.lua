@@ -74,6 +74,10 @@ function FFGSHUD:GetAmmoDisplayText()
 	return ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText
 end
 
+function FFGSHUD:SelectWeaponAlpha()
+	return 1 - RealTimeL():progression(self.tryToSelectWeaponLast, self.tryToSelectWeaponLastEnd)
+end
+
 function FFGSHUD:GetAmmoDisplayText2()
 	local ammoReadyText = ''
 	local ammoStoredText = ''
