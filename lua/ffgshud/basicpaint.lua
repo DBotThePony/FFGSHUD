@@ -24,6 +24,7 @@ local surface = surface
 local ScreenScale = ScreenScale
 local RealTimeL = RealTimeL
 local math = math
+local hook = hook
 
 local FillageColorHealth = FFGSHUD:CreateColorN('fillage_hp', 'Fillage Color for HP', Color(80, 80, 80))
 local FillageColorHealthStatic = FFGSHUD:CreateColorN('fillage_hp_s', 'Fillage Color for HP (Static)', Color(80, 80, 80))
@@ -41,7 +42,7 @@ local function RealTimeLAnim()
 	return RealTimeL() % pi
 end
 
-function FFGSHUD:PaintPlayerStats()
+function FFGSHUD:PaintPlayerStats(ply)
 	if self.isPlayingDeathAnim then
 		local x, y = POS_PLAYERSTATS()
 		local time = RealTimeL()
@@ -66,7 +67,7 @@ function FFGSHUD:PaintPlayerStats()
 
 	local x, y = POS_PLAYERSTATS()
 	local fillageArmor = self:GetVarArmor() / self:GetVarMaxArmor()
-	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(), fillageArmor:min(1), FillageShield(), FillageShieldShadow())
+	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(), hook.Run('FFGSHUD_DrawArmorShadow', self, ply, fillageArmor) == true and fillageArmor:min(1) or 0, FillageShield(), FillageShieldShadow())
 	y = y + h * 0.83
 
 	local mhp = self:GetVarMaxHealth()
