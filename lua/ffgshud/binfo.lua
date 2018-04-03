@@ -47,6 +47,7 @@ local function doDrawLines(self, x, y)
 	local drawn2 = toDraw2
 	toDraw = {}
 	toDraw2 = {}
+	local spacing = ScreenScale(4)
 
 	for i = 1, #drawn do
 		local w, h = self:DrawShadowedText(self.BattleStats, drawn[i], x + spacing, y, color_white)
