@@ -403,5 +403,5 @@ end
 FFGSHUD:AddHookCustom('HUDShouldDraw', 'ShouldDrawWeaponSelection')
 FFGSHUD:AddHookCustom('CreateMove', 'TrapWeaponSelect', nil, -2)
 FFGSHUD:AddHookCustom('PlayerBindPress', 'WeaponSelectionBind')
-FFGSHUD:AddPaintHook('DrawWeaponSelection')
+FFGSHUD:AddOverlayPaintHook('DrawWeaponSelection')
 FFGSHUD:AddThinkHook('ThinkWeaponSelection')
