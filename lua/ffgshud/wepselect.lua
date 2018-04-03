@@ -40,6 +40,7 @@ local LocalPlayer = LocalPlayer
 local ScrWL, ScrHL = ScrWL, ScrHL
 local language = language
 local lastFrameAttack = false
+local hud_fastswitch = GetConVar('hud_fastswitch')
 
 local function sortTab(a, b)
 	return a:GetSlotPos() < b:GetSlotPos()
@@ -195,7 +196,10 @@ function FFGSHUD:ThinkWeaponSelection()
 
 	if FFGSHUD.DrawWepSelectionFadeOutEnd < time then
 		FFGSHUD.DrawWepSelection = false
-		FFGSHUD.LastSelectSlot = -1
+
+		if FFGSHUD.LastSelectSlot ~= -1 and not hud_fastswitch:GetBool() then
+			FFGSHUD.LastSelectSlot = -1
+		end
 	end
 
 	if FFGSHUD.DrawWepSelectionFadeOutEnd2 < time then
@@ -214,7 +218,7 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 	local getweapons = getWeaponsInSlot(weapons, newslot)
 	if #getweapons == 0 then return end
 
-	if newslot ~= FFGSHUD.LastSelectSlot or not FFGSHUD.SelectWeapon:IsValid() then
+	if newslot ~= FFGSHUD.LastSelectSlot then
 		FFGSHUD.LastSelectSlot = newslot
 		FFGSHUD.SelectWeapon = getweapons[1]
 		FFGSHUD.SelectWeaponPos = 1
@@ -228,20 +232,29 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 		FFGSHUD.SelectWeapon = getweapons[FFGSHUD.SelectWeaponPos]
 	end
 
-	if not FFGSHUD.DrawWepSelection then
-		FFGSHUD.DrawWepSelection = true
-		LocalPlayer():EmitSound('Player.WeaponSelectionOpen')
-	else
-		LocalPlayer():EmitSound('Player.WeaponSelectionMoveSlot')
+	if not hud_fastswitch:GetBool() then
+		if not FFGSHUD.DrawWepSelection then
+			FFGSHUD.DrawWepSelection = true
+			LocalPlayer():EmitSound('Player.WeaponSelectionOpen')
+		else
+			LocalPlayer():EmitSound('Player.WeaponSelectionMoveSlot')
+		end
+
+		FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
+		FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
+		FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
 	end
 
 	FFGSHUD.WeaponListInSlot = getweapons
-	FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
-	FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
-	FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
-	FFGSHUD.DrawWepSelection = true
-	FFGSHUD.SelectWeaponForce = NULL
-	FFGSHUD.SelectWeaponForceTime = 0
+
+	if hud_fastswitch:GetBool() then
+		FFGSHUD.SelectWeaponForce = FFGSHUD.SelectWeapon
+		FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
+		LocalPlayer():EmitSound('Player.WeaponSelected')
+	else
+		FFGSHUD.SelectWeaponForce = NULL
+		FFGSHUD.SelectWeaponForceTime = 0
+	end
 
 	return true
 end
@@ -318,20 +331,30 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 		FFGSHUD.LastSelectSlot = slot
 	end
 
-	if not FFGSHUD.DrawWepSelection then
-		FFGSHUD.DrawWepSelection = true
-		LocalPlayer():EmitSound('Player.WeaponSelectionOpen')
-	else
-		LocalPlayer():EmitSound('Player.WeaponSelectionMoveSlot')
+	if not hud_fastswitch:GetBool() then
+		if not FFGSHUD.DrawWepSelection then
+			FFGSHUD.DrawWepSelection = true
+			LocalPlayer():EmitSound('Player.WeaponSelectionOpen')
+		else
+			LocalPlayer():EmitSound('Player.WeaponSelectionMoveSlot')
+		end
+
+		FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
+		FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
+		FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
 	end
 
 	FFGSHUD.WeaponListInSlot = getweapons
-	FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
-	FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
-	FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
 	FFGSHUD.DrawWepSelection = true
-	FFGSHUD.SelectWeaponForce = NULL
-	FFGSHUD.SelectWeaponForceTime = 0
+
+	if hud_fastswitch:GetBool() then
+		FFGSHUD.SelectWeaponForce = FFGSHUD.SelectWeapon
+		FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
+		LocalPlayer():EmitSound('Player.WeaponSelected')
+	else
+		FFGSHUD.SelectWeaponForce = NULL
+		FFGSHUD.SelectWeaponForceTime = 0
+	end
 
 	return true
 end
