@@ -389,6 +389,7 @@ function FFGSHUD:HUDShouldDraw(target)
 		target == 'CHudBattery' or
 		target == 'CHudHealth' or
 		target == 'CHudPoisonDamageIndicator' or
+		target == 'CHudDamageIndicator' or
 		target == 'CHudSecondaryAmmo'
 	then
 		return false
