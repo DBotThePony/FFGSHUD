@@ -132,11 +132,11 @@ function FFGSHUD:GetAmmoDisplayText2()
 end
 
 function FFGSHUD:CanDisplayWeaponSelect()
-	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeapon ~= self:GetWeapon() and self.tryToSelectWeaponLastEnd > RealTimeL()
+	return IsValid(self:PredictSelectWeapon()) and self:PredictSelectWeapon() ~= self:GetWeapon()
 end
 
 function FFGSHUD:CanDisplayWeaponSelect2()
-	return IsValid(self.tryToSelectWeapon) and self.tryToSelectWeaponLastEnd > RealTimeL()
+	return IsValid(self:PredictSelectWeapon())
 end
 
 function FFGSHUD:CanHideAmmoCounter()

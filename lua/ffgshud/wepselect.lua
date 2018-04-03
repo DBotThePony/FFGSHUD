@@ -18,6 +18,7 @@ local NULL = NULL
 
 FFGSHUD.DrawWepSelectionFadeOutStart = 0
 FFGSHUD.DrawWepSelectionFadeOutEnd = 0
+FFGSHUD.DrawWepSelectionFadeOutEnd2 = 0
 FFGSHUD.DrawWepSelection = false
 FFGSHUD.HoldKeyTrap = false
 FFGSHUD.SelectWeapon = NULL
@@ -190,11 +191,20 @@ function FFGSHUD:DrawWeaponSelection()
 end
 
 function FFGSHUD:ThinkWeaponSelection()
-	if FFGSHUD.DrawWepSelectionFadeOutEnd < RealTimeL() then
+	local time = RealTimeL()
+
+	if FFGSHUD.DrawWepSelectionFadeOutEnd < time then
 		FFGSHUD.DrawWepSelection = false
-		FFGSHUD.SelectWeapon = NULL
 		FFGSHUD.LastSelectSlot = -1
 	end
+
+	if FFGSHUD.DrawWepSelectionFadeOutEnd2 < time then
+		FFGSHUD.SelectWeapon = NULL
+	end
+end
+
+function FFGSHUD:LookupSelectWeapon()
+	return self.SelectWeapon, FFGSHUD.DrawWepSelectionFadeOutStart > RealTimeL()
 end
 
 local function BindSlot(self, ply, bind, pressed, weapons)
@@ -228,6 +238,7 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 	FFGSHUD.WeaponListInSlot = getweapons
 	FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
 	FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
+	FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
 	FFGSHUD.DrawWepSelection = true
 	FFGSHUD.SelectWeaponForce = NULL
 	FFGSHUD.SelectWeaponForceTime = 0
@@ -317,6 +328,7 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 	FFGSHUD.WeaponListInSlot = getweapons
 	FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
 	FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
+	FFGSHUD.DrawWepSelectionFadeOutEnd2 = RealTimeL() + 3.5
 	FFGSHUD.DrawWepSelection = true
 	FFGSHUD.SelectWeaponForce = NULL
 	FFGSHUD.SelectWeaponForceTime = 0
