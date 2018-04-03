@@ -85,7 +85,7 @@ function FFGSHUD:DrawWeaponSelection()
 	local x, y = ScrWL() * 0.2, ScrHL() * 0.08
 	local spacing = ScreenSize(1.5)
 	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
-	local inactive, bg = SLOT_INACTIVE(alpha), SLOT_BG(alpha)
+	local inactive, bg = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75)
 	local activeWeapon = LocalWeapon()
 	local boxSpacing = ScreenSize(3)
 	local boxSpacing2 = ScreenSize(3) * 2
