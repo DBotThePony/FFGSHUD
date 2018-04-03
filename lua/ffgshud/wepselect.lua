@@ -133,60 +133,64 @@ function FFGSHUD:DrawWeaponSelection()
 			local Y = y + h + spacing
 			local maxW = 0
 
-			surface.SetFont(self.SelectionText.REGULAR)
+			if #FFGSHUD.WeaponListInSlot ~= 0 then
+				surface.SetFont(self.SelectionText.REGULAR)
 
-			for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
-				if weapon:IsValid() then
-					local name = getPrintName(weapon)
-					local W, H = surface.GetTextSize(name)
+				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
+					if weapon:IsValid() then
+						local name = getPrintName(weapon)
+						local W, H = surface.GetTextSize(name)
 
-					if weapon == FFGSHUD.SelectWeapon then
-						if weapon ~= activeWeapon then
-							maxW = maxW:max(W + boxSpacing2)
-						else
+						if weapon == FFGSHUD.SelectWeapon then
+							if weapon ~= activeWeapon then
+								maxW = maxW:max(W + boxSpacing2)
+							else
+								maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+							end
+						elseif weapon == activeWeapon then
 							maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+						else
+							maxW = maxW:max(W + boxSpacing2)
 						end
-					elseif weapon == activeWeapon then
-						maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
-					else
-						maxW = maxW:max(W + boxSpacing2)
 					end
 				end
-			end
 
-			for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
-				if weapon:IsValid() then
-					local name = getPrintName(weapon)
-					local W, H = surface.GetTextSize(name)
-					local X = x - unshift
+				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
+					if weapon:IsValid() then
+						local name = getPrintName(weapon)
+						local W, H = surface.GetTextSize(name)
+						local X = x - unshift
 
-					if weapon == FFGSHUD.SelectWeapon then
-						if weapon ~= activeWeapon then
-							HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
-							HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_FOCUSED(alpha))
-						else
+						if weapon == FFGSHUD.SelectWeapon then
+							if weapon ~= activeWeapon then
+								HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
+								HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_FOCUSED(alpha))
+							else
+								W = W + ScreenSize(4)
+								HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
+								local col = WEAPON_SELECTED(alpha)
+								HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
+								HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
+							end
+						elseif weapon == activeWeapon then
 							W = W + ScreenSize(4)
-							HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
+							HUDCommons.DrawBox(X, Y,maxW, H, bg)
 							local col = WEAPON_SELECTED(alpha)
 							HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
 							HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
+						else
+							HUDCommons.DrawBox(X, Y, maxW, H, bg)
+							HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_READY(alpha))
 						end
-					elseif weapon == activeWeapon then
-						W = W + ScreenSize(4)
-						HUDCommons.DrawBox(X, Y,maxW, H, bg)
-						local col = WEAPON_SELECTED(alpha)
-						HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
-						HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
-					else
-						HUDCommons.DrawBox(X, Y, maxW, H, bg)
-						HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_READY(alpha))
+
+						Y = Y + H + spacing
 					end
-
-					Y = Y + H + spacing
 				end
-			end
 
-			x = x + w + maxW - ScreenSize(6)
+				x = x + w + maxW - ScreenSize(6)
+			else
+				x = x + w + spacing
+			end
 		end
 	end
 end
@@ -216,7 +220,17 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 	local newslot = bind:sub(5):tonumber()
 	if newslot < 1 or newslot > 6 then return end
 	local getweapons = getWeaponsInSlot(weapons, newslot)
-	if #getweapons == 0 then return end
+
+	if #getweapons == 0 then
+		LocalPlayer():EmitSound('Player.DenyWeaponSelection')
+		FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 0.5
+		FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 1
+		FFGSHUD.DrawWepSelection = true
+		FFGSHUD.SelectWeapon = NULL
+		FFGSHUD.LastSelectSlot = newslot
+		FFGSHUD.WeaponListInSlot = {}
+		return
+	end
 
 	if newslot ~= FFGSHUD.LastSelectSlot then
 		FFGSHUD.LastSelectSlot = newslot
@@ -324,7 +338,12 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 		end
 	end
 
-	if #getweapons == 0 then return end
+	if #getweapons == 0 then
+		-- might be annoying
+		-- LocalPlayer():EmitSound('Player.DenyWeaponSelection')
+		return
+	end
+
 	FFGSHUD.SelectWeapon = getweapons[FFGSHUD.SelectWeaponPos]
 
 	if slot ~= FFGSHUD.LastSelectSlot or not FFGSHUD.SelectWeapon:IsValid() then
