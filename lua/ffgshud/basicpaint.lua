@@ -329,6 +329,9 @@ function FFGSHUD:PaintWeaponStats()
 		FillageColorAmmoShadow1_Select.r = (math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130) * multAlpha
 	end
 
+	FillageColorAmmoShadow1_Select.a = color_white.a
+	FillageColorAmmoShadow2_Select.a = color_white.a
+
 	if fillage2 == 0 then
 		FillageColorAmmoShadow2_Select.r = 0
 	elseif fillage2 == 1 then
