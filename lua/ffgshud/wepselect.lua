@@ -41,6 +41,8 @@ local ScrWL, ScrHL = ScrWL, ScrHL
 local language = language
 local lastFrameAttack = false
 local hud_fastswitch = GetConVar('hud_fastswitch')
+local cam = cam
+local Matrix = Matrix
 
 local function sortTab(a, b)
 	return a:GetSlotPos() < b:GetSlotPos()
@@ -107,10 +109,13 @@ local WEAPON_READY = FFGSHUD:CreateColorN('wepselect_r', '', Color(237, 89, 152)
 local WEAPON_FOCUSED = FFGSHUD:CreateColorN('wepselect_f', '', Color())
 local SLOT_BG = FFGSHUD:CreateColorN('wepselect_bg', '', Color(40, 40, 40))
 
+local TILT_MATRIX = Matrix()
+TILT_MATRIX:SetAngles(Angle(0, -1.5, 0))
+
 function FFGSHUD:DrawWeaponSelection()
 	if not FFGSHUD.DrawWepSelection then return end
 	--local x, y = DRAWPOS()
-	local x, y = ScrWL() * 0.2, ScrHL() * 0.08
+	local x, y = ScrWL() * 0.12, ScrHL() * 0.11
 	local spacing = ScreenSize(1.5)
 	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
 	local inactive, bg, bgb = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75), SLOT_INACTIVE_BOX(alpha * 0.7)
@@ -118,6 +123,8 @@ function FFGSHUD:DrawWeaponSelection()
 	local boxSpacing = ScreenSize(3)
 	local boxSpacing2 = ScreenSize(3) * 2
 	local unshift = ScreenSize(1.5)
+
+	cam.PushModelMatrix(TILT_MATRIX)
 
 	for i = 1, 6 do
 		if i ~= FFGSHUD.LastSelectSlot then
@@ -193,6 +200,8 @@ function FFGSHUD:DrawWeaponSelection()
 			end
 		end
 	end
+
+	cam.PopModelMatrix()
 end
 
 function FFGSHUD:ThinkWeaponSelection()
