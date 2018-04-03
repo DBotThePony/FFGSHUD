@@ -23,6 +23,7 @@ local surface = surface
 local ScreenSize = ScreenSize
 local render = render
 local color_white = Color()
+local ScrWL, ScrHL = ScrWL, ScrHL
 
 local directions = {
 	'S',
@@ -64,7 +65,8 @@ function FFGSHUD:DrawCompass(ply)
 		angle = 360 + angle
 	end
 
-	local x, y = DRAWPOS()
+	--local x, y = DRAWPOS()
+	local x, y = ScrWL() * 0.5, ScrHL() * 0.04
 	surface.SetFont(self.CompassDirections.REGULAR)
 	surface.SetTextColor(color_white)
 
