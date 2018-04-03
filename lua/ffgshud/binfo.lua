@@ -48,6 +48,7 @@ local function doDrawLines(self, x, y)
 	local drawn2 = toDraw2
 	toDraw = {}
 	toDraw2 = {}
+	local spacing = ScreenScale(4)
 
 	for i = 1, math.max(#drawn, #drawn2) do
 		if drawn[i] then
