@@ -36,9 +36,16 @@ local LocalWeapon = LocalWeapon
 local surface = surface
 local LocalPlayer = LocalPlayer
 local ScrWL, ScrHL = ScrWL, ScrHL
+local language = language
 
 local function sortTab(a, b)
 	return a:GetSlotPos() < b:GetSlotPos()
+end
+
+local function getPrintName(self)
+	local class = self:GetClass()
+	local phrase = language.GetPhrase(class)
+	return phrase ~= class and phrase or self:GetPrintName()
 end
 
 local function getWeaponsInSlot(weapons, slotIn)
@@ -95,7 +102,7 @@ function FFGSHUD:DrawWeaponSelection()
 
 			for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
 				if weapon:IsValid() then
-					local name = weapon:GetPrintName()
+					local name = getPrintName(weapon)
 					local W, H = surface.GetTextSize(name)
 
 					if weapon == FFGSHUD.SelectWeapon then
@@ -137,13 +144,8 @@ function FFGSHUD:ThinkWeaponSelection()
 	end
 end
 
-function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
-	if not pressed then return end
+local function BindSlot(self, ply, bind, pressed, weapons)
 	if not bind:startsWith('slot') then return end
-	if not self:GetVarAlive() then return end
-	if ply:InVehicle() and not ply:GetAllowWeaponsInVehicle() then return end
-	local weapons = ply:GetWeapons()
-	if #weapons == 0 then return end
 	local newslot = bind:sub(5):tonumber()
 	if newslot < 1 or newslot > 6 then return end
 	local getweapons = getWeaponsInSlot(weapons, newslot)
@@ -180,7 +182,110 @@ function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
 	return true
 end
 
+local function WheelBind(self, ply, bind, pressed, weapons)
+	if bind ~= 'invprev' and bind ~= 'invnext' then return end
+
+	local weapon = LocalWeapon()
+	local slot
+
+	if not FFGSHUD.DrawWepSelection then
+		if weapon:IsValid() then
+			slot = weapon:GetSlot() + 1
+		else
+			slot = 1
+		end
+	else
+		slot = FFGSHUD.LastSelectSlot
+	end
+
+	local getweapons = getWeaponsInSlot(weapons, slot)
+	if #getweapons == 0 then return end
+
+	if not FFGSHUD.DrawWepSelection then
+		local hit = false
+
+		for i, wep in ipairs(getweapons) do
+			if wep == weapon then
+				FFGSHUD.SelectWeaponPos = i
+				hit = true
+				break
+			end
+		end
+
+		if not hit then
+			FFGSHUD.SelectWeaponPos = 0
+		end
+	end
+
+	FFGSHUD.SelectWeaponPos = FFGSHUD.SelectWeaponPos + (bind == 'invnext' and 1 or -1)
+
+	if FFGSHUD.SelectWeaponPos < 1 then
+		for i = 1, 6 do
+			slot = slot - 1
+
+			if slot < 0 then
+				slot = 6
+			end
+
+			getweapons = getWeaponsInSlot(weapons, slot)
+			if #getweapons ~= 0 then break end
+		end
+
+		FFGSHUD.SelectWeaponPos = #getweapons
+	elseif FFGSHUD.SelectWeaponPos > #getweapons then
+		FFGSHUD.SelectWeaponPos = 1
+
+		for i = 1, 6 do
+			slot = slot + 1
+
+			if slot > 6 then
+				slot = 1
+			end
+
+			getweapons = getWeaponsInSlot(weapons, slot)
+			if #getweapons ~= 0 then break end
+		end
+	end
+
+	if #getweapons == 0 then return end
+	FFGSHUD.SelectWeapon = getweapons[FFGSHUD.SelectWeaponPos]
+
+	if slot ~= FFGSHUD.LastSelectSlot or not FFGSHUD.SelectWeapon:IsValid() then
+		FFGSHUD.LastSelectSlot = slot
+	end
+
+	if not FFGSHUD.DrawWepSelection then
+		FFGSHUD.DrawWepSelection = true
+		LocalPlayer():EmitSound('Player.WeaponSelectionOpen')
+	else
+		LocalPlayer():EmitSound('Player.WeaponSelectionMoveSlot')
+	end
+
+	FFGSHUD.WeaponListInSlot = getweapons
+	FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL() + 2
+	FFGSHUD.DrawWepSelectionFadeOutEnd = RealTimeL() + 2.5
+	FFGSHUD.DrawWepSelection = true
+	FFGSHUD.SelectWeaponForce = NULL
+	FFGSHUD.SelectWeaponForceTime = 0
+
+	return true
+end
+
+function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
+	if not pressed then return end
+	if not self:GetVarAlive() then return end
+	if ply:InVehicle() and not ply:GetAllowWeaponsInVehicle() then return end
+	local weapons = ply:GetWeapons()
+	if #weapons == 0 then return end
+
+	local status = BindSlot(self, ply, bind, pressed, weapons)
+	if status then return status end
+	status = WheelBind(self, ply, bind, pressed, weapons)
+	if status then return status end
+end
+
 local IN_ATTACK = IN_ATTACK
+local IN_ATTACK2 = IN_ATTACK2
 
 function FFGSHUD:TrapWeaponSelect(cmd)
 	if FFGSHUD.SelectWeaponForce:IsValid() and FFGSHUD.SelectWeaponForceTime > RealTimeL() then
@@ -207,6 +312,14 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 				FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
 				LocalPlayer():EmitSound('Player.WeaponSelected')
 			end
+		end
+	elseif cmd:KeyDown(IN_ATTACK2) then
+		cmd:SetButtons(cmd:GetButtons() - IN_ATTACK2)
+
+		if not FFGSHUD.HoldKeyTrap then
+			LocalPlayer():EmitSound('Player.WeaponSelectionClose')
+			FFGSHUD.DrawWepSelection = false
+			FFGSHUD.HoldKeyTrap = true
 		end
 	else
 		FFGSHUD.HoldKeyTrap = false
