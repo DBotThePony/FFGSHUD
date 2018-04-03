@@ -120,8 +120,8 @@ function FFGSHUD:DrawWeaponSelection()
 	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
 	local inactive, bg, bgb = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75), SLOT_INACTIVE_BOX(alpha * 0.7)
 	local activeWeapon = LocalWeapon()
-	local boxSpacing = ScreenSize(3)
-	local boxSpacing2 = ScreenSize(3) * 2
+	local boxSpacing = ScreenSize(8)
+	local boxSpacing2 = boxSpacing * 3
 	local unshift = ScreenSize(1.5)
 
 	cam.PushModelMatrix(TILT_MATRIX)
@@ -138,7 +138,7 @@ function FFGSHUD:DrawWeaponSelection()
 		else
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x, y, SLOT_ACTIVE(alpha), bg)
 			local Y = y + h + spacing
-			local maxW = 0
+			local maxW = ScreenSize(90)
 
 			if #FFGSHUD.WeaponListInSlot ~= 0 then
 				surface.SetFont(self.SelectionText.REGULAR)
