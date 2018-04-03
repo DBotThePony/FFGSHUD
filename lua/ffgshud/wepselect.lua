@@ -38,6 +38,7 @@ local surface = surface
 local LocalPlayer = LocalPlayer
 local ScrWL, ScrHL = ScrWL, ScrHL
 local language = language
+local lastFrameAttack = false
 
 local function sortTab(a, b)
 	return a:GetSlotPos() < b:GetSlotPos()
@@ -324,6 +325,7 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 end
 
 function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
+	if lastFrameAttack then return end
 	if not pressed then return end
 	if not self:GetVarAlive() then return end
 	if ply:InVehicle() and not ply:GetAllowWeaponsInVehicle() then return end
@@ -350,9 +352,12 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 		end
 	end
 
-	if not FFGSHUD.DrawWepSelection and not FFGSHUD.HoldKeyTrap then return end
+	if not FFGSHUD.DrawWepSelection and not FFGSHUD.HoldKeyTrap then
+		lastFrameAttack = cmd:KeyDown(IN_ATTACK)
+		return
+	end
 
-	if cmd:KeyDown(IN_ATTACK) then
+	if not lastFrameAttack and cmd:KeyDown(IN_ATTACK) then
 		cmd:SetButtons(cmd:GetButtons() - IN_ATTACK)
 
 		if not FFGSHUD.HoldKeyTrap then
@@ -376,6 +381,10 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 		end
 	else
 		FFGSHUD.HoldKeyTrap = false
+	end
+
+	if lastFrameAttack and not cmd:KeyDown(IN_ATTACK) then
+		lastFrameAttack = false
 	end
 end
 
