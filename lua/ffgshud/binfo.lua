@@ -43,20 +43,23 @@ local function addLines2(...)
 end
 
 local function doDrawLines(self, x, y)
+	local spacing = ScreenScale(4)
 	local drawn = toDraw
 	local drawn2 = toDraw2
 	toDraw = {}
 	toDraw2 = {}
 
-	for i = 1, #drawn do
-		local w, h = self:DrawShadowedText(self.BattleStats, drawn[i], x + spacing, y, color_white)
-		y = y + h * 0.83
-	end
+	for i = 1, math.max(#drawn, #drawn2) do
+		if drawn[i] then
+			self:DrawShadowedText(self.BattleStats, drawn[i], x + spacing, y, color_white)
+		end
 
-	for i = 1, #drawn2 do
-		local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn2[i], x + spacing, y, color_white)
-		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
-		y = y + h * 0.83
+		if drawn2[i] then
+			local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn2[i], x + spacing, y, color_white)
+			FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
+		end
+
+		y = y + self.BattleStats.REGULAR_SIZE_H * 0.83
 	end
 
 	return x, y
