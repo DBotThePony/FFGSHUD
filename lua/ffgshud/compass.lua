@@ -51,7 +51,7 @@ local function drawMarkers(x, y, angle, shiftby)
 		local lang = (i + shiftby - 1) * 15
 
 		if lang % 45 ~= 0 then
-			surface.DrawRect(x - (lang - angle) * mult, y, wide, tall)
+			surface.DrawRect(x - (lang - angle) * mult - wide / 2, y, wide, tall)
 		end
 	end
 end
