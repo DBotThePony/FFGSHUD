@@ -118,6 +118,24 @@ FFGSHUD.CompassAngle = FFGSHUD:CreateScalableFont('CompassAngle', {
 	weight = 600
 })
 
+FFGSHUD.SelectionNumber = FFGSHUD:CreateScalableFont('SelectionNumber', {
+	font = 'Roboto',
+	size = 20,
+	weight = 600
+})
+
+FFGSHUD.SelectionNumberActive = FFGSHUD:CreateScalableFont('SelectionNumberActive', {
+	font = 'Roboto',
+	size = 28,
+	weight = 600
+})
+
+FFGSHUD.SelectionText = FFGSHUD:CreateScalableFont('SelectionText', {
+	font = 'PT Sans',
+	size = 24,
+	weight = 600
+})
+
 FFGSHUD.ICON_FRAGS = '♐'
 FFGSHUD.ICON_DEATHS = '☠'
 FFGSHUD.ICON_PING = '☍'
@@ -390,3 +408,4 @@ include('dmgtrack.lua')
 include('glitch.lua')
 include('killfeed.lua')
 include('compass.lua')
+include('wepselect.lua')
