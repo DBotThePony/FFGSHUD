@@ -54,7 +54,7 @@ local function doDrawLines(self, x, y)
 	end
 
 	for i = 1, #drawn2 do
-		local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn[i], x + spacing, y, color_white)
+		local w, h = self:DrawShadowedTextAligned(self.BattleStats, drawn2[i], x + spacing, y, color_white)
 		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
 		y = y + h * 0.83
 	end
