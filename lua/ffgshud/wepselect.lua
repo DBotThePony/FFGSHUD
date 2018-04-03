@@ -97,6 +97,7 @@ function FFGSHUD:DrawWeaponSelection()
 		else
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x, y, SLOT_ACTIVE(alpha), bg)
 			local Y = y + h + spacing
+			local maxW = 0
 
 			surface.SetFont(self.SelectionText.REGULAR)
 
@@ -107,23 +108,42 @@ function FFGSHUD:DrawWeaponSelection()
 
 					if weapon == FFGSHUD.SelectWeapon then
 						if weapon ~= activeWeapon then
-							HUDCommons.DrawBox(x, Y, W + boxSpacing2, H, WEAPON_READY(alpha))
+							maxW = maxW:max(W + boxSpacing2)
+						else
+							maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+						end
+					elseif weapon == activeWeapon then
+						maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+					else
+						maxW = maxW:max(W + boxSpacing2)
+					end
+				end
+			end
+
+			for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
+				if weapon:IsValid() then
+					local name = getPrintName(weapon)
+					local W, H = surface.GetTextSize(name)
+
+					if weapon == FFGSHUD.SelectWeapon then
+						if weapon ~= activeWeapon then
+							HUDCommons.DrawBox(x, Y, maxW, H, WEAPON_READY(alpha))
 							HUDCommons.SimpleText(name, nil, x + boxSpacing, Y, WEAPON_FOCUSED(alpha))
 						else
 							W = W + ScreenSize(4)
-							HUDCommons.DrawBox(x, Y, W + boxSpacing2, H, WEAPON_READY(alpha))
+							HUDCommons.DrawBox(x, Y, maxW, H, WEAPON_READY(alpha))
 							local col = WEAPON_SELECTED(alpha)
 							HUDCommons.DrawBox(x, Y, ScreenSize(4), H, col)
 							HUDCommons.SimpleText(name, nil, x + ScreenSize(7), Y, col)
 						end
 					elseif weapon == activeWeapon then
 						W = W + ScreenSize(4)
-						HUDCommons.DrawBox(x, Y, W + boxSpacing2, H, bg)
+						HUDCommons.DrawBox(x, Y,maxW, H, bg)
 						local col = WEAPON_SELECTED(alpha)
 						HUDCommons.DrawBox(x, Y, ScreenSize(4), H, col)
 						HUDCommons.SimpleText(name, nil, x + ScreenSize(7), Y, col)
 					else
-						HUDCommons.DrawBox(x, Y, W + boxSpacing2, H, bg)
+						HUDCommons.DrawBox(x, Y, maxW, H, bg)
 						HUDCommons.SimpleText(name, nil, x + boxSpacing, Y, WEAPON_READY(alpha))
 					end
 
@@ -131,7 +151,7 @@ function FFGSHUD:DrawWeaponSelection()
 				end
 			end
 
-			x = x + w + spacing
+			x = x + w + maxW - ScreenSize(6)
 		end
 	end
 end
