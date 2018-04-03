@@ -171,6 +171,8 @@ function FFGSHUD:PaintWeaponStats()
 	local AmmoReady2Color = AmmoReady2Color():ModifyAlpha(color_white.a)
 	local AmmoStoredColor = AmmoStoredColor():ModifyAlpha(color_white.a)
 	local AmmoStored2Color = AmmoStored2Color():ModifyAlpha(color_white.a)
+	local FillageColorAmmo = FillageColorAmmo:ModifyAlpha(color_white.a)
+	local ShadowEmpty = ShadowEmpty:ModifyAlpha(color_white.a)
 
 	local x, y = POS_WEAPONSTATS()
 	local swipe = self:PlayingSwipeAnimation()
