@@ -26,6 +26,7 @@ FFGSHUD.SelectWeaponForceTime = 0
 FFGSHUD.SelectWeaponPos = -1
 FFGSHUD.LastSelectSlot = -1
 FFGSHUD.WeaponListInSlot = {}
+FFGSHUD.WeaponListInSlots = {}
 
 local RealTimeL = RealTimeL
 local ipairs = ipairs
@@ -46,6 +47,29 @@ local function getPrintName(self)
 	local class = self:GetClass()
 	local phrase = language.GetPhrase(class)
 	return phrase ~= class and phrase or self:GetPrintName()
+end
+
+local function updateWeaponList(weapons)
+	FFGSHUD.WeaponListInSlots[1] = {}
+	FFGSHUD.WeaponListInSlots[2] = {}
+	FFGSHUD.WeaponListInSlots[3] = {}
+	FFGSHUD.WeaponListInSlots[4] = {}
+	FFGSHUD.WeaponListInSlots[5] = {}
+	FFGSHUD.WeaponListInSlots[6] = {}
+
+	if #weapons == 0 then return end
+
+	for i, weapon in ipairs(weapons) do
+		local slot = weapon:GetSlot() + 1
+
+		if FFGSHUD.WeaponListInSlots[slot] then
+			table.insert(FFGSHUD.WeaponListInSlots[slot], weapon)
+		end
+	end
+
+	for i = 1, 6 do
+		table.sort(FFGSHUD.WeaponListInSlots[i], sortTab)
+	end
 end
 
 local function getWeaponsInSlot(weapons, slotIn)
@@ -74,6 +98,7 @@ end
 local DRAWPOS = FFGSHUD:DefinePosition('wepselect', 0.2, 0.08)
 local SLOT_ACTIVE = FFGSHUD:CreateColorN('wepselect_a', '', Color())
 local SLOT_INACTIVE = FFGSHUD:CreateColorN('wepselect_i', '', Color(137, 137, 137))
+local SLOT_INACTIVE_BOX = FFGSHUD:CreateColorN('wepselect_i', '', Color(80, 80, 80))
 local WEAPON_SELECTED = FFGSHUD:CreateColorN('wepselect_s', '', Color(242, 210, 101))
 local WEAPON_READY = FFGSHUD:CreateColorN('wepselect_r', '', Color(237, 89, 152))
 local WEAPON_FOCUSED = FFGSHUD:CreateColorN('wepselect_f', '', Color())
@@ -85,14 +110,20 @@ function FFGSHUD:DrawWeaponSelection()
 	local x, y = ScrWL() * 0.2, ScrHL() * 0.08
 	local spacing = ScreenSize(1.5)
 	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
-	local inactive, bg = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75)
+	local inactive, bg, bgb = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75), SLOT_INACTIVE_BOX(alpha * 0.7)
 	local activeWeapon = LocalWeapon()
 	local boxSpacing = ScreenSize(3)
 	local boxSpacing2 = ScreenSize(3) * 2
+	local unshift = ScreenSize(1.5)
 
 	for i = 1, 6 do
 		if i ~= FFGSHUD.LastSelectSlot then
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumber.REGULAR, x, y, inactive, bg)
+
+			for i = 1, #FFGSHUD.WeaponListInSlots[i] do
+				HUDCommons.DrawBox(x - unshift, y + (i - 1) * (spacing + h * 0.35) + h, w, h * 0.35, bgb)
+			end
+
 			x = x + w + spacing
 		else
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x, y, SLOT_ACTIVE(alpha), bg)
@@ -124,27 +155,28 @@ function FFGSHUD:DrawWeaponSelection()
 				if weapon:IsValid() then
 					local name = getPrintName(weapon)
 					local W, H = surface.GetTextSize(name)
+					local X = x - unshift
 
 					if weapon == FFGSHUD.SelectWeapon then
 						if weapon ~= activeWeapon then
-							HUDCommons.DrawBox(x, Y, maxW, H, WEAPON_READY(alpha))
-							HUDCommons.SimpleText(name, nil, x + boxSpacing, Y, WEAPON_FOCUSED(alpha))
+							HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
+							HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_FOCUSED(alpha))
 						else
 							W = W + ScreenSize(4)
-							HUDCommons.DrawBox(x, Y, maxW, H, WEAPON_READY(alpha))
+							HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
 							local col = WEAPON_SELECTED(alpha)
-							HUDCommons.DrawBox(x, Y, ScreenSize(4), H, col)
-							HUDCommons.SimpleText(name, nil, x + ScreenSize(7), Y, col)
+							HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
+							HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
 						end
 					elseif weapon == activeWeapon then
 						W = W + ScreenSize(4)
-						HUDCommons.DrawBox(x, Y,maxW, H, bg)
+						HUDCommons.DrawBox(X, Y,maxW, H, bg)
 						local col = WEAPON_SELECTED(alpha)
-						HUDCommons.DrawBox(x, Y, ScreenSize(4), H, col)
-						HUDCommons.SimpleText(name, nil, x + ScreenSize(7), Y, col)
+						HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
+						HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
 					else
-						HUDCommons.DrawBox(x, Y, maxW, H, bg)
-						HUDCommons.SimpleText(name, nil, x + boxSpacing, Y, WEAPON_READY(alpha))
+						HUDCommons.DrawBox(X, Y, maxW, H, bg)
+						HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_READY(alpha))
 					end
 
 					Y = Y + H + spacing
@@ -298,6 +330,7 @@ function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
 	local weapons = ply:GetWeapons()
 	if #weapons == 0 then return end
 
+	updateWeaponList(weapons)
 	local status = BindSlot(self, ply, bind, pressed, weapons)
 	if status then return status end
 	status = WheelBind(self, ply, bind, pressed, weapons)
