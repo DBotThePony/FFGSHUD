@@ -447,6 +447,7 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 			LocalPlayer():EmitSound('Player.WeaponSelectionClose')
 			FFGSHUD.DrawWepSelection = false
 			FFGSHUD.HoldKeyTrap = true
+			FFGSHUD.DrawWepSelectionFadeOutStart = RealTimeL()
 		end
 	else
 		FFGSHUD.HoldKeyTrap = false
