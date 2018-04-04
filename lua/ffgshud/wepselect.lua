@@ -305,7 +305,19 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 	end
 
 	local getweapons = getWeaponsInSlot(weapons, slot)
-	if #getweapons == 0 then return end
+
+	if #getweapons == 0 then
+		for i = 1, 6 do
+			getweapons = getWeaponsInSlot(weapons, i)
+
+			if #getweapons ~= 0 then
+				slot = i
+				break
+			end
+		end
+
+		if #getweapons == 0 then return end
+	end
 
 	if not FFGSHUD.DrawWepSelection then
 		local hit = false
