@@ -111,6 +111,8 @@ local SLOT_BG = FFGSHUD:CreateColorN('wepselect_bg', '', Color(40, 40, 40))
 
 local TILT_MATRIX = Matrix()
 TILT_MATRIX:SetAngles(Angle(0, -1.5, 0))
+local render = render
+local TEXFILTER = TEXFILTER
 
 function FFGSHUD:DrawWeaponSelection()
 	if not FFGSHUD.DrawWepSelection then return end
@@ -124,6 +126,8 @@ function FFGSHUD:DrawWeaponSelection()
 	local boxSpacing2 = boxSpacing * 3
 	local unshift = ScreenSize(1.5)
 
+	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
+	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
 	cam.PushModelMatrix(TILT_MATRIX)
 
 	for i = 1, 6 do
@@ -202,6 +206,8 @@ function FFGSHUD:DrawWeaponSelection()
 	end
 
 	cam.PopModelMatrix()
+	render.PopFilterMin()
+	render.PopFilterMag()
 end
 
 function FFGSHUD:ThinkWeaponSelection()
@@ -454,5 +460,5 @@ end
 FFGSHUD:AddHookCustom('HUDShouldDraw', 'ShouldDrawWeaponSelection')
 FFGSHUD:AddHookCustom('CreateMove', 'TrapWeaponSelect', nil, -2)
 FFGSHUD:AddHookCustom('PlayerBindPress', 'WeaponSelectionBind')
-FFGSHUD:AddOverlayPaintHook('DrawWeaponSelection')
+FFGSHUD:AddPostPaintHook('DrawWeaponSelection')
 FFGSHUD:AddThinkHook('ThinkWeaponSelection')
