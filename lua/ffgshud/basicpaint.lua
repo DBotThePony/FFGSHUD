@@ -303,7 +303,7 @@ function FFGSHUD:PaintWeaponStats()
 	if not hide then
 		color_white.a = self:SelectWeaponAlpha() * 100
 	else
-		color_white.a = color_white.a:min(100)
+		color_white.a = color_white.a:min(self:SelectWeaponAlpha() * 100)
 	end
 
 	local WeaponNameColor_Select = WeaponNameColor_Select():ModifyAlpha(color_white.a)
