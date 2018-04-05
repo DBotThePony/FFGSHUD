@@ -428,6 +428,7 @@ function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
 		FFGSHUD.SelectWeaponForce = next
 		FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
 		LocalPlayer():EmitSound('Player.WeaponSelected')
+		return true
 	end
 end
 
