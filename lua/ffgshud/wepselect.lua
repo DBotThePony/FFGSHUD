@@ -470,8 +470,8 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 	end
 end
 
-FFGSHUD:AddHookCustom('HUDShouldDraw', 'ShouldDrawWeaponSelection')
+FFGSHUD:AddHookCustom('HUDShouldDraw', 'ShouldDrawWeaponSelection', nil, -2)
 FFGSHUD:AddHookCustom('CreateMove', 'TrapWeaponSelect', nil, -2)
-FFGSHUD:AddHookCustom('PlayerBindPress', 'WeaponSelectionBind')
+FFGSHUD:AddHookCustom('PlayerBindPress', 'WeaponSelectionBind', nil, -2)
 FFGSHUD:AddPostPaintHook('DrawWeaponSelection')
 FFGSHUD:AddThinkHook('ThinkWeaponSelection')
