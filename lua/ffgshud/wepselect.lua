@@ -21,6 +21,7 @@ FFGSHUD.DrawWepSelectionFadeOutEnd = 0
 FFGSHUD.DrawWepSelectionFadeOutEnd2 = 0
 FFGSHUD.DrawWepSelection = false
 FFGSHUD.HoldKeyTrap = false
+FFGSHUD.PrevSelectWeapon = NULL
 FFGSHUD.SelectWeapon = NULL
 FFGSHUD.SelectWeaponForce = NULL
 FFGSHUD.SelectWeaponForceTime = 0
@@ -418,6 +419,16 @@ function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
 	if status then return status end
 	status = WheelBind(self, ply, bind, pressed, weapons)
 	if status then return status end
+
+	if bind == 'lastinv' and FFGSHUD.PrevSelectWeapon:IsValid() then
+		local next = FFGSHUD.PrevSelectWeapon
+		local prev = LocalWeapon()
+
+		FFGSHUD.PrevSelectWeapon = prev
+		FFGSHUD.SelectWeaponForce = next
+		FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
+		LocalPlayer():EmitSound('Player.WeaponSelected')
+	end
 end
 
 local IN_ATTACK = IN_ATTACK
@@ -446,6 +457,10 @@ function FFGSHUD:TrapWeaponSelect(cmd)
 			FFGSHUD.HoldKeyTrap = true
 
 			if FFGSHUD.SelectWeapon:IsValid() then
+				if FFGSHUD.SelectWeapon ~= LocalWeapon() then
+					FFGSHUD.PrevSelectWeapon = LocalWeapon()
+				end
+
 				cmd:SelectWeapon(FFGSHUD.SelectWeapon)
 				FFGSHUD.SelectWeaponForce = FFGSHUD.SelectWeapon
 				FFGSHUD.SelectWeaponForceTime = RealTimeL() + 2
