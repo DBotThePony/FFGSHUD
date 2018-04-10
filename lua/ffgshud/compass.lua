@@ -16,7 +16,6 @@
 local FFGSHUD = FFGSHUD
 
 local DRAWPOS = FFGSHUD:DefinePosition('compass', 0.5, 0.04)
-local ANG_WIDE = 270
 local ipairs = ipairs
 local HUDCommons = DLib.HUDCommons
 local surface = surface
@@ -47,7 +46,7 @@ local function drawMarkers(x, y, angle, shiftby)
 	y = y + ScreenSize(2)
 	local wide, tall = ScreenSize(1):max(1), ScreenSize(4)
 
-	for i = 1, #directions * 4 do
+	for i = 1, (#directions - 2) * 4 do
 		local lang = (i + shiftby - 1) * 15
 
 		if lang % 45 ~= 0 then
@@ -70,7 +69,7 @@ function FFGSHUD:DrawCompass(ply)
 	surface.SetFont(self.CompassDirections.REGULAR)
 	surface.SetTextColor(color_white)
 
-	render.PushScissorRect(x - ANG_WIDE / 2 * ScreenSize(1), y, x + ANG_WIDE / 2 * ScreenSize(1), y + ScreenSize(40))
+	render.PushScissorRect(x - ScreenSize(135), y, x + ScreenSize(135), y + ScreenSize(40))
 
 	surface.SetDrawColor(170, 225, 150)
 	local wide, tall = ScreenSize(2):max(1), ScreenSize(8)
@@ -79,11 +78,11 @@ function FFGSHUD:DrawCompass(ply)
 
 	drawMarkers(x, y, angle, 0)
 
-	if angle < ANG_WIDE / 3 then
+	if angle < 110 then
 		drawMarkers(x, y, angle, -#directions)
 	end
 
-	if angle > ANG_WIDE / 2 then
+	if angle > 220 then
 		drawMarkers(x, y, angle, #directions)
 	end
 
