@@ -18,3 +18,4 @@ local self = FFGSHUD
 self:RegisterRegularVariable('frags', 'Frags')
 self:RegisterRegularVariable('deaths', 'Deaths')
 self:RegisterRegularVariable('ping', 'Ping')
+self:RegisterRegularVariable('god', 'HasGodMode')

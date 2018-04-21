@@ -25,6 +25,9 @@ local ScreenScale = ScreenScale
 local RealTimeL = RealTimeL
 local math = math
 local hook = hook
+local sbox_godmode = GetConVar('sbox_godmode')
+local game = game
+hook.Add('PostGamemodeLoaded', 'FFGS.GrabGodmode', function() sbox_godmode = GetConVar('sbox_godmode') end)
 
 local FillageColorHealth = FFGSHUD:CreateColorN('fillage_hp', 'Fillage Color for HP', Color(80, 80, 80))
 local FillageColorHealthStatic = FFGSHUD:CreateColorN('fillage_hp_s', 'Fillage Color for HP (Static)', Color(80, 80, 80))
@@ -59,6 +62,14 @@ function FFGSHUD:PaintPlayerStats(ply)
 		else
 			return
 		end
+	end
+
+	if not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() then
+		return
+	end
+
+	if self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth() then
+		return
 	end
 
 	if not self:GetVarAlive() then
