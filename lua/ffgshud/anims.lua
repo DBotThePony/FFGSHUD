@@ -169,4 +169,16 @@ FFGSHUD:PatchOnChangeHook('health', function(s, self, ply, old, new)
 	end
 end)
 
+FFGSHUD:PatchOnChangeHook('armor', function(s, self, ply, old, new)
+	if self.HealthFadeOutEnd < RealTimeL() then
+		self.HealthFadeInStart = RealTimeL()
+		self.HealthFadeInEnd = RealTimeL() + 0.5
+		self.HealthFadeOutStart = RealTimeL() + 3
+		self.HealthFadeOutEnd = RealTimeL() + 3.5
+	else
+		self.HealthFadeOutStart = RealTimeL() + 3
+		self.HealthFadeOutEnd = RealTimeL() + 3.5
+	end
+end)
+
 FFGSHUD:AddThinkHook('WatchdogForReload')
