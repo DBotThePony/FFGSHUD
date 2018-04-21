@@ -64,12 +64,23 @@ function FFGSHUD:PaintPlayerStats(ply)
 		end
 	end
 
-	if not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() then
-		return
-	end
+	local shouldHide = not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() or
+		self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
 
-	if self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth() then
-		return
+	local alpha = 255
+
+	if shouldHide then
+		local time = RealTimeL()
+		if self.HealthFadeOutEnd < time then return end
+
+		if self.HealthFadeInEnd > time then
+			alpha = time:progression(self.HealthFadeInStart, self.HealthFadeInEnd) * 255
+		elseif self.HealthFadeOutStart < time then
+			alpha = (1 - time:progression(self.HealthFadeOutStart, self.HealthFadeOutEnd)) * 255
+		end
+	else
+		self.HealthFadeOutStart = RealTimeL() + 3
+		self.HealthFadeOutEnd = RealTimeL() + 3.5
 	end
 
 	if not self:GetVarAlive() then
@@ -78,7 +89,7 @@ function FFGSHUD:PaintPlayerStats(ply)
 
 	local x, y = POS_PLAYERSTATS()
 	local fillageArmor = self:GetVarArmor() / self:GetVarMaxArmor()
-	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(), hook.Run('FFGSHUD_DrawArmorShadow', self, ply, fillageArmor) == true and fillageArmor:min(1) or 0, FillageShield(), FillageShieldShadow())
+	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(), hook.Run('FFGSHUD_DrawArmorShadow', self, ply, fillageArmor) == true and fillageArmor:min(1) or 0, FillageShield(alpha), FillageShieldShadow(alpha))
 	y = y + h * 0.83
 
 	local mhp = self:GetVarMaxHealth()
@@ -94,18 +105,18 @@ function FFGSHUD:PaintPlayerStats(ply)
 	end
 
 	if fillage < 0.5 then
-		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, HPColor(), fillage, FillageColorHealth())
+		w, h = self:DrawShadowedTextPercInv(self.Health, self:GetVarHealth(), x, y, HPColor(alpha), fillage, FillageColorHealth(alpha))
 	else
-		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, HPColor(), FillageColorHealthShadow():SetRed(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
+		w, h = self:DrawShadowedTextPercCustomInv(self.Health, self:GetVarHealth(), x, y, HPColor(alpha), FillageColorHealthShadow(alpha):SetRed(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth(alpha))
 	end
 
 	y = y + h * 0.89
 
 	if self:GetVarArmor() > 0 then
 		if self:GetVarMaxArmor() ~= 100 then
-			self:DrawShadowedText(self.Armor, ('%i/%i'):format(self:GetVarArmor(), self:GetVarMaxArmor()), x, y, ArmorColor())
+			self:DrawShadowedText(self.Armor, ('%i/%i'):format(self:GetVarArmor(), self:GetVarMaxArmor()), x, y, ArmorColor(alpha))
 		else
-			self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, ArmorColor())
+			self:DrawShadowedText(self.Armor, self:GetVarArmor(), x, y, ArmorColor(alpha))
 		end
 	end
 end

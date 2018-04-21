@@ -32,6 +32,11 @@ FFGSHUD.LastWeaponUpdateFadeIn2 = RealTimeL()
 FFGSHUD.LastWeaponUpdateFadeOutStart2 = RealTimeL()
 FFGSHUD.LastWeaponUpdateFadeOutEnd2 = RealTimeL()
 
+FFGSHUD.HealthFadeInStart = 0
+FFGSHUD.HealthFadeInEnd = 0
+FFGSHUD.HealthFadeOutStart = 0
+FFGSHUD.HealthFadeOutEnd = 0
+
 function FFGSHUD:PlayingSwipeAnimation()
 	return self.swipeAnimationTime > RealTimeL()
 end
@@ -89,19 +94,33 @@ end
 local input = input
 
 function FFGSHUD:WatchdogForReload()
-	if not self:CanHideAmmoCounter() then self.reloadWatchdog = false return end
 	local bind = input.LookupBinding('reload')
 	if not bind then self.reloadWatchdog = false return end
 	local key = DLib.KeyMap.GetKeyFromString(bind)
+	local canHide = self:CanHideAmmoCounter()
+
+	if not canHide then self.reloadWatchdog = false end
 
 	if input.IsKeyDown(key) then
-		self.LastWeaponUpdate = RealTimeL()
-		self.LastWeaponUpdateFadeOutStart = RealTimeL() + 3
-		self.LastWeaponUpdateFadeOutEnd = RealTimeL() + 3.5
+		if self.HealthFadeOutEnd < RealTimeL() then
+			self.HealthFadeInStart = RealTimeL()
+			self.HealthFadeInEnd = RealTimeL() + 0.5
+			self.HealthFadeOutStart = RealTimeL() + 3
+			self.HealthFadeOutEnd = RealTimeL() + 3.5
+		else
+			self.HealthFadeOutStart = RealTimeL() + 3
+			self.HealthFadeOutEnd = RealTimeL() + 3.5
+		end
 
-		if not self.reloadWatchdog then
-			self.reloadWatchdog = true
-			self.LastWeaponUpdateFadeIn = RealTimeL() + 0.5
+		if canHide then
+			self.LastWeaponUpdate = RealTimeL()
+			self.LastWeaponUpdateFadeOutStart = RealTimeL() + 3
+			self.LastWeaponUpdateFadeOutEnd = RealTimeL() + 3.5
+
+			if not self.reloadWatchdog then
+				self.reloadWatchdog = true
+				self.LastWeaponUpdateFadeIn = RealTimeL() + 0.5
+			end
 		end
 	else
 		self.reloadWatchdog = self.LastWeaponUpdateFadeOutStart > RealTimeL()
@@ -135,6 +154,18 @@ FFGSHUD:PatchOnChangeHook('alive', function(s, self, ply, old, new)
 		self.isPlayingDeathAnim = true
 		self.deathAnimTimeFadeStart = RealTimeL() + 2.5
 		self.deathAnimTimeFadeEnd = RealTimeL() + 4.5
+	end
+end)
+
+FFGSHUD:PatchOnChangeHook('health', function(s, self, ply, old, new)
+	if self.HealthFadeOutEnd < RealTimeL() then
+		self.HealthFadeInStart = RealTimeL()
+		self.HealthFadeInEnd = RealTimeL() + 0.5
+		self.HealthFadeOutStart = RealTimeL() + 3
+		self.HealthFadeOutEnd = RealTimeL() + 3.5
+	else
+		self.HealthFadeOutStart = RealTimeL() + 3
+		self.HealthFadeOutEnd = RealTimeL() + 3.5
 	end
 end)
 
