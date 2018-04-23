@@ -64,9 +64,10 @@ function FFGSHUD:PaintPlayerStats(ply)
 		end
 	end
 
-	local shouldHide = not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() or
-		self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
+	--local shouldHide = not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() or
+	--	self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
 
+	local shouldHide = self:GetVarMaxHealth() <= self:GetVarHealth()
 	local alpha = 255
 
 	if shouldHide then
@@ -89,7 +90,7 @@ function FFGSHUD:PaintPlayerStats(ply)
 
 	local x, y = POS_PLAYERSTATS()
 	local fillageArmor = self:GetVarArmor() / self:GetVarMaxArmor()
-	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(), hook.Run('FFGSHUD_DrawArmorShadow', self, ply, fillageArmor) == true and fillageArmor:min(1) or 0, FillageShield(alpha), FillageShieldShadow(alpha))
+	local w, h = self:DrawShadowedTextPercHCustomShadow(self.PlayerName, self:GetVarNick(), x, y, PlayerName(alpha), hook.Run('FFGSHUD_DrawArmorShadow', self, ply, fillageArmor) == true and fillageArmor:min(1) or 0, FillageShield(alpha), FillageShieldShadow(alpha))
 	y = y + h * 0.83
 
 	local mhp = self:GetVarMaxHealth()
