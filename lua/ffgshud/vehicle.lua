@@ -27,6 +27,11 @@ local HPColor = FFGSHUD:CreateColorN('vehcolor', 'Vehicle Health', Color())
 local math = math
 local RealTimeL = RealTimeL
 local pi = math.pi * 16
+local Lerp = Lerp
+local lastDrawnHeight = 0
+local ScreenScale = ScreenScale
+local Quintic = Quintic
+
 local function RealTimeLAnim()
 	return RealTimeL() % pi
 end
@@ -34,22 +39,42 @@ end
 function FFGSHUD:DrawVehicleInfo()
 	if not self:GetVarAlive() then return end
 	if self:GetVarVehicleName() == '' then return end
+	local time = RealTimeL()
 
 	local x, y = POS_VEHICLESTATS()
+	local fullyVisible = self.HPBAR_VISIBLE and self.HealthFadeInEnd < time and self.HealthFadeOutStart > time
+
+	if not fullyVisible then
+		if not self.HPBAR_VISIBLE then
+			y = y + lastDrawnHeight
+		elseif self.HealthFadeInEnd > time then
+			local fadeIn = Quintic(1 - time:progression(self.HealthFadeInStart, self.HealthFadeInEnd))
+			y = y + lastDrawnHeight * fadeIn
+		elseif self.HealthFadeOutStart < time then
+			local fadeIn = Quintic(time:progression(self.HealthFadeOutStart, self.HealthFadeOutEnd))
+			y = y + lastDrawnHeight * fadeIn
+		end
+	end
+
+	lastDrawnHeight = ScreenScale(32)
 
 	local w, h = self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, VehicleName())
 	y = y - h * 0.83
+	lastDrawnHeight = lastDrawnHeight + h * 0.83
 
 	local fillage = 1 - self:GetVehicleHealthFillage()
 
 	if self:GetVarVehicleMaxHealth() > 1 then
 		if fillage < 0.5 then
-			self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), fillage, FillageColorHealth())
+			w, h = self:DrawShadowedTextPercInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), fillage, FillageColorHealth())
+			lastDrawnHeight = lastDrawnHeight + h * 0.83
 		else
-			self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
+			w, h = self:DrawShadowedTextPercCustomInvUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor(), FillageColorHealthShadow(math.sin(RealTimeLAnim() * fillage * 30) * 64 + 130), fillage, FillageColorHealth())
+			lastDrawnHeight = lastDrawnHeight + h * 0.83
 		end
 	elseif self:GetVarVehicleHealth() > 0 then
-		self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor())
+		w, h = self:DrawShadowedTextUp(self.VehicleHealth, self:GetVarVehicleHealth(), x, y, HPColor())
+		lastDrawnHeight = lastDrawnHeight + h * 0.83
 	end
 end
 

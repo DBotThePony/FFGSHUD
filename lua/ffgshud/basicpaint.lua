@@ -17,6 +17,7 @@ local FFGSHUD = FFGSHUD
 local HUDCommons = DLib.HUDCommons
 
 local POS_PLAYERSTATS = FFGSHUD:DefinePosition('playerstats', 0.07, 0.68)
+FFGSHUD.POS_PLAYERSTATS = POS_PLAYERSTATS
 local POS_WEAPONSTATS = FFGSHUD:DefinePosition('weaponstats', 0.93, 0.68)
 local color_white = color_white
 local render = render
@@ -72,7 +73,11 @@ function FFGSHUD:PaintPlayerStats(ply)
 
 	if shouldHide then
 		local time = RealTimeL()
-		if self.HealthFadeOutEnd < time then return end
+
+		if self.HealthFadeOutEnd < time then
+			self.HPBAR_VISIBLE = false
+			return
+		end
 
 		if self.HealthFadeInEnd > time then
 			alpha = time:progression(self.HealthFadeInStart, self.HealthFadeInEnd) * 255
@@ -83,6 +88,8 @@ function FFGSHUD:PaintPlayerStats(ply)
 		self.HealthFadeOutStart = RealTimeL() + 3
 		self.HealthFadeOutEnd = RealTimeL() + 3.5
 	end
+
+	self.HPBAR_VISIBLE = true
 
 	if not self:GetVarAlive() then
 		return
