@@ -218,7 +218,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	for i, data in ipairs(self.PickupsHistory) do
 		if data.type == 'ammo' and data.ammoid == ammoid then
 			data.amount = data.amount + ammocount
-			data.localized = data.localized2 .. ' ' .. ammocount
+			data.localized = data.localized2 .. ' ' .. data.amount
 			data.sequencesStart = generateSequences(data.localized, data.start + 0.9, 1)
 			data.sequencesEnd = generateSequencesOut(data.localized, data.startGlitchOut, 1)
 			return
