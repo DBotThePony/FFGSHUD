@@ -383,14 +383,28 @@ function FFGSHUD:HUDDrawPickupHistory()
 			goto CONTINUE
 		end
 
-		if data.slideIn < 1 then
-			HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
-		else
-			self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
-		end
+		if data.death then
+			local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
-		if data.slideOut < 1 and data.slideOut ~= 0 then
-			HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+			if data.slideIn < 1 then
+				HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+			else
+				self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
+			end
+
+			if data.slideOut < 1 and data.slideOut ~= 0 then
+				HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+			end
+		else
+			if data.slideIn < 1 then
+				HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+			else
+				self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
+			end
+
+			if data.slideOut < 1 and data.slideOut ~= 0 then
+				HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+			end
 		end
 
 		y = y + data.h
@@ -415,34 +429,41 @@ function FFGSHUD:ThinkPickupHistory()
 			goto CONTINUE
 		end
 
-		data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
-		data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
-
-		if #data.sequencesStart > 1 then
-			while #data.sequencesStart > 1 do
-				local seq = data.sequencesStart[#data.sequencesStart]
-
-				if seq.ttl > time then
-					data.drawText = seq.str
-					break
-				else
-					table.remove(data.sequencesStart)
-				end
-			end
-		elseif data.startGlitchOut <= time then
-			while #data.sequencesEnd > 1 do
-				local seq = data.sequencesEnd[#data.sequencesEnd]
-				-- print(data.localized, seq.ttl, time, seq.ttl > time)
-
-				if seq.ttl > time then
-					data.drawText = seq.str
-					break
-				else
-					table.remove(data.sequencesEnd)
-				end
-			end
+		if data.death then
+			data.alpha = (1 - time:progression(data.deathStart, data.deathEnds)) * 255
+			data.red = 255 - time:progression(data.deathStart, data.deathEnds) * 50
+			data.green = 255 - time:progression(data.deathStart, data.deathEnds) * 200
+			data.blue = 255 - time:progression(data.deathStart, data.deathEnds) * 220
 		else
-			data.drawText = data.localized
+			data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
+			data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
+
+			if #data.sequencesStart > 1 then
+				while #data.sequencesStart > 1 do
+					local seq = data.sequencesStart[#data.sequencesStart]
+
+					if seq.ttl > time then
+						data.drawText = seq.str
+						break
+					else
+						table.remove(data.sequencesStart)
+					end
+				end
+			elseif data.startGlitchOut <= time then
+				while #data.sequencesEnd > 1 do
+					local seq = data.sequencesEnd[#data.sequencesEnd]
+					-- print(data.localized, seq.ttl, time, seq.ttl > time)
+
+					if seq.ttl > time then
+						data.drawText = seq.str
+						break
+					else
+						table.remove(data.sequencesEnd)
+					end
+				end
+			else
+				data.drawText = data.localized
+			end
 		end
 
 		::CONTINUE::
@@ -460,5 +481,22 @@ FFGSHUD:AddHook('HUDWeaponPickedUp')
 FFGSHUD:AddThinkHook('ThinkPickupHistory')
 
 FFGSHUD:PatchOnChangeHook('alive', function(s, self, ply, old, new)
-	self.PickupsHistory = {}
+	-- self.PickupsHistory = {}
+
+	if not new then
+		local time = RealTimeL()
+
+		for i, data in ipairs(self.PickupsHistory) do
+			data.death = true
+			data.deathStart = time
+			data.deathEnds = time + 3
+			data.alpha = 255
+			data.red = 255
+			data.green = 255
+			data.blue = 255
+			data.ttl = time + 3
+		end
+	else
+		self.PickupsHistory = {}
+	end
 end)
