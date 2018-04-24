@@ -22,6 +22,7 @@ local string = string
 local table = table
 local IsValid = FindMetaTable('Entity').IsValid
 local DEFAULT_TTL = 5
+local MAXIMAL_SLOTS = 4
 
 FFGSHUD.PickupsHistory = {}
 local glitchPattern = {}
@@ -171,7 +172,7 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 end
 
 local function checkForFreeSlots()
-	return #self.PickupsHistory < 3
+	return #self.PickupsHistory < MAXIMAL_SLOTS
 end
 
 local function refreshActivity(self, startPos)
@@ -180,31 +181,31 @@ local function refreshActivity(self, startPos)
 
 	for i = startPos, math.min(startPos + 2, #self.PickupsHistory) do
 		local data = self.PickupsHistory[i]
-		data.ttl = stamp + DEFAULT_TTL
-		data.sequencesEnd = generateSequencesOut(data.localized, stamp + DEFAULT_TTL - 1, 1)
-		data.startGlitchOut = stamp + DEFAULT_TTL - 1
+		data.ttl = data.ttl:max(stamp + DEFAULT_TTL)
+		data.sequencesEnd = generateSequencesOut(data.localized, data.ttl - 1, 1)
+		data.startGlitchOut = data.ttl - 1
 	end
 end
 
 local function refreshActivityIfPossible(self)
 	if #self.PickupsHistory == 0 then return end
 
-	if #self.PickupsHistory < 3 then
+	if #self.PickupsHistory < MAXIMAL_SLOTS then
 		refreshActivity(self, 1)
-	elseif #self.PickupsHistory % 3 ~= 0 then
-		refreshActivity(self, #self.PickupsHistory - #self.PickupsHistor % 3 + 1)
+	elseif #self.PickupsHistory % MAXIMAL_SLOTS ~= 0 then
+		refreshActivity(self, #self.PickupsHistory - #self.PickupsHistory % MAXIMAL_SLOTS + 1)
 	end
 end
 
 local function grabSlotTime(self)
 	local amount = #self.PickupsHistory
 	if amount == 0 then return RealTimeL(), RealTimeL() + DEFAULT_TTL, false end
-	if amount < 3 then return self.PickupsHistory[1].start, self.PickupsHistory[1].ttl, true end
+	if amount < MAXIMAL_SLOTS then return self.PickupsHistory[1].start, self.PickupsHistory[1].ttl, true end
 
-	if amount % 3 == 0 then
+	if amount % MAXIMAL_SLOTS == 0 then
 		return self.PickupsHistory[amount].ttl, self.PickupsHistory[amount].ttl + DEFAULT_TTL, false
 	else
-		local i = amount - amount % 3 + 1
+		local i = amount - amount % MAXIMAL_SLOTS + 1
 		return self.PickupsHistory[i].start, self.PickupsHistory[i].ttl, true
 	end
 end
@@ -226,7 +227,6 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	local w, h = surface.GetTextSize(localized)
 	refreshActivityIfPossible(self)
 	local startTime, ttlTime, isContinuing = grabSlotTime(self)
-	local animStartTime = not isContinuing and startTime or RealTimeL()
 	local slideOut = ttlTime - 1
 
 	local newData = {
@@ -246,16 +246,16 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, animStartTime + 0.9, 1),
+		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
 		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
 
 		-- white slider
-		slideInStart = animStartTime,
-		slideInEnd = animStartTime + 0.6,
+		slideInStart = startTime,
+		slideInEnd = startTime + 0.6,
 
 		-- white slider out in start
-		slideOutStart = animStartTime + 0.6,
-		slideOutEnd = animStartTime + 1.5,
+		slideOutStart = startTime + 0.6,
+		slideOutEnd = startTime + 1.5,
 
 		startGlitchOut = slideOut,
 	}
@@ -266,10 +266,97 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 end
 
 function FFGSHUD:HUDItemPickedUp(printname)
+	if printname[1] == '#' then
+		printname = language.GetPhrase(printname:sub(2))
+	else
+		printname = language.GetPhrase(printname)
+	end
+
+	local localized = printname
+	surface.SetFont(self.PickupHistoryFont.REGULAR)
+	local w, h = surface.GetTextSize(localized)
+	refreshActivityIfPossible(self)
+	local startTime, ttlTime, isContinuing = grabSlotTime(self)
+	local slideOut = ttlTime - 1
+
+	local newData = {
+		type = 'entity',
+		localized = localized,
+		ow = w,
+		oh = h,
+		w = w * 1.6,
+		h = h * 1.2,
+		wPadding = w * 0.1,
+		hPadding = h * 0.1,
+		start = startTime,
+		ttl = ttlTime,
+		slideIn = 0,
+		slideOut = 0,
+		drawText = localized,
+
+		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
+		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+
+		-- white slider
+		slideInStart = startTime,
+		slideInEnd = startTime + 0.6,
+
+		-- white slider out in start
+		slideOutStart = startTime + 0.6,
+		slideOutEnd = startTime + 1.5,
+
+		startGlitchOut = slideOut,
+	}
+
+	table.insert(self.PickupsHistory, newData)
+
 	return true
 end
 
 function FFGSHUD:HUDWeaponPickedUp(ent)
+	local localized = ent:GetPrintName()
+
+	if localized[1] == '#' then
+		localized = language.GetPhrase(localized:sub(2))
+	end
+
+	surface.SetFont(self.PickupHistoryFont.REGULAR)
+	local w, h = surface.GetTextSize(localized)
+	refreshActivityIfPossible(self)
+	local startTime, ttlTime, isContinuing = grabSlotTime(self)
+	local slideOut = ttlTime - 1
+
+	local newData = {
+		type = 'weapon',
+		localized = localized,
+		ow = w,
+		oh = h,
+		w = w * 1.6,
+		h = h * 1.2,
+		wPadding = w * 0.1,
+		hPadding = h * 0.1,
+		start = startTime,
+		ttl = ttlTime,
+		slideIn = 0,
+		slideOut = 0,
+		drawText = localized,
+
+		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
+		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+
+		-- white slider
+		slideInStart = startTime,
+		slideInEnd = startTime + 0.6,
+
+		-- white slider out in start
+		slideOutStart = startTime + 0.6,
+		slideOutEnd = startTime + 1.5,
+
+		startGlitchOut = slideOut,
+	}
+
+	table.insert(self.PickupsHistory, newData)
+
 	return true
 end
 
@@ -279,12 +366,18 @@ local Quintic = Quintic
 local HUDCommons = DLib.HUDCommons
 local color_white = Color()
 local ScreenSize = ScreenSize
+local ScrWL, ScrHL = ScrWL, ScrHL
 
 function FFGSHUD:HUDDrawPickupHistory()
-	local x, y = DRAWPOS()
+	--local x, y = DRAWPOS()
+	local x, y = ScrWL() * 0.04, ScrHL() * 0.4
 	local time = RealTimeL()
 
 	for i, data in ipairs(self.PickupsHistory) do
+		if data.start > time then
+			goto CONTINUE
+		end
+
 		if data.slideIn < 1 then
 			HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
 		else
@@ -296,6 +389,7 @@ function FFGSHUD:HUDDrawPickupHistory()
 		end
 
 		y = y + data.h
+		::CONTINUE::
 	end
 
 	return true
