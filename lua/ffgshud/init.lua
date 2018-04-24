@@ -136,6 +136,12 @@ FFGSHUD.SelectionText = FFGSHUD:CreateScalableFont('SelectionText', {
 	weight = 600
 })
 
+FFGSHUD.PickupHistoryFont = FFGSHUD:CreateScalableFont('PickupHistoryFont', {
+	font = 'PT Mono',
+	size = 18,
+	weight = 600
+})
+
 FFGSHUD.ICON_FRAGS = '♐'
 FFGSHUD.ICON_DEATHS = '☠'
 FFGSHUD.ICON_PING = '☍'
@@ -410,3 +416,4 @@ include('glitch.lua')
 include('killfeed.lua')
 include('compass.lua')
 include('wepselect.lua')
+include('history.lua')
