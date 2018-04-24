@@ -458,3 +458,7 @@ FFGSHUD:AddHook('HUDAmmoPickedUp')
 FFGSHUD:AddHook('HUDItemPickedUp')
 FFGSHUD:AddHook('HUDWeaponPickedUp')
 FFGSHUD:AddThinkHook('ThinkPickupHistory')
+
+FFGSHUD:PatchOnChangeHook('alive', function(s, self, ply, old, new)
+	self.PickupsHistory = {}
+end)
