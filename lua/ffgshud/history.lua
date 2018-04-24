@@ -173,7 +173,7 @@ local function refreshActivity(self, startPos)
 	for i = startPos, math.min(startPos + 2, #self.PickupsHistory) do
 		local data = self.PickupsHistory[i]
 		data.ttl = stamp + DEFAULT_TTL
-		data.sequencesEnd = generateSequencesOut(data.localized, stamp + 2.5, 0.5)
+		data.sequencesEnd = generateSequencesOut(data.localized, stamp + DEFAULT_TTL - 2, 2)
 	end
 end
 
@@ -193,7 +193,7 @@ local function grabSlotTime(self)
 	if amount < 3 then return self.PickupsHistory[1].start, self.PickupsHistory[1].ttl, true end
 
 	if amount % 3 == 0 then
-		return self.PickupsHistory[amount].start, self.PickupsHistory[amount].ttl, false
+		return self.PickupsHistory[amount].ttl, self.PickupsHistory[amount].ttl + DEFAULT_TTL, false
 	else
 		local i = amount - amount % 3 + 1
 		return self.PickupsHistory[i].start, self.PickupsHistory[i].ttl, true
@@ -218,7 +218,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	refreshActivityIfPossible(self)
 	local startTime, ttlTime, isContinuing = grabSlotTime(self)
 	local animStartTime = not isContinuing and startTime or RealTimeL()
-	local slideOut = animStartTime + DEFAULT_TTL - 1.6
+	local slideOut = ttlTime - 2
 
 	local newData = {
 		type = 'ammo',
@@ -237,19 +237,21 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, animStartTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+		sequencesStart = generateSequences(localized, animStartTime + 0.75, 1),
+		sequencesEnd = generateSequencesOut(localized, slideOut, 2),
 
 		-- white slider
 		slideInStart = animStartTime,
-		slideInEnd = animStartTime + 0.8,
+		slideInEnd = animStartTime + 0.6,
 
 		-- white slider out in start
-		slideOutStart = animStartTime + 0.8,
-		slideOutEnd = animStartTime + 2,
+		slideOutStart = animStartTime + 0.6,
+		slideOutEnd = animStartTime + 1.5,
 
 		startGlitchOut = slideOut,
 	}
+
+	print(ammoid, ttlTime, slideOut, newData.sequencesEnd[#newData.sequencesEnd].ttl, newData.sequencesEnd[1].ttl)
 
 	table.insert(self.PickupsHistory, newData)
 
@@ -303,6 +305,10 @@ function FFGSHUD:ThinkPickupHistory()
 			goto CONTINUE
 		end
 
+		if data.start > time then
+			goto CONTINUE
+		end
+
 		data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
 		data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
 
@@ -320,6 +326,7 @@ function FFGSHUD:ThinkPickupHistory()
 		elseif data.startGlitchOut <= time then
 			while #data.sequencesEnd > 1 do
 				local seq = data.sequencesEnd[#data.sequencesEnd]
+				-- print(data.localized, seq.ttl, time, seq.ttl > time)
 
 				if seq.ttl > time then
 					data.drawText = seq.str
