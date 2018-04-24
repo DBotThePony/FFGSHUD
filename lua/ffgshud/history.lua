@@ -218,11 +218,15 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	for i, data in ipairs(self.PickupsHistory) do
 		if data.type == 'ammo' and data.ammoid == ammoid then
 			data.amount = data.amount + ammocount
+			data.localized = data.localized2 .. ' ' .. ammocount
+			data.sequencesStart = generateSequences(data.localized, data.start + 0.9, 1)
+			data.sequencesEnd = generateSequencesOut(data.localized, data.startGlitchOut, 1)
 			return
 		end
 	end
 
-	local localized = language.GetPhrase(('#%s_Ammo'):format(ammoid))
+	local localized2 = language.GetPhrase(('#%s_Ammo'):format(ammoid))
+	local localized = localized2 .. ' ' .. ammocount
 	surface.SetFont(self.PickupHistoryFont.REGULAR)
 	local w, h = surface.GetTextSize(localized)
 	refreshActivityIfPossible(self)
@@ -234,6 +238,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		ammoid = ammoid,
 		amount = ammocount,
 		localized = localized,
+		localized2 = localized2,
 		ow = w,
 		oh = h,
 		w = w * 1.6,
