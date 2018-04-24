@@ -24,8 +24,9 @@ local IsValid = FindMetaTable('Entity').IsValid
 local DEFAULT_TTL = 5
 
 FFGSHUD.PickupsHistory = {}
-
 local glitchPattern = {}
+
+--[[
 
 for i = 11, 30 do
 	table.insert(glitchPattern, string.char(i))
@@ -33,6 +34,13 @@ end
 
 for i = 34, 150 do
 	table.insert(glitchPattern, string.char(i))
+end
+]]
+
+local _glitchPattern = 'QWERTYUIOPASDFGHJKLZXCVBNM,.[];/\\!@#$%^&*()'
+
+for char in _glitchPattern:gmatch('.') do
+	table.insert(glitchPattern, char)
 end
 
 local function generateSequences(finalText, startTime, maxTime)
@@ -119,7 +127,7 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 			ttl = startTime + i * perFrame
 		})
 
-		if i % 3 == 0 and freeSlots > 0 then
+		if i % 5 == 0 and freeSlots > 0 then
 			local rnd = math.random(1, freeSlots)
 			freeSlots = freeSlots - 1
 			local pos = 0
@@ -140,7 +148,7 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 			end
 		end
 
-		if i % 8 == 0 and freeSlotsGlitch > 0 then
+		if i % 3 == 0 and freeSlotsGlitch > 0 then
 			local rnd = math.random(1, freeSlotsGlitch)
 			freeSlotsGlitch = freeSlotsGlitch - 1
 			local pos = 0
@@ -173,7 +181,8 @@ local function refreshActivity(self, startPos)
 	for i = startPos, math.min(startPos + 2, #self.PickupsHistory) do
 		local data = self.PickupsHistory[i]
 		data.ttl = stamp + DEFAULT_TTL
-		data.sequencesEnd = generateSequencesOut(data.localized, stamp + DEFAULT_TTL - 2, 2)
+		data.sequencesEnd = generateSequencesOut(data.localized, stamp + DEFAULT_TTL - 1, 1)
+		data.startGlitchOut = stamp + DEFAULT_TTL - 1
 	end
 end
 
@@ -218,7 +227,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	refreshActivityIfPossible(self)
 	local startTime, ttlTime, isContinuing = grabSlotTime(self)
 	local animStartTime = not isContinuing and startTime or RealTimeL()
-	local slideOut = ttlTime - 2
+	local slideOut = ttlTime - 1
 
 	local newData = {
 		type = 'ammo',
@@ -237,8 +246,8 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, animStartTime + 0.75, 1),
-		sequencesEnd = generateSequencesOut(localized, slideOut, 2),
+		sequencesStart = generateSequences(localized, animStartTime + 0.9, 1),
+		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
 
 		-- white slider
 		slideInStart = animStartTime,
@@ -250,8 +259,6 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 
 		startGlitchOut = slideOut,
 	}
-
-	print(ammoid, ttlTime, slideOut, newData.sequencesEnd[#newData.sequencesEnd].ttl, newData.sequencesEnd[1].ttl)
 
 	table.insert(self.PickupsHistory, newData)
 
