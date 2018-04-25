@@ -256,16 +256,16 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.5, 0.75),
-		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.75),
+		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
 		slideInStart = startTime,
-		slideInEnd = startTime + 0.4,
+		slideInEnd = startTime + 0.2,
 
 		-- white slider out in start
-		slideOutStart = startTime + 0.4,
-		slideOutEnd = startTime + 1,
+		slideOutStart = startTime + 0.2,
+		slideOutEnd = startTime + 0.4,
 
 		startGlitchOut = bucket.ttl - 1,
 	}
@@ -300,16 +300,16 @@ function FFGSHUD:HUDItemPickedUp(printname)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 1),
+		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
 		slideInStart = startTime,
-		slideInEnd = startTime + 0.6,
+		slideInEnd = startTime + 0.2,
 
 		-- white slider out in start
-		slideOutStart = startTime + 0.6,
-		slideOutEnd = startTime + 1.5,
+		slideOutStart = startTime + 0.2,
+		slideOutEnd = startTime + 0.4,
 
 		startGlitchOut = bucket.ttl - 1,
 	}
@@ -343,16 +343,16 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 1),
+		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
 		slideInStart = startTime,
-		slideInEnd = startTime + 0.6,
+		slideInEnd = startTime + 0.2,
 
 		-- white slider out in start
-		slideOutStart = startTime + 0.6,
-		slideOutEnd = startTime + 1.5,
+		slideOutStart = startTime + 0.2,
+		slideOutEnd = startTime + 0.4,
 
 		startGlitchOut = bucket.ttl - 1,
 	}
