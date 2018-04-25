@@ -130,7 +130,7 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 			ttl = startTime + i * perFrame
 		})
 
-		if i % 5 == 0 and freeSlots > 0 then
+		if i % 4 == 0 and freeSlots > 0 then
 			local rnd = math.random(1, freeSlots)
 			freeSlots = freeSlots - 1
 			local pos = 0
@@ -151,7 +151,7 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 			end
 		end
 
-		if i % 3 == 0 and freeSlotsGlitch > 0 then
+		if i % 2 == 0 and freeSlotsGlitch > 0 then
 			local rnd = math.random(1, freeSlotsGlitch)
 			freeSlotsGlitch = freeSlotsGlitch - 1
 			local pos = 0
@@ -380,27 +380,45 @@ function FFGSHUD:HUDDrawPickupHistory()
 		end
 
 		for i2, data in ipairs(bucket.list) do
-			if data.death then
-				local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+			if data.type == 'empty' then
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
-				if data.slideIn < 1 then
-					HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+					if data.slideIn < 1 then
+						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
 				else
-					self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
-				end
-
-				if data.slideOut < 1 and data.slideOut ~= 0 then
-					HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					if data.slideIn < 1 then
+						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
 				end
 			else
-				if data.slideIn < 1 then
-					HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
-				else
-					self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
-				end
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
-				if data.slideOut < 1 and data.slideOut ~= 0 then
-					HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					if data.slideIn < 1 then
+						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+					else
+						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
+				else
+					if data.slideIn < 1 then
+						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+					else
+						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
 				end
 			end
 
@@ -412,6 +430,9 @@ function FFGSHUD:HUDDrawPickupHistory()
 
 	return true
 end
+
+local Sinusine = Sinusine
+local Cosine = Cosine
 
 function FFGSHUD:ThinkPickupHistory()
 	local toRemove
@@ -428,13 +449,48 @@ function FFGSHUD:ThinkPickupHistory()
 			goto CONTINUE
 		end
 
+		if not bucket.tick then
+			bucket.tick = true
+
+			for i = 1, MAXIMAL_SLOTS - #bucket.list do
+				local startTime = bucket.start + (DISPLAY_PAUSE * #bucket.list)
+				bucket.ttl = bucket.ttl + DEFAULT_TTL * 0.2
+
+				for i2, data in ipairs(bucket.list) do
+					if data.sequencesEnd and data.localized then
+						data.sequencesEnd = generateSequencesOut(data.localized, bucket.ttl - 1, 1)
+						data.startGlitchOut = bucket.ttl - 1
+					end
+				end
+
+				local newData = {
+					type = 'empty',
+					w = ScreenSize(48),
+					h = ScreenSize(6),
+					start = startTime,
+					slideIn = 0,
+					slideOut = 0,
+
+					-- white slider
+					slideInStart = startTime,
+					slideInEnd = startTime + 0.3,
+
+					-- white slider out in start
+					slideOutStart = startTime + 0.3,
+					slideOutEnd = startTime + 0.75,
+				}
+
+				table.insert(bucket.list, newData)
+			end
+		end
+
 		for i, data in ipairs(bucket.list) do
 			if data.death then
 				data.alpha = (1 - time:progression(data.deathStart, data.deathEnds)) * 255
 				data.red = 255 - time:progression(data.deathStart, data.deathEnds) * 50
 				data.green = 255 - time:progression(data.deathStart, data.deathEnds) * 200
 				data.blue = 255 - time:progression(data.deathStart, data.deathEnds) * 220
-			else
+			elseif data.type ~= 'empty' then
 				data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
 				data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
 
@@ -464,6 +520,9 @@ function FFGSHUD:ThinkPickupHistory()
 				else
 					data.drawText = data.localized
 				end
+			else
+				data.slideIn = Cosine(time:progression(data.slideInStart, data.slideInEnd))
+				data.slideOut = Cubic(time:progression(data.slideOutStart, data.slideOutEnd))
 			end
 		end
 
