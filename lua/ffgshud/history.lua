@@ -21,8 +21,10 @@ local surface = surface
 local string = string
 local table = table
 local IsValid = FindMetaTable('Entity').IsValid
-local DEFAULT_TTL = 5
-local MAXIMAL_SLOTS = 4
+local DEFAULT_TTL = 3
+local MAXIMAL_SLOTS = 3
+local DISPLAY_PAUSE = 1
+local GIVE_CHANCE_TIME = 0.2
 
 FFGSHUD.PickupsHistory = {}
 local glitchPattern = {}
@@ -38,7 +40,7 @@ for i = 34, 150 do
 end
 ]]
 
-local _glitchPattern = 'QWERTYUIOPASDFGHJKLZXCVBNM,.[];/\\!@#$%^&*()'
+local _glitchPattern = '________/\\!@#$%&*'
 
 for char in _glitchPattern:gmatch('.') do
 	table.insert(glitchPattern, char)
@@ -171,43 +173,45 @@ local function generateSequencesOut(finalText, startTime, maxTime)
 	return table.flip(output)
 end
 
-local function checkForFreeSlots()
-	return #self.PickupsHistory < MAXIMAL_SLOTS
-end
-
-local function refreshActivity(self, startPos)
-	startPos = startPos or 1
-	local stamp = RealTimeL()
-
-	for i = startPos, math.min(startPos + 2, #self.PickupsHistory) do
-		local data = self.PickupsHistory[i]
-		data.ttl = data.ttl:max(stamp + DEFAULT_TTL)
-		data.sequencesEnd = generateSequencesOut(data.localized, data.ttl - 1, 1)
-		data.startGlitchOut = data.ttl - 1
-	end
-end
-
-local function refreshActivityIfPossible(self)
-	if #self.PickupsHistory == 0 then return end
-
-	if #self.PickupsHistory < MAXIMAL_SLOTS then
-		refreshActivity(self, 1)
-	elseif #self.PickupsHistory % MAXIMAL_SLOTS ~= 0 then
-		refreshActivity(self, #self.PickupsHistory - #self.PickupsHistory % MAXIMAL_SLOTS + 1)
-	end
-end
-
 local function grabSlotTime(self)
-	local amount = #self.PickupsHistory
-	if amount == 0 then return RealTimeL(), RealTimeL() + DEFAULT_TTL, false end
-	if amount < MAXIMAL_SLOTS then return self.PickupsHistory[1].start, self.PickupsHistory[1].ttl, true end
+	if #self.PickupsHistory == 0 then
+		local bucket = {
+			start = RealTimeL() + GIVE_CHANCE_TIME,
+			ttl = RealTimeL() + GIVE_CHANCE_TIME + DEFAULT_TTL,
+			ttlo = RealTimeL() + GIVE_CHANCE_TIME + DEFAULT_TTL,
+			list = {}
+		}
 
-	if amount % MAXIMAL_SLOTS == 0 then
-		return self.PickupsHistory[amount].ttl, self.PickupsHistory[amount].ttl + DEFAULT_TTL, false
-	else
-		local i = amount - amount % MAXIMAL_SLOTS + 1
-		return self.PickupsHistory[i].start, self.PickupsHistory[i].ttl, true
+		table.insert(self.PickupsHistory, bucket)
+		return bucket, bucket.start
 	end
+
+	local time = RealTimeL()
+
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > time and #bucket.list < MAXIMAL_SLOTS then
+			bucket.ttl = bucket.ttlo + DEFAULT_TTL * 0.9
+
+			for i2, data in ipairs(bucket.list) do
+				data.sequencesEnd = generateSequencesOut(data.localized, bucket.ttl - 1, 1)
+				data.startGlitchOut = bucket.ttl - 1
+			end
+
+			return bucket, bucket.start + (DISPLAY_PAUSE * #bucket.list)
+		end
+	end
+
+	local last = self.PickupsHistory[#self.PickupsHistory]
+
+	local bucket = {
+		start = last.ttl,
+		ttl = last.ttl + DEFAULT_TTL,
+		ttlo = last.ttl + DEFAULT_TTL,
+		list = {}
+	}
+
+	table.insert(self.PickupsHistory, bucket)
+	return bucket, bucket.start
 end
 
 local language = language
@@ -215,13 +219,17 @@ local language = language
 function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	if ammocount == 0 then return end -- ???
 
-	for i, data in ipairs(self.PickupsHistory) do
-		if data.type == 'ammo' and data.ammoid == ammoid then
-			data.amount = data.amount + ammocount
-			data.localized = data.localized2 .. ' ' .. data.amount
-			data.sequencesStart = generateSequences(data.localized, data.start + 0.9, 1)
-			data.sequencesEnd = generateSequencesOut(data.localized, data.startGlitchOut, 1)
-			return
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > RealTimeL() then
+			for i2, data in ipairs(bucket.list) do
+				if data.type == 'ammo' and data.ammoid == ammoid then
+					data.amount = data.amount + ammocount
+					data.localized = data.localized2 .. ' ' .. data.amount
+					data.sequencesStart = generateSequences(data.localized, data.start + 0.9, 1)
+					data.sequencesEnd = generateSequencesOut(data.localized, bucket.ttl - 1, 1)
+					return
+				end
+			end
 		end
 	end
 
@@ -229,9 +237,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 	local localized = localized2 .. ' ' .. ammocount
 	surface.SetFont(self.PickupHistoryFont.REGULAR)
 	local w, h = surface.GetTextSize(localized)
-	refreshActivityIfPossible(self)
-	local startTime, ttlTime, isContinuing = grabSlotTime(self)
-	local slideOut = ttlTime - 1
+	local bucket, startTime = grabSlotTime(self)
 
 	local newData = {
 		type = 'ammo',
@@ -246,27 +252,25 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		wPadding = w * 0.1,
 		hPadding = h * 0.1,
 		start = startTime,
-		ttl = ttlTime,
 		slideIn = 0,
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+		sequencesStart = generateSequences(localized, startTime + 0.5, 0.75),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.75),
 
 		-- white slider
 		slideInStart = startTime,
-		slideInEnd = startTime + 0.6,
+		slideInEnd = startTime + 0.4,
 
 		-- white slider out in start
-		slideOutStart = startTime + 0.6,
-		slideOutEnd = startTime + 1.5,
+		slideOutStart = startTime + 0.4,
+		slideOutEnd = startTime + 1,
 
-		startGlitchOut = slideOut,
+		startGlitchOut = bucket.ttl - 1,
 	}
 
-	table.insert(self.PickupsHistory, newData)
-
+	table.insert(bucket.list, newData)
 	return true
 end
 
@@ -280,9 +284,7 @@ function FFGSHUD:HUDItemPickedUp(printname)
 	local localized = printname
 	surface.SetFont(self.PickupHistoryFont.REGULAR)
 	local w, h = surface.GetTextSize(localized)
-	refreshActivityIfPossible(self)
-	local startTime, ttlTime, isContinuing = grabSlotTime(self)
-	local slideOut = ttlTime - 1
+	local bucket, startTime = grabSlotTime(self)
 
 	local newData = {
 		type = 'entity',
@@ -294,13 +296,12 @@ function FFGSHUD:HUDItemPickedUp(printname)
 		wPadding = w * 0.1,
 		hPadding = h * 0.1,
 		start = startTime,
-		ttl = ttlTime,
 		slideIn = 0,
 		slideOut = 0,
 		drawText = localized,
 
 		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 1),
 
 		-- white slider
 		slideInStart = startTime,
@@ -310,11 +311,10 @@ function FFGSHUD:HUDItemPickedUp(printname)
 		slideOutStart = startTime + 0.6,
 		slideOutEnd = startTime + 1.5,
 
-		startGlitchOut = slideOut,
+		startGlitchOut = bucket.ttl - 1,
 	}
 
-	table.insert(self.PickupsHistory, newData)
-
+	table.insert(bucket.list, newData)
 	return true
 end
 
@@ -327,9 +327,7 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 
 	surface.SetFont(self.PickupHistoryFont.REGULAR)
 	local w, h = surface.GetTextSize(localized)
-	refreshActivityIfPossible(self)
-	local startTime, ttlTime, isContinuing = grabSlotTime(self)
-	local slideOut = ttlTime - 1
+	local bucket, startTime = grabSlotTime(self)
 
 	local newData = {
 		type = 'weapon',
@@ -341,13 +339,12 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 		wPadding = w * 0.1,
 		hPadding = h * 0.1,
 		start = startTime,
-		ttl = ttlTime,
 		slideIn = 0,
 		slideOut = 0,
 		drawText = localized,
 
 		sequencesStart = generateSequences(localized, startTime + 0.9, 1),
-		sequencesEnd = generateSequencesOut(localized, slideOut, 1),
+		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 1),
 
 		-- white slider
 		slideInStart = startTime,
@@ -357,11 +354,10 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 		slideOutStart = startTime + 0.6,
 		slideOutEnd = startTime + 1.5,
 
-		startGlitchOut = slideOut,
+		startGlitchOut = bucket.ttl - 1,
 	}
 
-	table.insert(self.PickupsHistory, newData)
-
+	table.insert(bucket.list, newData)
 	return true
 end
 
@@ -378,36 +374,39 @@ function FFGSHUD:HUDDrawPickupHistory()
 	local x, y = ScrWL() * 0.04, ScrHL() * 0.4
 	local time = RealTimeL()
 
-	for i, data in ipairs(self.PickupsHistory) do
-		if data.start > time then
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > time then
 			goto CONTINUE
 		end
 
-		if data.death then
-			local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+		for i2, data in ipairs(bucket.list) do
+			if data.death then
+				local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
-			if data.slideIn < 1 then
-				HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+				if data.slideIn < 1 then
+					HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+				else
+					self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
+				end
+
+				if data.slideOut < 1 and data.slideOut ~= 0 then
+					HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+				end
 			else
-				self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
+				if data.slideIn < 1 then
+					HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+				else
+					self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
+				end
+
+				if data.slideOut < 1 and data.slideOut ~= 0 then
+					HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+				end
 			end
 
-			if data.slideOut < 1 and data.slideOut ~= 0 then
-				HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
-			end
-		else
-			if data.slideIn < 1 then
-				HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
-			else
-				self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
-			end
-
-			if data.slideOut < 1 and data.slideOut ~= 0 then
-				HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
-			end
+			y = y + data.h
 		end
 
-		y = y + data.h
 		::CONTINUE::
 	end
 
@@ -418,51 +417,53 @@ function FFGSHUD:ThinkPickupHistory()
 	local toRemove
 	local time = RealTimeL()
 
-	for i, data in ipairs(self.PickupsHistory) do
-		if data.ttl < time then
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.ttl < time then
 			toRemove = toRemove or {}
 			table.insert(toRemove, i)
 			goto CONTINUE
 		end
 
-		if data.start > time then
+		if bucket.start > time then
 			goto CONTINUE
 		end
 
-		if data.death then
-			data.alpha = (1 - time:progression(data.deathStart, data.deathEnds)) * 255
-			data.red = 255 - time:progression(data.deathStart, data.deathEnds) * 50
-			data.green = 255 - time:progression(data.deathStart, data.deathEnds) * 200
-			data.blue = 255 - time:progression(data.deathStart, data.deathEnds) * 220
-		else
-			data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
-			data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
-
-			if #data.sequencesStart > 1 then
-				while #data.sequencesStart > 1 do
-					local seq = data.sequencesStart[#data.sequencesStart]
-
-					if seq.ttl > time then
-						data.drawText = seq.str
-						break
-					else
-						table.remove(data.sequencesStart)
-					end
-				end
-			elseif data.startGlitchOut <= time then
-				while #data.sequencesEnd > 1 do
-					local seq = data.sequencesEnd[#data.sequencesEnd]
-					-- print(data.localized, seq.ttl, time, seq.ttl > time)
-
-					if seq.ttl > time then
-						data.drawText = seq.str
-						break
-					else
-						table.remove(data.sequencesEnd)
-					end
-				end
+		for i, data in ipairs(bucket.list) do
+			if data.death then
+				data.alpha = (1 - time:progression(data.deathStart, data.deathEnds)) * 255
+				data.red = 255 - time:progression(data.deathStart, data.deathEnds) * 50
+				data.green = 255 - time:progression(data.deathStart, data.deathEnds) * 200
+				data.blue = 255 - time:progression(data.deathStart, data.deathEnds) * 220
 			else
-				data.drawText = data.localized
+				data.slideIn = Cubic(time:progression(data.slideInStart, data.slideInEnd))
+				data.slideOut = Quintic(time:progression(data.slideOutStart, data.slideOutEnd))
+
+				if #data.sequencesStart > 1 then
+					while #data.sequencesStart > 1 do
+						local seq = data.sequencesStart[#data.sequencesStart]
+
+						if seq.ttl > time then
+							data.drawText = seq.str
+							break
+						else
+							table.remove(data.sequencesStart)
+						end
+					end
+				elseif data.startGlitchOut <= time then
+					while #data.sequencesEnd > 1 do
+						local seq = data.sequencesEnd[#data.sequencesEnd]
+						-- print(data.localized, seq.ttl, time, seq.ttl > time)
+
+						if seq.ttl > time then
+							data.drawText = seq.str
+							break
+						else
+							table.remove(data.sequencesEnd)
+						end
+					end
+				else
+					data.drawText = data.localized
+				end
 			end
 		end
 
