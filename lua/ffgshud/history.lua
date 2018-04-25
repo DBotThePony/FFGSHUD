@@ -256,7 +256,7 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesStart = generateSequences(localized, startTime + 0.3, 0.4),
 		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
@@ -300,7 +300,7 @@ function FFGSHUD:HUDItemPickedUp(printname)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesStart = generateSequences(localized, startTime + 0.3, 0.4),
 		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
@@ -343,7 +343,7 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 		slideOut = 0,
 		drawText = localized,
 
-		sequencesStart = generateSequences(localized, startTime + 0.2, 0.4),
+		sequencesStart = generateSequences(localized, startTime + 0.3, 0.4),
 		sequencesEnd = generateSequencesOut(localized, bucket.ttl - 1, 0.2),
 
 		-- white slider
