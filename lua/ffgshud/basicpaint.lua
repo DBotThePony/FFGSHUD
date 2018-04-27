@@ -197,32 +197,89 @@ function FFGSHUD:PaintWeaponStats()
 		color_white.a = 255
 	end
 
-	local WeaponNameColor = WeaponNameColor():ModifyAlpha(color_white.a)
-	local AmmoReadyColor = AmmoReadyColor():ModifyAlpha(color_white.a)
-	local AmmoReady2Color = AmmoReady2Color():ModifyAlpha(color_white.a)
-	local AmmoStoredColor = AmmoStoredColor():ModifyAlpha(color_white.a)
-	local AmmoStored2Color = AmmoStored2Color():ModifyAlpha(color_white.a)
-	local FillageColorAmmo = FillageColorAmmo:ModifyAlpha(color_white.a)
-	local ShadowEmpty = ShadowEmpty:ModifyAlpha(color_white.a)
+	if color_white.a ~= 0 then
+		local WeaponNameColor = WeaponNameColor():ModifyAlpha(color_white.a)
+		local AmmoReadyColor = AmmoReadyColor():ModifyAlpha(color_white.a)
+		local AmmoReady2Color = AmmoReady2Color():ModifyAlpha(color_white.a)
+		local AmmoStoredColor = AmmoStoredColor():ModifyAlpha(color_white.a)
+		local AmmoStored2Color = AmmoStored2Color():ModifyAlpha(color_white.a)
+		local FillageColorAmmo = FillageColorAmmo:ModifyAlpha(color_white.a)
+		local ShadowEmpty = ShadowEmpty:ModifyAlpha(color_white.a)
 
-	local x, y = POS_WEAPONSTATS()
-	local swipe = self:PlayingSwipeAnimation()
+		local x, y = POS_WEAPONSTATS()
+		local swipe = self:PlayingSwipeAnimation()
 
-	if swipe then
-		render.PushScissorRect(x - 800, y, x + 800, y + self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H)
-		local fraction = self:SwipeAnimationDuration()
+		if swipe then
+			render.PushScissorRect(x - 800, y, x + 800, y + self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H)
+			local fraction = self:SwipeAnimationDuration()
 
-		if self.swipeDirection then
-			y = y - (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * fraction
-		else
-			y = y + (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * fraction
+			if self.swipeDirection then
+				y = y - (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * fraction
+			else
+				y = y + (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * fraction
+			end
+
+			local w, h = self:DrawShadowedTextAligned(self.WeaponName, self.oldWeaponName, x, y, WeaponNameColor)
+			y = y + self.WeaponName.REGULAR_SIZE_H * 0.83
+
+			local fillage1 = self.oldReadyAmmoPerc
+			local fillage2 = self.oldReady2AmmoPerc
+
+			if fillage1 == 0 then
+				FillageColorAmmoShadow1.r = 0
+			elseif fillage1 == 1 then
+				FillageColorAmmoShadow1.r = 200
+			else
+				FillageColorAmmoShadow1.r = math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130
+			end
+
+			if fillage2 == 0 then
+				FillageColorAmmoShadow2.r = 0
+			elseif fillage2 == 1 then
+				FillageColorAmmoShadow2.r = 200
+			else
+				FillageColorAmmoShadow2.r = math.sin(RealTimeLAnim() * fillage2 * 30) * 64 + 130
+			end
+
+			if fillage1 < 0.5 then
+				w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, self.oldReadyAmmoString, x, y, AmmoReadyColor, fillage1, FillageColorAmmo)
+			else
+				w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, self.oldReadyAmmoString, x, y, AmmoReadyColor, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
+			end
+
+			if fillage2 < 0.5 then
+				self:DrawShadowedTextPercInv(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, fillage2, FillageColorAmmo)
+			else
+				self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
+			end
+
+			y = y + self.AmmoAmount.REGULAR_SIZE_H * 0.83
+
+			if self.oldStoredAmmoString == 0 or self.oldStoredAmmoString == '0' then
+				self:DrawShadowedTextAlignedCustom(self.AmmoStored, self.oldStoredAmmoString, x, y, FillageColorAmmo, ShadowEmpty)
+			else
+				self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, AmmoStoredColor)
+			end
+
+			if self.oldStored2AmmoText == 0 or self.oldStored2AmmoText == '/0' then
+				self:DrawShadowedTextCustom(self.AmmoStored2, self.oldStored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
+			else
+				self:DrawShadowedText(self.AmmoStored2, self.oldStored2AmmoText, x, y, AmmoStored2Color)
+			end
+
+			y = y + self.AmmoStored.REGULAR_SIZE_H
+
+			if not self.swipeDirection then
+				y = y - (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * 2
+			end
 		end
 
-		local w, h = self:DrawShadowedTextAligned(self.WeaponName, self.oldWeaponName, x, y, WeaponNameColor)
-		y = y + self.WeaponName.REGULAR_SIZE_H * 0.83
+		local w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName(), x, y, WeaponNameColor)
+		y = y + h * 0.83
 
-		local fillage1 = self.oldReadyAmmoPerc
-		local fillage2 = self.oldReady2AmmoPerc
+		local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
+		local fillage1 = 1 - self:GetAmmoFillage1()
+		local fillage2 = 1 - self:GetAmmoFillage2()
 
 		if fillage1 == 0 then
 			FillageColorAmmoShadow1.r = 0
@@ -241,91 +298,36 @@ function FFGSHUD:PaintWeaponStats()
 		end
 
 		if fillage1 < 0.5 then
-			w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, self.oldReadyAmmoString, x, y, AmmoReadyColor, fillage1, FillageColorAmmo)
+			w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, AmmoReadyColor, fillage1, FillageColorAmmo)
 		else
-			w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, self.oldReadyAmmoString, x, y, AmmoReadyColor, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
+			w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, AmmoReadyColor, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
 		end
 
 		if fillage2 < 0.5 then
-			self:DrawShadowedTextPercInv(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, fillage2, FillageColorAmmo)
+			self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, fillage2, FillageColorAmmo)
 		else
-			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, self.oldReady2AmmoString, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
+			self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
 		end
 
-		y = y + self.AmmoAmount.REGULAR_SIZE_H * 0.83
+		y = y + h * 0.83
 
-		if self.oldStoredAmmoString == 0 or self.oldStoredAmmoString == '0' then
-			self:DrawShadowedTextAlignedCustom(self.AmmoStored, self.oldStoredAmmoString, x, y, FillageColorAmmo, ShadowEmpty)
+		if ammoStoredText == 0 or ammoStoredText == '0' then
+			self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo, ShadowEmpty)
 		else
-			self:DrawShadowedTextAligned(self.AmmoStored, self.oldStoredAmmoString, x, y, AmmoStoredColor)
+			self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, AmmoStoredColor)
 		end
 
-		if self.oldStored2AmmoText == 0 or self.oldStored2AmmoText == '/0' then
-			self:DrawShadowedTextCustom(self.AmmoStored2, self.oldStored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
+		if stored2AmmoText == 0 or stored2AmmoText == '/0' then
+			self:DrawShadowedTextCustom(self.AmmoStored2, stored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
 		else
-			self:DrawShadowedText(self.AmmoStored2, self.oldStored2AmmoText, x, y, AmmoStored2Color)
+			self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, AmmoStored2Color)
 		end
 
 		y = y + self.AmmoStored.REGULAR_SIZE_H
 
-		if not self.swipeDirection then
-			y = y - (self.WeaponName.REGULAR_SIZE_H * 0.83 + self.AmmoAmount.REGULAR_SIZE_H * 0.83 + self.AmmoStored.REGULAR_SIZE_H) * 2
+		if swipe then
+			render.PopScissorRect()
 		end
-	end
-
-	local w, h = self:DrawShadowedTextAligned(self.WeaponName, self:GetVarWeaponName(), x, y, WeaponNameColor)
-	y = y + h * 0.83
-
-	local ammoReadyText, ammoStoredText, clip2AmmoText, stored2AmmoText = self:GetAmmoDisplayText()
-	local fillage1 = 1 - self:GetAmmoFillage1()
-	local fillage2 = 1 - self:GetAmmoFillage2()
-
-	if fillage1 == 0 then
-		FillageColorAmmoShadow1.r = 0
-	elseif fillage1 == 1 then
-		FillageColorAmmoShadow1.r = 200
-	else
-		FillageColorAmmoShadow1.r = math.sin(RealTimeLAnim() * fillage1 * 30) * 64 + 130
-	end
-
-	if fillage2 == 0 then
-		FillageColorAmmoShadow2.r = 0
-	elseif fillage2 == 1 then
-		FillageColorAmmoShadow2.r = 200
-	else
-		FillageColorAmmoShadow2.r = math.sin(RealTimeLAnim() * fillage2 * 30) * 64 + 130
-	end
-
-	if fillage1 < 0.5 then
-		w, h = self:DrawShadowedTextAlignedPercInv(self.AmmoAmount, ammoReadyText, x, y, AmmoReadyColor, fillage1, FillageColorAmmo)
-	else
-		w, h = self:DrawShadowedTextAlignedPercCustomInv(self.AmmoAmount, ammoReadyText, x, y, AmmoReadyColor, FillageColorAmmoShadow1, fillage1, FillageColorAmmo)
-	end
-
-	if fillage2 < 0.5 then
-		self:DrawShadowedTextPercInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, fillage2, FillageColorAmmo)
-	else
-		self:DrawShadowedTextPercCustomInv(self.AmmoAmount2, clip2AmmoText, x, y + self.AmmoAmount.REGULAR_SIZE_H - self.AmmoAmount2.REGULAR_SIZE_H, AmmoReady2Color, FillageColorAmmoShadow2, fillage2, FillageColorAmmo)
-	end
-
-	y = y + h * 0.83
-
-	if ammoStoredText == 0 or ammoStoredText == '0' then
-		self:DrawShadowedTextAlignedCustom(self.AmmoStored, ammoStoredText, x, y, FillageColorAmmo, ShadowEmpty)
-	else
-		self:DrawShadowedTextAligned(self.AmmoStored, ammoStoredText, x, y, AmmoStoredColor)
-	end
-
-	if stored2AmmoText == 0 or stored2AmmoText == '/0' then
-		self:DrawShadowedTextCustom(self.AmmoStored2, stored2AmmoText, x, y, FillageColorAmmo, ShadowEmpty)
-	else
-		self:DrawShadowedText(self.AmmoStored2, stored2AmmoText, x, y, AmmoStored2Color)
-	end
-
-	y = y + self.AmmoStored.REGULAR_SIZE_H
-
-	if swipe then
-		render.PopScissorRect()
 	end
 
 	if not self:CanDisplayWeaponSelect() then return end

@@ -368,6 +368,16 @@ local HUDCommons = DLib.HUDCommons
 local color_white = Color()
 local ScreenSize = ScreenSize
 local ScrWL, ScrHL = ScrWL, ScrHL
+local TEXT_DISPERSION_SHIFT_DOWN = 0.25
+local TEXT_DISPERSION_SHIFT_UP = 0.25
+
+local function redrawBox(x, y, w, h, color)
+	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.6)
+	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.8)
+	HUDCommons.DrawBox(x, y - TEXT_DISPERSION_SHIFT_UP, w, h, color3)
+	HUDCommons.DrawBox(x, y + TEXT_DISPERSION_SHIFT_DOWN, w, h, color2)
+	HUDCommons.DrawBox(x, y, w, h, color)
+end
 
 function FFGSHUD:HUDDrawPickupHistory()
 	--local x, y = DRAWPOS()
@@ -385,15 +395,15 @@ function FFGSHUD:HUDDrawPickupHistory()
 					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
 					if data.slideIn < 1 then
-						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+						redrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
 					elseif data.slideOut < 1 and data.slideOut ~= 0 then
-						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
 					end
 				else
 					if data.slideIn < 1 then
-						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+						redrawBox(x, y, data.w * data.slideIn, data.h, color_white)
 					elseif data.slideOut < 1 and data.slideOut ~= 0 then
-						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
 					end
 				end
 			else
@@ -401,23 +411,23 @@ function FFGSHUD:HUDDrawPickupHistory()
 					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
 					if data.slideIn < 1 then
-						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+						redrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
 					else
 						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
 					end
 
 					if data.slideOut < 1 and data.slideOut ~= 0 then
-						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
 					end
 				else
 					if data.slideIn < 1 then
-						HUDCommons.DrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+						redrawBox(x, y, data.w * data.slideIn, data.h, color_white)
 					else
 						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
 					end
 
 					if data.slideOut < 1 and data.slideOut ~= 0 then
-						HUDCommons.DrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
 					end
 				end
 			end

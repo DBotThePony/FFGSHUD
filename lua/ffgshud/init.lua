@@ -149,37 +149,61 @@ FFGSHUD.ICON_PING = '☍'
 local render = render
 local ScreenSize = ScreenSize
 local color_black = Color(0, 0, 0)
-local TEXT_DISPERSION_SHIFT_DOWN = 0.25
-local TEXT_DISPERSION_SHIFT_UP = 0.25
+local TEXT_DISPERSION_SHIFT_DOWN = 0.4
+local TEXT_DISPERSION_SHIFT_UP = 0.4
+local DISPERSION_ALPHA_1 = 1
+local DISPERSION_ALPHA_2 = 1
+local DISPERSION_ALPHA_3 = 1
 
 local function redraw(text, fontBase, x, y, color)
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.04))
-	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.35)
-	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.6)
+
+	local color1 = Color(color.r, 0, 0, color.a * DISPERSION_ALPHA_1)
+	local color2 = Color(0, color.g, 0, color.a * DISPERSION_ALPHA_2)
+	local color3 = Color(0, 0, color.b, color.a * DISPERSION_ALPHA_3)
+
 	x, y = x:floor(), y:floor()
-	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color2)
-	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color3)
-	return HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
+	color_black.a = color.a
+	HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color_black)
+	color_black.a = 255
+	HUDCommons.SimpleText(text, fontBase.REGULAR_ADDITIVE, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color3)
+	local a, b, c, d, e, f = HUDCommons.SimpleText(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
+	HUDCommons.SimpleText(text, fontBase.REGULAR_ADDITIVE, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color1)
+	return a, b, c, d, e, f
 end
 
 local function redrawRight(text, fontBase, x, y, color)
 	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.04))
-	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.35)
-	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.6)
+
+	local color1 = Color(color.r, 0, 0, color.a * DISPERSION_ALPHA_1)
+	local color2 = Color(0, color.g, 0, color.a * DISPERSION_ALPHA_2)
+	local color3 = Color(0, 0, color.b, color.a * DISPERSION_ALPHA_3)
+
 	x, y = x:floor(), y:floor()
-	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color2)
-	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color3)
-	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
+	color_black.a = color.a
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color_black)
+	color_black.a = 255
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR_ADDITIVE, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color3)
+	local a, b, c, d, e, f = HUDCommons.SimpleTextRight(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
+	HUDCommons.SimpleTextRight(text, fontBase.REGULAR_ADDITIVE, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color1)
+	return a, b, c, d, e, f
 end
 
 local function redrawCenter(text, fontBase, x, y, color)
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.04))
-	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.35)
-	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.6)
+
+	local color1 = Color(color.r, 0, 0, color.a * DISPERSION_ALPHA_1)
+	local color2 = Color(0, color.g, 0, color.a * DISPERSION_ALPHA_2)
+	local color3 = Color(0, 0, color.b, color.a * DISPERSION_ALPHA_3)
+
 	x, y = x:floor(), y:floor()
-	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color2)
-	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color3)
-	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
+	color_black.a = color.a
+	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color_black)
+	color_black.a = 255
+	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR_ADDITIVE, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color3)
+	local a, b, c, d, e, f = HUDCommons.SimpleTextCentered(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
+	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR_ADDITIVE, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color1)
+	return a, b, c, d, e, f
 end
 
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)

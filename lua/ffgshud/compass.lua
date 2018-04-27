@@ -38,9 +38,13 @@ local directions = {
 	'SW',
 }
 
-local TOP_COLOR = Color(204, 134, 23, 200)
+local TOP_COLOR = Color(255, 90, 133, 200)
 local DEFAULT_COLOR = Color()
-local BOTTOM_COLOR = Color(55, 229, 202, 200)
+local BOTTOM_COLOR = Color(35, 240, 240, 200)
+
+local F_COLOR = Color(255, 0, 0)
+local S_COLOR = Color(0, 255, 0)
+local T_COLOR = Color(0, 0, 255)
 
 local function drawMarkers(x, y, angle, shiftby)
 	x, y = x:floor(), y:floor()
@@ -48,9 +52,9 @@ local function drawMarkers(x, y, angle, shiftby)
 
 	for i, dir in ipairs(directions) do
 		local lang = ((i + shiftby - 1) * 45)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), TOP_COLOR)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), BOTTOM_COLOR)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, DEFAULT_COLOR)
+		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), F_COLOR)
+		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, S_COLOR)
+		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), T_COLOR)
 	end
 
 	y = y + ScreenSize(2)
@@ -83,7 +87,7 @@ function FFGSHUD:DrawCompass(ply)
 
 	--local x, y = DRAWPOS()
 	local x, y = ScrWL() * 0.5, ScrHL() * 0.04
-	surface.SetFont(self.CompassDirections.REGULAR)
+	surface.SetFont(self.CompassDirections.REGULAR_ADDITIVE)
 	surface.SetTextColor(color_white)
 
 	render.PushScissorRect(x - ScreenSize(135), y, x + ScreenSize(135), y + ScreenSize(40))
