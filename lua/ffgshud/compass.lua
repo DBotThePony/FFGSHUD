@@ -51,9 +51,14 @@ local function drawMarkers(self, x, y, angle, shiftby)
 
 	for i, dir in ipairs(directions) do
 		local lang = ((i + shiftby - 1) * 45)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), F_COLOR)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, S_COLOR)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), T_COLOR)
+
+		if self.ENABLE_DISPERSION:GetBool() then
+			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), F_COLOR)
+			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, S_COLOR)
+			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), T_COLOR)
+		else
+			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, DEFAULT_COLOR)
+		end
 	end
 
 	y = y + ScreenSize(2)
@@ -63,11 +68,13 @@ local function drawMarkers(self, x, y, angle, shiftby)
 		local lang = ((i + shiftby - 1) * 15)
 
 		if lang % 45 ~= 0 then
-			surface.SetDrawColor(TOP_COLOR)
-			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
+			if self.ENABLE_DISPERSION:GetBool() then
+				surface.SetDrawColor(TOP_COLOR)
+				surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
 
-			surface.SetDrawColor(BOTTOM_COLOR)
-			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
+				surface.SetDrawColor(BOTTOM_COLOR)
+				surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
+			end
 
 			surface.SetDrawColor(DEFAULT_COLOR)
 			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y, wide, tall)
@@ -86,7 +93,11 @@ function FFGSHUD:DrawCompass(ply)
 
 	--local x, y = DRAWPOS()
 	local x, y = ScrWL() * 0.5, ScrHL() * 0.04
-	surface.SetFont(self.CompassDirections.REGULAR_ADDITIVE)
+	if self.ENABLE_DISPERSION:GetBool() then
+		surface.SetFont(self.CompassDirections.REGULAR_ADDITIVE)
+	else
+		surface.SetFont(self.CompassDirections.REGULAR)
+	end
 	surface.SetTextColor(color_white)
 
 	render.PushScissorRect(x - ScreenSize(135), y, x + ScreenSize(135), y + ScreenSize(40))

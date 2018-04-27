@@ -368,14 +368,16 @@ local HUDCommons = DLib.HUDCommons
 local color_white = Color()
 local ScreenSize = ScreenSize
 local ScrWL, ScrHL = ScrWL, ScrHL
-local TEXT_DISPERSION_SHIFT_DOWN = 0.25
-local TEXT_DISPERSION_SHIFT_UP = 0.25
+local TEXT_DISPERSION_SHIFT = 0.0175
 
-local function redrawBox(x, y, w, h, color)
-	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.6)
-	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.8)
-	HUDCommons.DrawBox(x, y - TEXT_DISPERSION_SHIFT_UP, w, h, color3)
-	HUDCommons.DrawBox(x, y + TEXT_DISPERSION_SHIFT_DOWN, w, h, color2)
+local function redrawBox(self, x, y, w, h, color)
+	if self.ENABLE_DISPERSION:GetBool() then
+		local color2 = Color(0, color.g * 0.3, color.b * 0.8, color.a)
+		local color3 = Color(color.r * 0.95, color.g * 0.35, color.b * 0.1, color.a)
+		HUDCommons.DrawBox(x, y - (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color3)
+		HUDCommons.DrawBox(x, y + (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color2)
+	end
+
 	HUDCommons.DrawBox(x, y, w, h, color)
 end
 
@@ -395,15 +397,15 @@ function FFGSHUD:HUDDrawPickupHistory()
 					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
 					if data.slideIn < 1 then
-						redrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+						redrawBox(self, x, y, data.w * data.slideIn, data.h, drawcolor)
 					elseif data.slideOut < 1 and data.slideOut ~= 0 then
-						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+						redrawBox(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
 					end
 				else
 					if data.slideIn < 1 then
-						redrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+						redrawBox(self, x, y, data.w * data.slideIn, data.h, color_white)
 					elseif data.slideOut < 1 and data.slideOut ~= 0 then
-						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+						redrawBox(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
 					end
 				end
 			else
@@ -411,23 +413,23 @@ function FFGSHUD:HUDDrawPickupHistory()
 					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
 
 					if data.slideIn < 1 then
-						redrawBox(x, y, data.w * data.slideIn, data.h, drawcolor)
+						redrawBox(self, x, y, data.w * data.slideIn, data.h, drawcolor)
 					else
 						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, drawcolor)
 					end
 
 					if data.slideOut < 1 and data.slideOut ~= 0 then
-						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+						redrawBox(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
 					end
 				else
 					if data.slideIn < 1 then
-						redrawBox(x, y, data.w * data.slideIn, data.h, color_white)
+						redrawBox(self, x, y, data.w * data.slideIn, data.h, color_white)
 					else
 						self:DrawShadowedText(self.PickupHistoryFont, data.drawText, x + ScreenSize(9), y + data.hPadding, color_white)
 					end
 
 					if data.slideOut < 1 and data.slideOut ~= 0 then
-						redrawBox(x, y, data.w * (1 - data.slideOut), data.h, color_white)
+						redrawBox(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
 					end
 				end
 			end
