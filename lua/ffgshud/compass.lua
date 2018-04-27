@@ -24,8 +24,7 @@ local render = render
 local color_white = Color()
 local ScrWL, ScrHL = ScrWL, ScrHL
 local ScreenSize = ScreenSize
-local TEXT_DISPERSION_SHIFT_DOWN = 0.25
-local TEXT_DISPERSION_SHIFT_UP = 0.25
+local TEXT_DISPERSION_SHIFT = 0.0175
 
 local directions = {
 	'S',
@@ -46,15 +45,15 @@ local F_COLOR = Color(255, 0, 0)
 local S_COLOR = Color(0, 255, 0)
 local T_COLOR = Color(0, 0, 255)
 
-local function drawMarkers(x, y, angle, shiftby)
+local function drawMarkers(self, x, y, angle, shiftby)
 	x, y = x:floor(), y:floor()
 	local mult = ScreenSize(1)
 
 	for i, dir in ipairs(directions) do
 		local lang = ((i + shiftby - 1) * 45)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), F_COLOR)
+		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), F_COLOR)
 		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, S_COLOR)
-		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), T_COLOR)
+		HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), T_COLOR)
 	end
 
 	y = y + ScreenSize(2)
@@ -65,10 +64,10 @@ local function drawMarkers(x, y, angle, shiftby)
 
 		if lang % 45 ~= 0 then
 			surface.SetDrawColor(TOP_COLOR)
-			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), wide, tall)
+			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
 
 			surface.SetDrawColor(BOTTOM_COLOR)
-			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), wide, tall)
+			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
 
 			surface.SetDrawColor(DEFAULT_COLOR)
 			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y, wide, tall)
@@ -97,14 +96,14 @@ function FFGSHUD:DrawCompass(ply)
 
 	surface.DrawRect(x - wide / 2, y, wide, tall)
 
-	drawMarkers(x, y, angle, 0)
+	drawMarkers(self, x, y, angle, 0)
 
 	if angle < 110 then
-		drawMarkers(x, y, angle, -#directions)
+		drawMarkers(self, x, y, angle, -#directions)
 	end
 
 	if angle > 220 then
-		drawMarkers(x, y, angle, #directions)
+		drawMarkers(self, x, y, angle, #directions)
 	end
 
 	render.PopScissorRect()
