@@ -172,6 +172,16 @@ local function redrawRight(text, fontBase, x, y, color)
 	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
 end
 
+local function redrawCenter(text, fontBase, x, y, color)
+	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.04))
+	local color2 = Color(0, color.g * 0.85, color.b * 0.9, color.a * 0.35)
+	local color3 = Color(color.r * 0.8, color.g * 0.5, color.b * 0.1, color.a * 0.6)
+	x, y = x:floor(), y:floor()
+	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y + ScreenSize(TEXT_DISPERSION_SHIFT_DOWN):max(1):floor(), color2)
+	HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y - ScreenSize(TEXT_DISPERSION_SHIFT_UP):max(1):floor(), color3)
+	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
+end
+
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
@@ -412,9 +422,8 @@ function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 	color_black.a = color.a
 	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
 	color_black.a = 255
-	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
+	return redrawCenter(text, fontBase, x, y, color)
 end
 
 for k, v in pairs(FFGSHUD) do
