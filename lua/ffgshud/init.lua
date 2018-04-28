@@ -154,7 +154,7 @@ local color_black = Color(0, 0, 0)
 local TEXT_DISPERSION_SHIFT = 0.0175
 
 local function redraw(self, text, fontBase, x, y, color)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.04))
+	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.09))
 
 	if self.ENABLE_DISPERSION:GetBool() then
 		local color1 = Color(color.r, 0, 0, color.a)
