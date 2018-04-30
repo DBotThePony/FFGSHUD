@@ -88,7 +88,7 @@ local rndInt = math.random(1, 1000)
 local function generateGlitches(iterations, frameRepeats, strength)
 	strength = strength or 1
 	frameRepeats = frameRepeats or repeats
-	iterations = iterations or 100
+	iterations = iterations or 20
 	local rTime = CurTimeL()
 	local w, h = ScrWL(), ScrHL()
 	local initial = (rTime / repeats):floor()
@@ -111,6 +111,8 @@ local function generateGlitches(iterations, frameRepeats, strength)
 		table.insert(glitchPattern, data)
 
 		local ty = -8
+		--local distortsValues = {}
+		--local strengthValues = {}
 
 		-- generate
 		while ty < h do
@@ -129,8 +131,9 @@ local function generateGlitches(iterations, frameRepeats, strength)
 			iteration[6] = 1
 			iteration[7] = (ty + height) / h
 
-			iteration[8] = distortValue
-
+			iteration[8] = distortValue * 2
+			--table.insert(distortsValues, distortValue * 2)
+			--table.insert(strengthValues, strengthValue)
 			table.insert(data.iterations, iteration)
 
 			ty = ty + height
@@ -139,6 +142,11 @@ local function generateGlitches(iterations, frameRepeats, strength)
 		end
 
 		-- smooth
+		--local nodes = #data.iterations
+		--for i = 1, nodes do
+		--	data.iterations[i][3] = math.tbezier(i / nodes, strengthValues)
+		--	data.iterations[i][8] = math.tbezier(i / nodes, distortsValues)
+		--end
 	end
 
 	return glitchPattern
