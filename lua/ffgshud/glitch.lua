@@ -36,13 +36,16 @@ timer.Simple(0, function()
 
 	rt = GetRenderTargetEx('ffgshud_glitch_rt3', ScrWL(), ScrHL(), RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_ONLY, textureFlags, CREATERENDERTARGETFLAGS_UNFILTERABLE_OK, IMAGE_FORMAT_RGBA8888)
 	-- rt = GetRenderTarget('ffgshud_glitch_rt', ScrWL(), ScrHL(), false)
-	local salt = '_6'
+	local salt = '_4'
 
 	rtmat = CreateMaterial('ffgshud_glitch_rtmat' .. salt, 'UnlitGeneric', {
 		['$basetexture'] = 'models/debug/debugwhite',
 		['$translucent'] = '1',
 		['$halflambert'] = '1',
+		['$color'] = '1 0.9 0',
+		['$color2'] = '1 0.9 0',
 		['$alpha'] = '1',
+		['$additive'] = '0',
 	})
 
 	rtmat1 = CreateMaterial('ffgshud_glitch_rtmat1' .. salt, 'UnlitGeneric', {
@@ -51,7 +54,6 @@ timer.Simple(0, function()
 		['$halflambert'] = '1',
 		['$color'] = '0 0.98 1',
 		['$color2'] = '0 0.98 1',
-		['$alpha'] = '0.6',
 		['$additive'] = '1',
 	})
 
@@ -61,7 +63,6 @@ timer.Simple(0, function()
 		['$halflambert'] = '1',
 		['$color'] = '0.96 0 1',
 		['$color2'] = '0.96 0 1',
-		['$alpha'] = '0.6',
 		['$additive'] = '1',
 	})
 
@@ -69,6 +70,8 @@ timer.Simple(0, function()
 	rtmat1:SetTexture('$basetexture', rt)
 	rtmat2:SetTexture('$basetexture', rt)
 
+	rtmat:SetVector('$color', Color(255, 200, 0):ToVector())
+	rtmat:SetVector('$color2', Color(255, 200, 0):ToVector())
 	rtmat1:SetVector('$color', Color(0, 222, 255):ToVector())
 	rtmat1:SetVector('$color2', Color(0, 222, 255):ToVector())
 	rtmat2:SetVector('$color', Color(255, 0, 225):ToVector())
