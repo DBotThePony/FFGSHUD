@@ -119,8 +119,8 @@ local function generateGlitches(iterations, frameRepeats, strength)
 			local distortValue = math.random(data.xDistort * 0.25, data.xDistort)
 
 			local iteration = {
-				ty + 9,
-				height,
+				(ty + 9):floor(),
+				height:floor(),
 				strengthValue
 			}
 
