@@ -64,7 +64,7 @@ local function drawMarkers(self, x, y, angle, shiftby)
 	y = y + ScreenSize(2)
 	local wide, tall = ScreenSize(1):max(1):round(), ScreenSize(4):round()
 
-	for i = 1, (#directions - 2) * 4 do
+	for i = 1, (#directions - 2) * 4 + 1 do
 		local lang = ((i + shiftby - 1) * 15)
 
 		if lang % 45 ~= 0 then
