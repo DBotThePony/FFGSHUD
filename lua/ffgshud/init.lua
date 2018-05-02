@@ -146,7 +146,9 @@ FFGSHUD.ICON_FRAGS = '♐'
 FFGSHUD.ICON_DEATHS = '☠'
 FFGSHUD.ICON_PING = '☍'
 
-FFGSHUD.ENABLE_DISPERSION = FFGSHUD:CreateConVar('dispersion', '1', 'Enable HUD Dispersion')
+FFGSHUD.ENABLE_DISPERSION = FFGSHUD:CreateConVar('dispersion', '1', 'Enable HUD Dispersion (heavily affects FPS)')
+FFGSHUD.ENABLE_GLOW = FFGSHUD:CreateConVar('glow', '1', 'Enable HUD text glow (slighty affects FPS)')
+FFGSHUD.ENABLE_SHADOWS = FFGSHUD:CreateConVar('shadow', '1', 'Enable HUD text shadow (affects FPS)')
 
 local render = render
 local ScreenSize = ScreenSize
@@ -154,7 +156,9 @@ local color_black = Color(0, 0, 0)
 local TEXT_DISPERSION_SHIFT = 0.0175
 
 local function redraw(self, text, fontBase, x, y, color)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.09))
+	if self.ENABLE_GLOW:GetBool() then
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.09))
+	end
 
 	if self.ENABLE_DISPERSION:GetBool() then
 		local color1 = Color(color.r, 0, 0, color.a)
@@ -169,9 +173,9 @@ local function redraw(self, text, fontBase, x, y, color)
 		local a, b, c, d, e, f = HUDCommons.SimpleText(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
 		HUDCommons.SimpleText(text, fontBase.REGULAR_ADDITIVE, x, y - (fontBase.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), color1)
 		return a, b, c, d, e, f
-	else
-		return HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
 	end
+
+	return HUDCommons.SimpleText(text, fontBase.REGULAR, x, y, color)
 end
 
 local function redrawRight(self, text, fontBase, x, y, color)
@@ -190,9 +194,9 @@ local function redrawRight(self, text, fontBase, x, y, color)
 		local a, b, c, d, e, f = HUDCommons.SimpleTextRight(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
 		HUDCommons.SimpleTextRight(text, fontBase.REGULAR_ADDITIVE, x, y - (fontBase.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), color1)
 		return a, b, c, d, e, f
-	else
-		return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
 	end
+
+	return HUDCommons.SimpleTextRight(text, fontBase.REGULAR, x, y, color)
 end
 
 local function redrawCenter(self, text, fontBase, x, y, color)
@@ -211,27 +215,34 @@ local function redrawCenter(self, text, fontBase, x, y, color)
 		local a, b, c, d, e, f = HUDCommons.SimpleTextCentered(text, fontBase.REGULAR_ADDITIVE, x, y, color2)
 		HUDCommons.SimpleTextCentered(text, fontBase.REGULAR_ADDITIVE, x, y - (fontBase.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), color1)
 		return a, b, c, d, e, f
-	else
-		return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 	end
+
+	return HUDCommons.SimpleTextCentered(text, fontBase.REGULAR, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedText(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	end
+
 	redraw(self, text, fontBase, x, y, color)
 	return surface.GetTextSize(text)
 end
 
 function FFGSHUD:DrawShadowedTextCustom(fontBase, text, x, y, color, shadow)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadow)
+	end
 
 	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, Color(color):SetAlpha(color.a * 0.06))
 
@@ -241,11 +252,14 @@ end
 
 function FFGSHUD:DrawShadowedTextPerc(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	end
 
 	if perc ~= 1 then
 		redraw(self, text, fontBase, x, y, color)
@@ -262,13 +276,20 @@ end
 
 function FFGSHUD:DrawShadowedTextPercH(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
 
-	local w, h = surface.GetTextSize(text)
+	local w, h
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+		w, h = surface.GetTextSize(text)
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x + w * perc, y, x + w, y + h)
 	redraw(self, text, fontBase, x, y, color)
@@ -287,19 +308,21 @@ function FFGSHUD:DrawShadowedTextPercHCustomShadow(fontBase, text, x, y, color, 
 	surface.SetFont(fontBase.REGULAR)
 	local w, h = surface.GetTextSize(text)
 
-	render.PushScissorRect(x + w * perc, y, x + w, y + h)
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
-	render.PopScissorRect()
+	if self.ENABLE_SHADOWS:GetBool() then
+		render.PushScissorRect(x + w * perc, y, x + w, y + h)
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+		render.PopScissorRect()
 
-	render.PushScissorRect(x, y, x + w * perc, y + h)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
-	render.PopScissorRect()
+		render.PushScissorRect(x, y, x + w * perc, y + h)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, colorShadow)
+		render.PopScissorRect()
+	end
 
 	render.PushScissorRect(x + w * perc, y, x + w, y + h)
 	redraw(self, text, fontBase, x, y, color)
@@ -314,13 +337,20 @@ end
 
 function FFGSHUD:DrawShadowedTextPerc2(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
 
-	local w, h = surface.GetTextSize(text)
+	local w, h
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+		w, h = surface.GetTextSize(text)
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x - w, y, x + w, y + h * (1 - perc))
 
@@ -339,13 +369,19 @@ end
 function FFGSHUD:DrawShadowedTextPercInv(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 
-	color_black.a = color.a
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+	local w, h
 
-	local w, h = surface.GetTextSize(text)
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+		w, h = surface.GetTextSize(text)
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x - w, y - (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), x + w, y + h * perc + (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor())
 	redraw(self, text, fontBase, x, y, colorPerc)
@@ -361,11 +397,17 @@ end
 function FFGSHUD:DrawShadowedTextPercCustomInv(fontBase, text, x, y, color, shadowColor, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
-	HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+	local w, h
 
-	local w, h = surface.GetTextSize(text)
+	if self.ENABLE_SHADOWS:GetBool() then
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+		HUDCommons.SimpleText(text, fontBase.BLURRY, x, y, shadowColor)
+		w, h = surface.GetTextSize(text)
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x - w, y - (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), x + w, y + h * perc + (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor())
 	redraw(self, text, fontBase, x, y, colorPerc)
@@ -380,27 +422,38 @@ end
 
 function FFGSHUD:DrawShadowedTextAligned(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	end
+
 	return redrawRight(self, text, fontBase, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedTextAlignedCustom(fontBase, text, x, y, color, shadow)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadow)
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadow)
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadow)
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadow)
+	end
+
 	return redrawRight(self, text, fontBase, x, y, color)
 end
 
 function FFGSHUD:DrawShadowedTextAlignedPerc(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	end
 
 	local w, h
 
@@ -419,10 +472,18 @@ end
 
 function FFGSHUD:DrawShadowedTextAlignedPercInv(fontBase, text, x, y, color, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	local w, h = HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	local w, h
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		w, h = HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x - w, y - (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), x + w, y + h * perc + (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor())
 	redrawRight(self, text, fontBase, x, y, colorPerc)
@@ -438,8 +499,15 @@ end
 function FFGSHUD:DrawShadowedTextAlignedPercCustomInv(fontBase, text, x, y, color, shadowColor, perc, colorPerc)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
 
-	HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
-	local w, h = HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
+	local w, h
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
+		w, h = HUDCommons.SimpleTextRight(text, fontBase.BLURRY, x, y, shadowColor)
+	else
+		surface.SetFont(fontBase.REGULAR)
+		w, h = surface.GetTextSize(text)
+	end
 
 	render.PushScissorRect(x - w, y - (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), x + w, y + h * perc + (fontBase.REGULAR_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor())
 	redrawRight(self, text, fontBase, x, y, colorPerc)
@@ -454,9 +522,13 @@ end
 
 function FFGSHUD:DrawShadowedTextCentered(fontBase, text, x, y, color)
 	if text == '' then return 0, fontBase.REGULAR_SIZE_H end
-	color_black.a = color.a
-	HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
-	color_black.a = 255
+
+	if self.ENABLE_SHADOWS:GetBool() then
+		color_black.a = color.a
+		HUDCommons.SimpleTextCentered(text, fontBase.BLURRY, x, y, color_black)
+		color_black.a = 255
+	end
+
 	return redrawCenter(self, text, fontBase, x, y, color)
 end
 
