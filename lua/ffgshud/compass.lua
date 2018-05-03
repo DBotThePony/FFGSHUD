@@ -21,7 +21,7 @@ local HUDCommons = DLib.HUDCommons
 local surface = surface
 local ScreenSize = ScreenSize
 local render = render
-local color_white = Color()
+local color_white = FFGSHUD:CreateColorN('compass', 'Compass Color', Color())
 local ScrWL, ScrHL = ScrWL, ScrHL
 local ScreenSize = ScreenSize
 local TEXT_DISPERSION_SHIFT = 0.0175
@@ -46,19 +46,20 @@ local S_COLOR = Color(0, 255, 0)
 local T_COLOR = Color(0, 0, 255)
 
 local function drawMarkers(self, x, y, angle, shiftby)
+	local color_white = color_white()
 	x, y = x:floor(), y:floor()
 	local mult = ScreenSize(1)
 
 	for i, dir in ipairs(directions) do
 		local lang = ((i + shiftby - 1) * 45)
 
-		if self.ENABLE_DISPERSION:GetBool() then
-			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), F_COLOR)
-			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, S_COLOR)
-			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), T_COLOR)
-		else
-			HUDCommons.SimpleTextCentered(dir, nil, (x - (lang - angle) * mult):floor(), y, DEFAULT_COLOR)
-		end
+		self:DrawShadowedTextCentered(
+			self.CompassDirections,
+			dir,
+			(x - (lang - angle) * mult):floor(),
+			y - (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(),
+			color_white
+		)
 	end
 
 	y = y + ScreenSize(2)
@@ -76,7 +77,7 @@ local function drawMarkers(self, x, y, angle, shiftby)
 				surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y + (self.CompassDirections.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), wide, tall)
 			end
 
-			surface.SetDrawColor(DEFAULT_COLOR)
+			surface.SetDrawColor(color_white)
 			surface.DrawRect((x - (lang - angle) * mult - wide / 2):floor(), y, wide, tall)
 		end
 	end
@@ -86,6 +87,7 @@ function FFGSHUD:DrawCompass(ply)
 	if not self:GetVarAlive() then return end
 	local yaw = ply:EyeAnglesFixed().y
 	local angle = yaw
+	local color_white = color_white()
 
 	if angle < 0 then
 		angle = 360 + angle

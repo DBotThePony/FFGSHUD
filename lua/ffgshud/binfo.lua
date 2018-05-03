@@ -27,7 +27,7 @@ FFGSHUD.BATTLE_STATS_HIGH = 0
 local POS_STATS = FFGSHUD:DefinePosition('battlestats', 0.87, 0.12)
 FFGSHUD.POS_BATTLESTATS = POS_STATS
 
-local color_white = Color()
+local color_white = FFGSHUD:CreateColorN('stats', 'Battle Stats Color', Color())
 local ScreenScale = ScreenScale
 local hook = hook
 local amount = amount
@@ -58,6 +58,7 @@ local function doDrawLines(self, x, y)
 	local drawn2 = toDraw2
 	toDraw = {}
 	toDraw2 = {}
+	local color_white = color_white()
 
 	for i = 1, math.max(#drawn, #drawn2) do
 		if drawn[i] then
@@ -83,6 +84,7 @@ function FFGSHUD:DrawBattleStats()
 		return
 	end
 
+	local color_white = color_white()
 	local spacing = ScreenScale(4)
 	local x, y = POS_STATS()
 	local w, h
