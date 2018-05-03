@@ -20,61 +20,61 @@ local surface = surface
 local HUDCommons = DLib.HUDCommons
 
 FFGSHUD.WeaponName = FFGSHUD:CreateScalableFont('WeaponName', {
-	font = 'PT Sans',
+	font = 'Roboto',
 	size = 40,
 	weight = 600
 })
 
 FFGSHUD.PlayerName = FFGSHUD:CreateScalableFont('PlayerName', {
-	font = 'PT Sans',
+	font = 'Roboto',
 	size = 40,
 	weight = 600
 })
 
 FFGSHUD.AmmoAmount = FFGSHUD:CreateScalableFont('AmmoAmount', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 60,
 	weight = 600
 })
 
 FFGSHUD.AmmoAmount2 = FFGSHUD:CreateScalableFont('AmmoAmount2', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.AmmoStored = FFGSHUD:CreateScalableFont('AmmoStored', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.AmmoStored2 = FFGSHUD:CreateScalableFont('AmmoStored2', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.Health = FFGSHUD:CreateScalableFont('Health', {
-	font = 'Exo 2',
+	font = 'Roboto',
 	size = 64,
 	weight = 600
 })
 
 FFGSHUD.VehicleHealth = FFGSHUD:CreateScalableFont('VehicleHealth', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 64,
 	weight = 600
 })
 
 FFGSHUD.Armor = FFGSHUD:CreateScalableFont('Armor', {
-	font = 'Exo 2',
+	font = 'Roboto',
 	size = 38,
 	weight = 600
 })
 
 FFGSHUD.TargetID_Name = FFGSHUD:CreateScalableFont('TargetID_Name', {
-	font = 'PT Sans',
+	font = 'Roboto',
 	size = 26,
 	weight = 600,
 })
@@ -86,12 +86,12 @@ FFGSHUD.KillfeedFont = FFGSHUD:CreateScalableFont('KillfeedFont', {
 })
 
 FFGSHUD.TargetID_Health = FFGSHUD:CreateScalableFont('TargetID_Health', {
-	font = 'Exo 2',
+	font = 'Roboto',
 	size = 18,
 })
 
 FFGSHUD.TargetID_Armor = FFGSHUD:CreateScalableFont('TargetID_Armor', {
-	font = 'Exo 2',
+	font = 'Roboto',
 	size = 14,
 })
 
@@ -101,7 +101,7 @@ FFGSHUD.BattleStats = FFGSHUD:CreateScalableFont('BattleStats', {
 })
 
 FFGSHUD.LastDamageDealed = FFGSHUD:CreateScalableFont('LastDamageDealed', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 64,
 	weight = 600
 })
@@ -131,13 +131,13 @@ FFGSHUD.SelectionNumberActive = FFGSHUD:CreateScalableFont('SelectionNumberActiv
 })
 
 FFGSHUD.SelectionText = FFGSHUD:CreateScalableFont('SelectionText', {
-	font = 'PT Sans',
+	font = 'Roboto',
 	size = 24,
 	weight = 600
 })
 
 FFGSHUD.PickupHistoryFont = FFGSHUD:CreateScalableFont('PickupHistoryFont', {
-	font = 'PT Mono',
+	font = 'Roboto',
 	size = 18,
 	weight = 600
 })
