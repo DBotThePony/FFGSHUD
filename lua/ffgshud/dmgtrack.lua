@@ -22,6 +22,8 @@ local ScreenSize = ScreenSize
 local HUDCommons = DLib.HUDCommons
 local ScrHL = ScrHL
 
+FFGSHUD.ENABLE_DMG_TRACK = FFGSHUD:CreateConVar('dmgtrack', '1', 'Enable Damage Sense')
+
 local history = {}
 
 -- DHUD/2 Color palette
@@ -61,6 +63,8 @@ for k, v in pairs(dmgColorsPalette) do
 end
 
 local function onDamage()
+	if not FFGSHUD.ENABLE_DMG_TRACK:GetBool() then return end
+
 	local dmgType = net.ReadUInt64()
 	local dmg = net.ReadFloat()
 	local reportedPosition
@@ -108,6 +112,8 @@ end
 net.receive('ffgs.damagereceived', onDamage)
 
 function FFGSHUD:ThinkDamageSense(ply)
+	if not self.ENABLE_DMG_TRACK:GetBool() then return end
+
 	local toremove
 	local time = CurTimeL()
 	local pos = ply:EyePos()
@@ -147,6 +153,8 @@ local Vector = Vector
 local CAMANG = Angle(0, 0, 0)
 
 function FFGSHUD:DrawDamageSense(ply)
+	if not self.ENABLE_DMG_TRACK:GetBool() then return end
+
 	local sw, sh = ScrWL(), ScrHL()
 	local vehicle = ply:InVehicle()
 	local x = (sw - sh * 0.6) / 2
@@ -236,6 +244,8 @@ end
 
 FFGSHUD:AddThinkHook('ThinkDamageSense')
 FFGSHUD:AddPaintHook('DrawDamageSense')
+
+FFGSHUD.ENABLE_DMG_DISPLAY = FFGSHUD:CreateConVar('dmg_display', '1', 'Enable Last Damage Dealed')
 
 local lastDamage = {}
 local colorsDraw = {}
@@ -341,6 +351,8 @@ local function rebuild()
 end
 
 local function damageDealed()
+	if not FFGSHUD.ENABLE_DMG_DISPLAY:GetBool() then return end
+
 	local dmgtype = net.ReadUInt64()
 	local dmg = net.ReadFloat()
 
@@ -361,6 +373,8 @@ local DRAWPOS = FFGSHUD:DefinePosition('lastdealed', 0.5, 0.85)
 local render = render
 
 function FFGSHUD:DrawLastDamageDealed(ply)
+	if not self.ENABLE_DMG_DISPLAY:GetBool() then return end
+
 	local time = CurTimeL()
 	if hideAtEnd < time then return end
 	local x, y = ScrW() * 0.5, ScrH() * 0.85
@@ -398,6 +412,8 @@ end
 local MODE = FFGSHUD:CreateConVar('ldamage_mode', '1', 'Last Damage Dealt mode. 1 - display full damage until entrie fadeout. 0 - display time based last damage (update in real time)')
 
 function FFGSHUD:ThinkLastDamageDealed(ply)
+	if not self.ENABLE_DMG_DISPLAY:GetBool() then return end
+
 	local time = CurTimeL()
 
 	if not MODE:GetBool() then

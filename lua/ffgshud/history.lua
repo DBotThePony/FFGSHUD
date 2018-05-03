@@ -27,6 +27,7 @@ local DISPLAY_PAUSE = 1
 local GIVE_CHANCE_TIME = 0.2
 
 FFGSHUD.PickupsHistory = {}
+FFGSHUD.ENABLE_PICKUP_HISTORY = FFGSHUD:CreateConVar('pickups', '1', 'Enable HUD pickups history')
 local glitchPattern = {}
 
 --[[
@@ -217,6 +218,7 @@ end
 local language = language
 
 function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
 	if ammocount == 0 then return end -- ???
 
 	for i, bucket in ipairs(self.PickupsHistory) do
@@ -275,6 +277,8 @@ function FFGSHUD:HUDAmmoPickedUp(ammoid, ammocount)
 end
 
 function FFGSHUD:HUDItemPickedUp(printname)
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
 	if printname[1] == '#' then
 		printname = language.GetPhrase(printname:sub(2))
 	else
@@ -319,6 +323,8 @@ function FFGSHUD:HUDItemPickedUp(printname)
 end
 
 function FFGSHUD:HUDWeaponPickedUp(ent)
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
 	local localized = ent:GetPrintName()
 
 	if localized[1] == '#' then
@@ -382,6 +388,8 @@ local function redrawBox(self, x, y, w, h, color)
 end
 
 function FFGSHUD:HUDDrawPickupHistory()
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
 	--local x, y = DRAWPOS()
 	local x, y = ScrWL() * 0.04, ScrHL() * 0.4
 	local time = RealTimeL()
@@ -447,6 +455,8 @@ local Sinusine = Sinusine
 local Cosine = Cosine
 
 function FFGSHUD:ThinkPickupHistory()
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
 	local toRemove
 	local time = RealTimeL()
 

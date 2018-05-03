@@ -26,6 +26,8 @@ local LerpCubic = LerpCubic
 local ScreenScale = ScreenScale
 local math = math
 
+FFGSHUD.ENABLE_GLITCHES = FFGSHUD:CreateConVar('glitch', '1', 'Enable HUD glitches on damage')
+
 timer.Simple(0, function()
 	local textureFlags = 0
 	textureFlags = textureFlags + 16 -- anisotropic
@@ -156,7 +158,7 @@ local function generateGlitches(iterations, frameRepeats, strength)
 end
 
 function FFGSHUD:PreDrawGlitch()
-	if not self:IsGlitching() and self:GetVarAlive() then return end
+	if not self:IsGlitching() and self:GetVarAlive() or not self.ENABLE_GLITCHES:GetBool() then return end
 	render.PushRenderTarget(rt)
 
 	if math.random() >= 0.5 then
@@ -169,7 +171,7 @@ function FFGSHUD:PreDrawGlitch()
 end
 
 function FFGSHUD:PostDrawGlitch()
-	if not self:IsGlitching() and self:GetVarAlive() then return end
+	if not self:IsGlitching() and self:GetVarAlive() or not self.ENABLE_GLITCHES:GetBool() then return end
 	cam.End2D()
 	render.PopRenderTarget()
 
@@ -230,10 +232,12 @@ function FFGSHUD:PostDrawGlitch()
 end
 
 function FFGSHUD:OnGlitchStart(timeLong)
+	if not self.ENABLE_GLITCHES:GetBool() then return end
 	generateGlitches(timeLong * repeats + 10)
 end
 
 function FFGSHUD:OnGlitchEnd()
+	if not self.ENABLE_GLITCHES:GetBool() then return end
 	glitchPattern = {}
 end
 

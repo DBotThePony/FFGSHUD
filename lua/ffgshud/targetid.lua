@@ -24,7 +24,11 @@ local math = math
 local RealTimeL = RealTimeL
 local IsValid = FindMetaTable('Entity').IsValid
 
+FFGSHUD.ENABLE_TARGETID = FFGSHUD:CreateConVar('targetid', '1', 'Enable HUD targetid replacement')
+
 function FFGSHUD:HUDDrawTargetID()
+	if not self.ENABLE_TARGETID:GetBool() then return end
+
 	return false
 end
 
@@ -33,6 +37,8 @@ local POS = FFGSHUD:DefinePosition('targetid', 0.5, 0.52)
 FFGSHUD.targetID_Fade = 0
 
 function FFGSHUD:ThinkTargetID(ply)
+	if not self.ENABLE_TARGETID:GetBool() then return end
+
 	local tr = ply:GetEyeTrace()
 	local ent = tr.Entity
 
@@ -47,6 +53,8 @@ function FFGSHUD:ThinkTargetID(ply)
 end
 
 function FFGSHUD:PaintTargetID(ply)
+	if not self.ENABLE_TARGETID:GetBool() then return end
+
 	if not self.drawTargetID then return end
 	local ent = self.targetID_Ply
 	if not IsValid(self.targetID_Ply) then return end

@@ -16,6 +16,7 @@
 local FFGSHUD = FFGSHUD
 local HUDCommons = DLib.HUDCommons
 
+FFGSHUD.ENABLE_VEHICLE = FFGSHUD:CreateConVar('vehicle', '1', 'Enable Vehicle HUD')
 local POS_VEHICLESTATS = FFGSHUD:DefinePosition('vehiclestats', 0.07, 0.63)
 local color_white = Color()
 
@@ -37,6 +38,7 @@ local function RealTimeLAnim()
 end
 
 function FFGSHUD:DrawVehicleInfo()
+	if not self.ENABLE_VEHICLE:GetBool() then return end
 	if not self:GetVarAlive() then return end
 	if self:GetVarVehicleName() == '' then return end
 	local time = RealTimeL()

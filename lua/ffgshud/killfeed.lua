@@ -21,6 +21,8 @@ local table = table
 local math = math
 local Vector = Vector
 
+FFGSHUD.ENABLE_KILLFEED = FFGSHUD:CreateConVar('killfeed', '1', 'Enable HUD killfeed')
+
 local notices = {}
 local function npcColor(npc)
 	local crc = tonumber(util.CRC(npc))
@@ -33,6 +35,8 @@ local function npcColor(npc)
 end
 
 function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victimTeam)
+	if not self.ENABLE_KILLFEED:GetBool() then return end
+
 	local validWeapon = inflictor ~= nil and inflictor ~= 'suicide'
 	local validAttacker = attacker ~= nil and attacker ~= victim
 	local worldspawn = attacker == '#world'
@@ -107,6 +111,8 @@ local ScreenSize = ScreenSize
 local render = render
 
 function FFGSHUD:DrawDeathNotice()
+	if not self.ENABLE_KILLFEED:GetBool() then return end
+
 	local x, y = DRAW_POS()
 	x = x - self.BATTLE_STATS_WIDE
 	local space = ScreenSize(3)

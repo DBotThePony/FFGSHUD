@@ -45,6 +45,8 @@ local hud_fastswitch = GetConVar('hud_fastswitch')
 local cam = cam
 local Matrix = Matrix
 
+FFGSHUD.ENABLE_WEAPON_SELECT = FFGSHUD:CreateConVar('wepselect', '1', 'Enable HUD weapon selection')
+
 local function sortTab(a, b)
 	return a:GetSlotPos() < b:GetSlotPos()
 end
@@ -96,6 +98,8 @@ local function getWeaponsInSlot(weapons, slotIn)
 end
 
 function FFGSHUD:ShouldDrawWeaponSelection(element)
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if element == 'CHudWeaponSelection' then
 		return false
 	end
@@ -116,6 +120,8 @@ local render = render
 local TEXFILTER = TEXFILTER
 
 function FFGSHUD:DrawWeaponSelection()
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if not FFGSHUD.DrawWepSelection then return end
 	--local x, y = DRAWPOS()
 	local x, y = ScrWL() * 0.12, ScrHL() * 0.11
@@ -212,6 +218,8 @@ function FFGSHUD:DrawWeaponSelection()
 end
 
 function FFGSHUD:ThinkWeaponSelection()
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	local time = RealTimeL()
 
 	if FFGSHUD.DrawWepSelectionFadeOutEnd < time then
@@ -232,6 +240,8 @@ function FFGSHUD:LookupSelectWeapon()
 end
 
 local function BindSlot(self, ply, bind, pressed, weapons)
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if not bind:startsWith('slot') then return end
 	local newslot = bind:sub(5):tonumber()
 	if newslot < 1 or newslot > 6 then return end
@@ -290,6 +300,8 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 end
 
 local function WheelBind(self, ply, bind, pressed, weapons)
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if bind ~= 'invprev' and bind ~= 'invnext' then return end
 
 	local weapon = LocalWeapon()
@@ -407,6 +419,8 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 end
 
 function FFGSHUD:WeaponSelectionBind(ply, bind, pressed)
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if lastFrameAttack then return end
 	if not pressed then return end
 	if not self:GetVarAlive() then return end
@@ -436,6 +450,8 @@ local IN_ATTACK = IN_ATTACK
 local IN_ATTACK2 = IN_ATTACK2
 
 function FFGSHUD:TrapWeaponSelect(cmd)
+	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
+
 	if FFGSHUD.SelectWeaponForce:IsValid() and FFGSHUD.SelectWeaponForceTime > RealTimeL() then
 		cmd:SelectWeapon(FFGSHUD.SelectWeaponForce)
 

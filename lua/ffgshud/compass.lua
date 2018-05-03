@@ -15,6 +15,8 @@
 
 local FFGSHUD = FFGSHUD
 
+FFGSHUD.ENABLE_COMPASS = FFGSHUD:CreateConVar('compass', '1', 'Enable HUD compass')
+
 local DRAWPOS = FFGSHUD:DefinePosition('compass', 0.5, 0.04)
 local ipairs = ipairs
 local HUDCommons = DLib.HUDCommons
@@ -84,7 +86,7 @@ local function drawMarkers(self, x, y, angle, shiftby)
 end
 
 function FFGSHUD:DrawCompass(ply)
-	if not self:GetVarAlive() then return end
+	if not self:GetVarAlive() or not self.ENABLE_COMPASS:GetBool() then return end
 	local yaw = ply:EyeAnglesFixed().y
 	local angle = yaw
 	local color_white = color_white()
