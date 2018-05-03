@@ -16,14 +16,22 @@
 local FFGSHUD = FFGSHUD
 local HUDCommons = DLib.HUDCommons
 
+FFGSHUD.ENABLE_BATTLESTATS = FFGSHUD:CreateConVar('stats', '1', 'Enable battle stats')
+FFGSHUD.ENABLE_BATTLESTATS_KILLS = FFGSHUD:CreateConVar('stats_frags', '1', 'Enable frags stat')
+FFGSHUD.ENABLE_BATTLESTATS_DEATHS = FFGSHUD:CreateConVar('stats_deaths', '1', 'Enable deaths stat')
+FFGSHUD.ENABLE_BATTLESTATS_PING = FFGSHUD:CreateConVar('stats_ping', '1', 'Enable ping stat')
+
 FFGSHUD.BATTLE_STATS_WIDE = 0
 FFGSHUD.BATTLE_STATS_HIGH = 0
+
 local POS_STATS = FFGSHUD:DefinePosition('battlestats', 0.87, 0.12)
 FFGSHUD.POS_BATTLESTATS = POS_STATS
+
 local color_white = Color()
 local ScreenScale = ScreenScale
 local hook = hook
 local amount = amount
+local game = game
 
 local toDraw = {}
 local toDraw2 = {}
@@ -68,8 +76,10 @@ local function doDrawLines(self, x, y)
 	return x, y
 end
 
+local ipLookup
+
 function FFGSHUD:DrawBattleStats()
-	if not self:GetVarAlive() then
+	if not self:GetVarAlive() or not self.ENABLE_BATTLESTATS:GetBool() then
 		return
 	end
 
@@ -82,21 +92,38 @@ function FFGSHUD:DrawBattleStats()
 	hook.Run('FFGSHUD_AddStatsLines_Pre', addLines, addLines2, self)
 	x, y = doDrawLines(self, x, y)
 
-	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarFrags(), x, y, color_white)
-	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
-	FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
-	self:DrawShadowedText(self.BattleStats, self.ICON_FRAGS, x + spacing, y, color_white)
-	y = y + h * 0.83
-	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarDeaths(), x, y, color_white)
-	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
-	FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
-	self:DrawShadowedText(self.BattleStats, self.ICON_DEATHS, x + spacing, y, color_white)
-	y = y + h * 0.83
-	w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarPing(), x, y, color_white)
-	FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
-	FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
-	self:DrawShadowedText(self.BattleStats, self.ICON_PING, x + spacing, y, color_white)
-	y = y + h * 0.83
+	if self.ENABLE_BATTLESTATS_KILLS:GetBool() then
+		w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarFrags(), x, y, color_white)
+		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
+		FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
+		self:DrawShadowedText(self.BattleStats, self.ICON_FRAGS, x + spacing, y, color_white)
+		y = y + h * 0.83
+	end
+
+	if self.ENABLE_BATTLESTATS_DEATHS:GetBool() then
+		w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarDeaths(), x, y, color_white)
+		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
+		FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
+		self:DrawShadowedText(self.BattleStats, self.ICON_DEATHS, x + spacing, y, color_white)
+		y = y + h * 0.83
+	end
+
+	if ipLookup == nil then
+		local ip = game.GetIPAddress()
+		ipLookup = ip:startsWith('192.168.') or
+			ip:startsWith('10.') or
+			ip:startsWith('127.') or
+			ip == '0.0.0.0' or
+			ip:startsWith('172.16')
+	end
+
+	if not ipLookup and not game.SinglePlayer() and self.ENABLE_BATTLESTATS_PING:GetBool() then
+		w, h = self:DrawShadowedTextAligned(self.BattleStats, self:GetVarPing(), x, y, color_white)
+		FFGSHUD.BATTLE_STATS_WIDE = FFGSHUD.BATTLE_STATS_WIDE:max(w)
+		FFGSHUD.BATTLE_STATS_HIGH = FFGSHUD.BATTLE_STATS_HIGH + h * 0.83
+		self:DrawShadowedText(self.BattleStats, self.ICON_PING, x + spacing, y, color_white)
+		y = y + h * 0.83
+	end
 
 	hook.Run('FFGSHUD_AddStatsLines_Post', addLines, addLines2, self)
 	x, y = doDrawLines(self, x, y)
