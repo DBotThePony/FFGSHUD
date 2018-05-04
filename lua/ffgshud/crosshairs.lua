@@ -25,6 +25,7 @@ local ScreenSize = ScreenSize
 local surface = surface
 local hook = hook
 local math = math
+local draw = draw
 local DRAW_STATUS = false
 
 local RealFrameTime = RealFrameTime
@@ -74,6 +75,8 @@ function FFGSHUD:DrawCrosshair(ply)
 
 	local size = ScreenSize(2)
 	local CrosshairColor = CrosshairColor(63 * CROSSHAIR_FADE)
+
+	draw.NoTexture()
 
 	for gapSize = 1, 3 do
 		local gap = size + ScreenSize(gapSize)
