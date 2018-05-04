@@ -27,40 +27,57 @@ local hook = hook
 local math = math
 local DRAW_STATUS = false
 
+local RealFrameTime = RealFrameTime
+local CROSSHAIR_FADE = 1
+
 local function catch(err)
 	print(debug.traceback('[4Hud] Catching - ' .. err, 2))
 end
 
 function FFGSHUD:DrawCrosshair(ply)
 	if not self.ENABLE_CROSSHAIRS:GetBool() then return end
+	if not self:GetVarAlive() then return end
 
 	if self:GetVarInVehicle() and not self:GetVarWeaponsInVehicle() then return end
 
 	local wep = self:GetWeapon()
+	local drawing = true
 
 	if IsValid(wep) then
-		if wep.HUDShouldDraw and wep:HUDShouldDraw('CHudCrosshair') == false then return end
-		if wep.DrawCrosshair == false then return end
+		if wep.DrawCrosshair == false or wep.HUDShouldDraw and wep:HUDShouldDraw('CHudCrosshair') == false then
+			drawing = false
+		end
 	end
 
-	DRAW_STATUS = true
-	local can = hook.Run('HUDShouldDraw', 'CHudCrosshair')
-	DRAW_STATUS = false
+	if drawing then
+		DRAW_STATUS = true
+		drawing = hook.Run('HUDShouldDraw', 'CHudCrosshair') ~= false
+		DRAW_STATUS = false
+	end
 
-	if can == false then return end
+	local tr, d, x, y
 
-	local tr = ply:GetEyeTrace()
-	local d = tr.HitPos:ToScreen()
-	local x, y = math.ceil(d.x / 1.3) * 1.3, math.ceil(d.y / 1.3) * 1.3
+	if drawing then
+		tr = ply:GetEyeTrace()
+		d = tr.HitPos:ToScreen()
+		x, y = math.ceil(d.x / 1.3) * 1.3, math.ceil(d.y / 1.3) * 1.3
 
-	if IsValid(wep) and wep.DoDrawCrosshair then
-		--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
-		local status = wep:DoDrawCrosshair(x, y)
-		if status == true then return end
+		if IsValid(wep) and wep.DoDrawCrosshair then
+			--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
+			local status = wep:DoDrawCrosshair(x, y)
+			drawing = status ~= true
+		end
+	end
+
+	if drawing then
+		CROSSHAIR_FADE = (CROSSHAIR_FADE + RealFrameTime() * 6):min(1)
+	else
+		if CROSSHAIR_FADE == 0 then return end
+		CROSSHAIR_FADE = (CROSSHAIR_FADE - RealFrameTime() * 6):max(0)
 	end
 
 	local size = ScreenSize(2)
-	local CrosshairColor = CrosshairColor(63)
+	local CrosshairColor = CrosshairColor(63 * CROSSHAIR_FADE)
 
 	for gapSize = 1, 3 do
 		local gap = size + ScreenSize(gapSize)
@@ -69,7 +86,7 @@ function FFGSHUD:DrawCrosshair(ply)
 		HUDCommons.DrawCircle(x - (gap / 2):floor(), y - (gap / 2):floor(), gap, 20)
 	end
 
-	surface.SetDrawColor(CrosshairColorInner())
+	surface.SetDrawColor(CrosshairColorInner(255 * CROSSHAIR_FADE))
 	HUDCommons.DrawCircle(x - (size / 2):floor(), y - (size / 2):floor(), size, 20)
 end
 
