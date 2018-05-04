@@ -63,25 +63,18 @@ function FFGSHUD:DrawCrosshair(ply)
 		if status == true then return end
 	end
 
-	local size = ScreenSize(8)
-	local gap = ScreenSize(3)
-	local toughness = ScreenSize(1.4):max(4):floor()
+	local size = ScreenSize(2):floor()
+	local CrosshairColor = CrosshairColor(35)
 
-	surface.SetDrawColor(CrosshairColor())
-	DrawRect(x - gap - size, y - toughness / 2, size, toughness)
-	DrawRect(x + gap, y - toughness / 2, size, toughness)
+	for gapSize = 0.5, 3, 0.5 do
+		local gap = size + ScreenSize(gapSize):floor()
 
-	DrawRect(x - toughness / 2, y - gap - size, toughness, size)
-	DrawRect(x - toughness / 2, y + gap, toughness, size)
+		surface.SetDrawColor(CrosshairColor)
+		HUDCommons.DrawCircle(x - gap / 2, y - gap / 2, gap, 20)
+	end
 
 	surface.SetDrawColor(CrosshairColorInner())
-
-	local outline = ScreenSize(0.6):max(1):floor()
-	DrawRect(x - gap + outline - size, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
-	DrawRect(x + gap + outline, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
-
-	DrawRect(x - toughness / 2 + outline, y - gap + outline - size, toughness - outline * 2, size - outline * 2)
-	DrawRect(x - toughness / 2 + outline, y + gap + outline, toughness - outline * 2, size - outline * 2)
+	HUDCommons.DrawCircle(x - size / 2, y - size / 2, size, 20)
 end
 
 function FFGSHUD:CrosshairShouldDraw(element)
