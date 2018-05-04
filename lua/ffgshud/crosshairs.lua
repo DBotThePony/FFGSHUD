@@ -33,6 +33,10 @@ local function DrawRect(x, y, w, h)
 	return surface.DrawRect(x:floor(), y:floor(), w:floor(), h:floor())
 end
 
+local function catch(err)
+	print(debug.traceback('[4Hud] Catching - ' .. err, 2))
+end
+
 function FFGSHUD:DrawCrosshair(ply)
 	if not self.ENABLE_CROSSHAIRS:GetBool() then return end
 
@@ -56,7 +60,8 @@ function FFGSHUD:DrawCrosshair(ply)
 	local x, y = math.ceil(d.x / 1.1) * 1.1, math.ceil(d.y / 1.1) * 1.1
 
 	if IsValid(wep) and wep.DoDrawCrosshair then
-		local status = wep:DoDrawCrosshair(x, y)
+		--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
+		local status = wep.DoDrawCrosshair(x, y)
 		if status == true then return end
 	end
 
