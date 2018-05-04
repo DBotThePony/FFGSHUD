@@ -18,7 +18,7 @@ local HUDCommons = DLib.HUDCommons
 FFGSHUD.ENABLE_CROSSHAIRS = FFGSHUD:CreateConVar('crosshair', '1', 'Enable custom crosshair')
 
 local CrosshairColor = FFGSHUD:CreateColorN('crosshair', 'Crosshair Outline Color', Color(0, 0, 0))
-local CrosshairColorInner = FFGSHUD:CreateColorN('crosshair_inner', 'Crosshair Color', Color(200, 200, 200))
+local CrosshairColorInner = FFGSHUD:CreateColorN('crosshair_inner', 'Crosshair Color', Color())
 
 local IsValid = IsValid
 local ScreenSize = ScreenSize
@@ -64,9 +64,9 @@ function FFGSHUD:DrawCrosshair(ply)
 	end
 
 	local size = ScreenSize(2):floor()
-	local CrosshairColor = CrosshairColor(35)
+	local CrosshairColor = CrosshairColor(63)
 
-	for gapSize = 0.5, 3, 0.5 do
+	for gapSize = 1, 3 do
 		local gap = size + ScreenSize(gapSize):floor()
 
 		surface.SetDrawColor(CrosshairColor)
