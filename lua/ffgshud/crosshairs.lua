@@ -61,7 +61,7 @@ function FFGSHUD:DrawCrosshair(ply)
 
 	if IsValid(wep) and wep.DoDrawCrosshair then
 		--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
-		local status = wep.DoDrawCrosshair(x, y)
+		local status = wep:DoDrawCrosshair(x, y)
 		if status == true then return end
 	end
 
