@@ -26,8 +26,6 @@ local surface = surface
 local hook = hook
 local math = math
 local DRAW_STATUS = false
-local MULT1 = 1.45
-local MULT2 = 0.4
 
 local function DrawRect(x, y, w, h)
 	return surface.DrawRect(x:floor(), y:floor(), w:floor(), h:floor())
@@ -65,24 +63,25 @@ function FFGSHUD:DrawCrosshair(ply)
 		if status == true then return end
 	end
 
-	local size = ScreenSize(6)
-	local toughness = ScreenSize(1):max(4):floor()
+	local size = ScreenSize(8)
+	local gap = ScreenSize(3)
+	local toughness = ScreenSize(1.4):max(4):floor()
 
 	surface.SetDrawColor(CrosshairColor())
-	DrawRect(x - size * MULT1, y - toughness / 2, size, toughness)
-	DrawRect(x + size * MULT2, y - toughness / 2, size, toughness)
+	DrawRect(x - gap - size, y - toughness / 2, size, toughness)
+	DrawRect(x + gap, y - toughness / 2, size, toughness)
 
-	DrawRect(x - toughness / 2, y - size * MULT1, toughness, size)
-	DrawRect(x - toughness / 2, y + size * MULT2, toughness, size)
+	DrawRect(x - toughness / 2, y - gap - size, toughness, size)
+	DrawRect(x - toughness / 2, y + gap, toughness, size)
 
 	surface.SetDrawColor(CrosshairColorInner())
 
 	local outline = ScreenSize(0.6):max(1):floor()
-	DrawRect(x - size * MULT1 + outline, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
-	DrawRect(x + size * MULT2 + outline, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
+	DrawRect(x - gap + outline - size, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
+	DrawRect(x + gap + outline, y - toughness / 2 + outline, size - outline * 2, toughness - outline * 2)
 
-	DrawRect(x - toughness / 2 + outline, y - size * MULT1 + outline, toughness - outline * 2, size - outline * 2)
-	DrawRect(x - toughness / 2 + outline, y + size * MULT2 + outline, toughness - outline * 2, size - outline * 2)
+	DrawRect(x - toughness / 2 + outline, y - gap + outline - size, toughness - outline * 2, size - outline * 2)
+	DrawRect(x - toughness / 2 + outline, y + gap + outline, toughness - outline * 2, size - outline * 2)
 end
 
 function FFGSHUD:CrosshairShouldDraw(element)
