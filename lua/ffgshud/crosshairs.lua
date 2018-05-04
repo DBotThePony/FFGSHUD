@@ -55,18 +55,14 @@ function FFGSHUD:DrawCrosshair(ply)
 		DRAW_STATUS = false
 	end
 
-	local tr, d, x, y
+	local tr = ply:GetEyeTrace()
+	local d = tr.HitPos:ToScreen()
+	local x, y = math.ceil(d.x / 1.3) * 1.3, math.ceil(d.y / 1.3) * 1.3
 
-	if drawing then
-		tr = ply:GetEyeTrace()
-		d = tr.HitPos:ToScreen()
-		x, y = math.ceil(d.x / 1.3) * 1.3, math.ceil(d.y / 1.3) * 1.3
-
-		if IsValid(wep) and wep.DoDrawCrosshair then
-			--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
-			local status = wep:DoDrawCrosshair(x, y)
-			drawing = status ~= true
-		end
+	if drawing and IsValid(wep) and wep.DoDrawCrosshair then
+		--local execStatus, status = xpcall(wep.DoDrawCrosshair, catch, wep, x, y)
+		local status = wep:DoDrawCrosshair(x, y)
+		drawing = status ~= true
 	end
 
 	if drawing then
