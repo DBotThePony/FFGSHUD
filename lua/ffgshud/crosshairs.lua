@@ -27,10 +27,6 @@ local hook = hook
 local math = math
 local DRAW_STATUS = false
 
-local function DrawRect(x, y, w, h)
-	return surface.DrawRect(x:floor(), y:floor(), w:floor(), h:floor())
-end
-
 local function catch(err)
 	print(debug.traceback('[4Hud] Catching - ' .. err, 2))
 end
