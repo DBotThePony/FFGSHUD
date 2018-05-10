@@ -38,6 +38,7 @@ FFGSHUD.targetID_Fade = 0
 
 function FFGSHUD:ThinkTargetID(ply)
 	if not self.ENABLE_TARGETID:GetBool() then return end
+	if not self:GetVarAlive() then return end
 
 	local tr = ply:GetEyeTrace()
 	local ent = tr.Entity
