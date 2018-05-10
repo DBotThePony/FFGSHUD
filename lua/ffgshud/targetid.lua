@@ -23,8 +23,19 @@ local color_white = color_white
 local math = math
 local RealTimeL = RealTimeL
 local IsValid = FindMetaTable('Entity').IsValid
+local TEAM_UNASSIGNED = TEAM_UNASSIGNED
 
 FFGSHUD.ENABLE_TARGETID = FFGSHUD:CreateConVar('targetid', '1', 'Enable HUD targetid replacement')
+
+local function unassignedColor(id)
+	local crc = tonumber(util.CRC(id))
+	local r = crc % 255
+	crc = crc - r
+	local g = (crc / 255) % 255
+	crc = crc / 255 - g
+	local b = (crc / 255) % 255
+	return Color(r:abs(), g:abs(), b:abs())
+end
 
 function FFGSHUD:HUDDrawTargetID()
 	if not self.ENABLE_TARGETID:GetBool() then return end
@@ -65,8 +76,17 @@ function FFGSHUD:PaintTargetID(ply)
 	local maxHealth = ent:GetMaxHealth()
 	local armor = ent:GetArmor()
 	local maxArmor = ent:GetMaxArmor()
-	local pteam = ent:Team()
-	local color = Color(team.GetColor(pteam or 0) or color_white)
+	local pteam = ent:Team() or 0
+	local color
+
+	if pteam > 0 and pteam ~= TEAM_UNASSIGNED then
+		color = Color(team.GetColor(pteam or 0) or color_white)
+	else
+		--ent.__ffgshud_targetidcolor = ent.__ffgshud_targetidcolor or unassignedColor(ent:SteamID())
+		ent.__ffgshud_targetidcolor = ent.__ffgshud_targetidcolor or unassignedColor(ent:Nick())
+		color = Color(ent.__ffgshud_targetidcolor)
+	end
+
 	color.a = math.max((self.targetID_Fade - RealTimeL()) / 0.4 * 255, 0)
 
 	local x, y = MousePos()
