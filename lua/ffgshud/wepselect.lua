@@ -67,7 +67,7 @@ local function updateWeaponList(weapons)
 
 	if #weapons == 0 then return end
 
-	for i, weapon in ipairs(weapons) do
+	for i, weapon in pairs(weapons) do
 		local slot = weapon:GetSlot() + 1
 
 		if FFGSHUD.WeaponListInSlots[slot] then
@@ -80,21 +80,15 @@ local function updateWeaponList(weapons)
 	end
 end
 
-local function getWeaponsInSlot(weapons, slotIn)
-	if #weapons == 0 then return {} end
-
-	local reply = {}
-	slotIn = slotIn - 1
-
-	for i, weapon in ipairs(weapons) do
-		if weapon:GetSlot() == slotIn then
-			table.insert(reply, weapon)
+local function getWeaponsInSlot(self, slotIn)
+	for i, weapon in ipairs(self.WeaponListInSlots[slotIn]) do
+		if not IsValid(weapon) then
+			updateWeaponList(LocalPlayer():GetWeapons())
+			break
 		end
 	end
 
-	table.sort(reply, sortTab)
-
-	return reply
+	return self.WeaponListInSlots[slotIn]
 end
 
 function FFGSHUD:ShouldDrawWeaponSelection(element)
@@ -245,7 +239,7 @@ local function BindSlot(self, ply, bind, pressed, weapons)
 	if not bind:startsWith('slot') then return end
 	local newslot = bind:sub(5):tonumber()
 	if newslot < 1 or newslot > 6 then return end
-	local getweapons = getWeaponsInSlot(weapons, newslot)
+	local getweapons = getWeaponsInSlot(self, newslot)
 
 	if #getweapons == 0 then
 		LocalPlayer():EmitSound('Player.DenyWeaponSelection')
@@ -317,11 +311,11 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 		slot = FFGSHUD.LastSelectSlot
 	end
 
-	local getweapons = getWeaponsInSlot(weapons, slot)
+	local getweapons = getWeaponsInSlot(self, slot)
 
 	if #getweapons == 0 then
 		for i = 1, 6 do
-			getweapons = getWeaponsInSlot(weapons, i)
+			getweapons = getWeaponsInSlot(self, i)
 
 			if #getweapons ~= 0 then
 				slot = i
@@ -358,7 +352,7 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 				slot = 6
 			end
 
-			getweapons = getWeaponsInSlot(weapons, slot)
+			getweapons = getWeaponsInSlot(self, slot)
 			if #getweapons ~= 0 then break end
 		end
 
@@ -373,7 +367,7 @@ local function WheelBind(self, ply, bind, pressed, weapons)
 				slot = 1
 			end
 
-			getweapons = getWeaponsInSlot(weapons, slot)
+			getweapons = getWeaponsInSlot(self, slot)
 			if #getweapons ~= 0 then break end
 		end
 	end
