@@ -148,6 +148,8 @@ function FFGSHUD:DrawWeaponSelection()
 			if #FFGSHUD.WeaponListInSlot ~= 0 then
 				surface.SetFont(self.SelectionText.REGULAR)
 
+				local isInActiveCategory = false
+
 				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
 					if weapon:IsValid() then
 						local name = getPrintName(weapon)
@@ -157,10 +159,12 @@ function FFGSHUD:DrawWeaponSelection()
 							if weapon ~= activeWeapon then
 								maxW = maxW:max(W + boxSpacing2)
 							else
-								maxW = maxW:max(W + ScreenSize(8) + boxSpacing2)
+								maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+								isInActiveCategory = true
 							end
 						elseif weapon == activeWeapon then
-							maxW = maxW:max(W + ScreenSize(8) + boxSpacing2)
+							maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+							isInActiveCategory = true
 						else
 							maxW = maxW:max(W + boxSpacing2)
 						end
@@ -200,6 +204,10 @@ function FFGSHUD:DrawWeaponSelection()
 				end
 
 				x = x + w + maxW - ScreenSize(6)
+
+				if isInActiveCategory then
+					x = x + ScreenSize(4)
+				end
 			else
 				x = x + w + spacing
 			end
