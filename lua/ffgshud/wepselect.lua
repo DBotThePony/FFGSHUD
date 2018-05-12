@@ -157,10 +157,10 @@ function FFGSHUD:DrawWeaponSelection()
 							if weapon ~= activeWeapon then
 								maxW = maxW:max(W + boxSpacing2)
 							else
-								maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+								maxW = maxW:max(W + ScreenSize(8) + boxSpacing2)
 							end
 						elseif weapon == activeWeapon then
-							maxW = maxW:max(W + ScreenSize(4) + boxSpacing2)
+							maxW = maxW:max(W + ScreenSize(8) + boxSpacing2)
 						else
 							maxW = maxW:max(W + boxSpacing2)
 						end
@@ -179,14 +179,14 @@ function FFGSHUD:DrawWeaponSelection()
 								HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_FOCUSED(alpha))
 							else
 								W = W + ScreenSize(4)
-								HUDCommons.DrawBox(X, Y, maxW, H, WEAPON_READY(alpha))
+								HUDCommons.DrawBox(X, Y, maxW + ScreenSize(4), H, WEAPON_READY(alpha))
 								local col = WEAPON_SELECTED(alpha)
 								HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
 								HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
 							end
 						elseif weapon == activeWeapon then
 							W = W + ScreenSize(4)
-							HUDCommons.DrawBox(X, Y,maxW, H, bg)
+							HUDCommons.DrawBox(X, Y, maxW + ScreenSize(4), H, bg)
 							local col = WEAPON_SELECTED(alpha)
 							HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
 							HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
