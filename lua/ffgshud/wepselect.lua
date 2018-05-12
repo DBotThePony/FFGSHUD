@@ -186,14 +186,14 @@ function FFGSHUD:DrawWeaponSelection()
 								HUDCommons.DrawBox(X, Y, maxW + ScreenSize(4), H, WEAPON_READY(alpha))
 								local col = WEAPON_SELECTED(alpha)
 								HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
-								HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
+								HUDCommons.SimpleText(name, nil, X + ScreenSize(10), Y, col)
 							end
 						elseif weapon == activeWeapon then
 							W = W + ScreenSize(4)
 							HUDCommons.DrawBox(X, Y, maxW + ScreenSize(4), H, bg)
 							local col = WEAPON_SELECTED(alpha)
 							HUDCommons.DrawBox(X, Y, ScreenSize(4), H, col)
-							HUDCommons.SimpleText(name, nil, X + ScreenSize(7), Y, col)
+							HUDCommons.SimpleText(name, nil, X + ScreenSize(10), Y, col)
 						else
 							HUDCommons.DrawBox(X, Y, maxW, H, bg)
 							HUDCommons.SimpleText(name, nil, X + boxSpacing, Y, WEAPON_READY(alpha))
