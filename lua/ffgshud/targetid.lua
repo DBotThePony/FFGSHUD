@@ -23,7 +23,6 @@ local color_white = color_white
 local math = math
 local RealTimeL = RealTimeL
 local IsValid = FindMetaTable('Entity').IsValid
-local TEAM_UNASSIGNED = TEAM_UNASSIGNED
 
 FFGSHUD.ENABLE_TARGETID = FFGSHUD:CreateConVar('targetid', '1', 'Enable HUD targetid replacement')
 
