@@ -99,7 +99,7 @@ function FFGSHUD:ShouldDrawWeaponSelection(element)
 	end
 end
 
-local DRAWPOS = FFGSHUD:DefinePosition('wepselect', 0.2, 0.08)
+local DRAWPOS = FFGSHUD:DefinePosition('wepselect', 0.2, 0.08, false)
 local SLOT_ACTIVE = FFGSHUD:CreateColorN('wepselect_a', '', Color())
 local SLOT_INACTIVE = FFGSHUD:CreateColorN('wepselect_i', '', Color(137, 137, 137))
 local SLOT_INACTIVE_BOX = FFGSHUD:CreateColorN('wepselect_i', '', Color(80, 80, 80))
@@ -117,8 +117,8 @@ function FFGSHUD:DrawWeaponSelection()
 	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
 
 	if not FFGSHUD.DrawWepSelection then return end
-	--local x, y = DRAWPOS()
-	local x, y = ScrWL() * 0.12, ScrHL() * 0.11
+	local x, y = DRAWPOS()
+	--local x, y = ScrWL() * 0.12, ScrHL() * 0.11
 	local spacing = ScreenSize(1.5)
 	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
 	local inactive, bg, bgb = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75), SLOT_INACTIVE_BOX(alpha * 0.7)

@@ -367,7 +367,7 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 	return true
 end
 
-local DRAWPOS = FFGSHUD:DefinePosition('history', 0.04, 0.4)
+local DRAWPOS = FFGSHUD:DefinePosition('history', 0.04, 0.4, false)
 local Cosine = Cosine
 local Quintic = Quintic
 local HUDCommons = DLib.HUDCommons
@@ -390,8 +390,8 @@ end
 function FFGSHUD:HUDDrawPickupHistory()
 	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
 
-	--local x, y = DRAWPOS()
-	local x, y = ScrWL() * 0.04, ScrHL() * 0.4
+	local x, y = DRAWPOS()
+	--local x, y = ScrWL() * 0.04, ScrHL() * 0.4
 	local time = RealTimeL()
 
 	for i, bucket in ipairs(self.PickupsHistory) do

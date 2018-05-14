@@ -17,7 +17,7 @@ local FFGSHUD = FFGSHUD
 
 FFGSHUD.ENABLE_COMPASS = FFGSHUD:CreateConVar('compass', '1', 'Enable HUD compass')
 
-local DRAWPOS = FFGSHUD:DefinePosition('compass', 0.5, 0.04)
+local DRAWPOS = FFGSHUD:DefinePosition('compass', 0.5, 0.04, false)
 local ipairs = ipairs
 local HUDCommons = DLib.HUDCommons
 local surface = surface
@@ -95,8 +95,8 @@ function FFGSHUD:DrawCompass(ply)
 		angle = 360 + angle
 	end
 
-	--local x, y = DRAWPOS()
-	local x, y = ScrWL() * 0.5, ScrHL() * 0.04
+	local x, y = DRAWPOS()
+	--local x, y = ScrWL() * 0.5, ScrHL() * 0.04
 	if self.ENABLE_DISPERSION:GetBool() then
 		surface.SetFont(self.CompassDirections.REGULAR_ADDITIVE)
 	else
