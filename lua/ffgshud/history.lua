@@ -556,6 +556,15 @@ function FFGSHUD:ThinkPickupHistory()
 	end
 end
 
+function FFGSHUD:HUDShouldDrawHistory(element)
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
+	if element == 'CHudHistoryResource' then
+		return false
+	end
+end
+
+FFGSHUD:AddHookCustom('HUDShouldDraw', 'HUDShouldDrawHistory')
 FFGSHUD:AddHook('HUDDrawPickupHistory')
 FFGSHUD:AddHook('HUDAmmoPickedUp')
 FFGSHUD:AddHook('HUDItemPickedUp')
