@@ -279,6 +279,22 @@ end
 function FFGSHUD:HUDItemPickedUp(printname)
 	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
 
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > RealTimeL() then
+			for i2, data in ipairs(bucket.list) do
+				if data.type == 'entity' and data.oprintname == printname then
+					data.amount = data.amount + 1
+					data.localized = data.localized2 .. ' x' .. data.amount
+					data.sequencesStart = generateSequences(data.localized, data.start + 0.4, 1)
+					data.sequencesEnd = generateSequencesOut(data.localized, bucket.ttl - 1, 1)
+					return
+				end
+			end
+		end
+	end
+
+	local oprintname = printname
+
 	if printname[1] == '#' then
 		printname = language.GetPhrase(printname:sub(2))
 	else
@@ -292,9 +308,12 @@ function FFGSHUD:HUDItemPickedUp(printname)
 
 	local newData = {
 		type = 'entity',
+		oprintname = oprintname,
 		localized = localized,
+		localized2 = localized,
 		ow = w,
 		oh = h,
+		amount = 1,
 		w = w * 1.6,
 		h = h * 1.2,
 		wPadding = w * 0.1,
