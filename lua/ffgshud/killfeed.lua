@@ -35,6 +35,11 @@ local function npcColor(npc)
 end
 
 function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victimTeam)
+	self:AddDeathNotice2(attacker, attackerTeam, inflictor, victim, victimTeam)
+	return true
+end
+
+function FFGSHUD:AddDeathNotice2(attacker, attackerTeam, inflictor, victim, victimTeam)
 	if not self.ENABLE_KILLFEED:GetBool() then return end
 
 	local validWeapon = inflictor ~= nil and inflictor ~= 'suicide'
@@ -101,18 +106,62 @@ function FFGSHUD:AddDeathNotice(attacker, attackerTeam, inflictor, victim, victi
 	end
 
 	table.insert(notices, entry)
-
-	return true
+	return entry
 end
 
-local DRAW_POS = FFGSHUD:DefinePosition('killfeed', 0.85, 0.12)
+function FFGSHUD:HUDCommons_EnterEditMode_Killfeed()
+	local entry = self:AddDeathNotice2('Attacker', -1, 'weapon', 'Victim', -1)
+	entry.test = true
+	-- ook
+	local displayTime = 3600
+	local animtime = 1
+
+	entry.ttl = RealTimeL() + displayTime
+	entry.fadeInStart = RealTimeL()
+	entry.fadeInEnd = RealTimeL() + animtime
+
+	entry.fadeOutStart = RealTimeL() + displayTime - animtime
+	entry.fadeOutEnd = RealTimeL() + displayTime
+
+	entry = self:AddDeathNotice2('worldspawn', -1, 'worldspawn', 'Victim', -1)
+	entry.test = true
+
+	entry.ttl = RealTimeL() + displayTime
+	entry.fadeInStart = RealTimeL()
+	entry.fadeInEnd = RealTimeL() + animtime
+
+	entry.fadeOutStart = RealTimeL() + displayTime - animtime
+	entry.fadeOutEnd = RealTimeL() + displayTime
+
+	entry = self:AddDeathNotice2('Victim', -1, 'suicide', 'Victim', -1)
+	entry.test = true
+
+	entry.ttl = RealTimeL() + displayTime
+	entry.fadeInStart = RealTimeL()
+	entry.fadeInEnd = RealTimeL() + animtime
+
+	entry.fadeOutStart = RealTimeL() + displayTime - animtime
+	entry.fadeOutEnd = RealTimeL() + displayTime
+end
+
+function FFGSHUD:HUDCommons_ExitEditMode_Killfeed()
+	local rem = {}
+
+	for i, entry in ipairs(notices) do
+		if entry.test then
+			table.insert(rem, i)
+		end
+	end
+
+	table.removeValues(notices, rem)
+end
+
+local DRAW_POS, DRAWSIDE = FFGSHUD:DefinePosition('killfeed', 0.85, 0.12)
 local surface = surface
 local ScreenSize = ScreenSize
 local render = render
 
-function FFGSHUD:DrawDeathNotice()
-	if not self.ENABLE_KILLFEED:GetBool() then return end
-
+function FFGSHUD:DrawDeathNoticeRight()
 	local x, y = DRAW_POS()
 	x = x - self.BATTLE_STATS_WIDE
 	local space = ScreenSize(3)
@@ -159,6 +208,114 @@ function FFGSHUD:DrawDeathNotice()
 	end
 end
 
+local ScrWL = ScrWL
+
+function FFGSHUD:DrawDeathNoticeLeft()
+	local x, y = DRAW_POS()
+	local space = ScreenSize(3)
+	local time = RealTimeL()
+	local H = self.KillfeedFont.REGULAR_SIZE_H
+	local W = ScrWL()
+
+	for i, entry in ipairs(notices) do
+		local x = x
+		local mult = 1
+		local cut = false
+		local gravity = entry.gravity
+
+		if entry.fadeInEnd > time then
+			cut = true
+			mult = time:progression(entry.fadeInStart, entry.fadeInEnd)
+			render.PushScissorRect(0, y, W, y + H * mult)
+		elseif entry.fadeOutStart < time then
+			mult = 1 - time:progression(entry.fadeOutStart, entry.fadeOutEnd)
+
+			if not gravity then
+				cut = true
+				render.PushScissorRect(0, y, W, y + H * mult)
+			end
+		end
+
+		if entry.validAttacker then
+			local addx, addy = gravity and entry.posVictim[1] or 0, gravity and entry.posVictim[2] or 0
+			local w, h = self:DrawShadowedText(self.KillfeedFont, entry.attacker, x + addx, y + addy, entry.victimColor)
+			x = x + w + ScreenSize(5)
+		end
+
+		local addx, addy = gravity and entry.posWeapon[1] or 0, gravity and entry.posWeapon[2] or 0
+		local w, h = self:DrawShadowedText(self.KillfeedFont, entry.weapon, x + addx, y + addy, entry.weaponColor)
+
+		x = x + w + ScreenSize(5)
+		local addx, addy = gravity and entry.posAttacker[1] or 0, gravity and entry.posAttacker[2] or 0
+		self:DrawShadowedText(self.KillfeedFont, entry.victim, x + addx, y + addy, entry.attackerColor)
+
+		y = y + (h + space) * mult
+
+		if cut then
+			render.PopScissorRect()
+		end
+	end
+end
+
+function FFGSHUD:DrawDeathNoticeCenter()
+	local x, y = DRAW_POS()
+	local space = ScreenSize(3)
+	local time = RealTimeL()
+	local H = self.KillfeedFont.REGULAR_SIZE_H
+	local W = ScrWL()
+
+	for i, entry in ipairs(notices) do
+		local x = x
+		local mult = 1
+		local cut = false
+		local gravity = entry.gravity
+
+		if entry.fadeInEnd > time then
+			cut = true
+			mult = time:progression(entry.fadeInStart, entry.fadeInEnd)
+			render.PushScissorRect(0, y, W, y + H * mult)
+		elseif entry.fadeOutStart < time then
+			mult = 1 - time:progression(entry.fadeOutStart, entry.fadeOutEnd)
+
+			if not gravity then
+				cut = true
+				render.PushScissorRect(0, y, W, y + H * mult)
+			end
+		end
+
+		local addx, addy = gravity and entry.posVictim[1] or 0, gravity and entry.posVictim[2] or 0
+		local w, h = self:DrawShadowedTextCentered(self.KillfeedFont, entry.weapon, x + addx, y + addy, entry.weaponColor)
+
+		local addx, addy = gravity and entry.posWeapon[1] or 0, gravity and entry.posWeapon[2] or 0
+		self:DrawShadowedText(self.KillfeedFont, entry.victim, x + addx+ ScreenSize(35), y + addy, entry.victimColor)
+
+		if entry.validAttacker then
+			local addx, addy = gravity and entry.posAttacker[1] or 0, gravity and entry.posAttacker[2] or 0
+			self:DrawShadowedTextAligned(self.KillfeedFont, entry.attacker, x + addx - ScreenSize(35), y + addy, entry.attackerColor)
+		end
+
+		y = y + (h + space) * mult
+
+		if cut then
+			render.PopScissorRect()
+		end
+	end
+end
+
+function FFGSHUD:DrawDeathNotice()
+	if not self.ENABLE_KILLFEED:GetBool() then return end
+
+	local side = DRAWSIDE()
+
+	if side == 'LEFT' then
+		self:DrawDeathNoticeLeft()
+	elseif side == 'RIGHT' then
+		self:DrawDeathNoticeRight()
+	else
+		self:DrawDeathNoticeCenter()
+	end
+end
+
 function FFGSHUD:ThinkDeathNotice()
 	local toRemove
 	local time = RealTimeL()
@@ -200,3 +357,5 @@ end
 FFGSHUD:AddHookCustom('AddDeathNotice', 'AddDeathNotice')
 FFGSHUD:AddPaintHook('DrawDeathNotice')
 FFGSHUD:AddThinkHook('ThinkDeathNotice')
+FFGSHUD:AddHookCustom('HUDCommons_EnterEditMode', 'HUDCommons_EnterEditMode_Killfeed')
+FFGSHUD:AddHookCustom('HUDCommons_ExitEditMode', 'HUDCommons_ExitEditMode_Killfeed')

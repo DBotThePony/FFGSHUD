@@ -66,9 +66,9 @@ function FFGSHUD:PaintPlayerStats(ply)
 	end
 
 	--local shouldHide = not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() or
-	--	self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
+	--  self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
 
-	local shouldHide = self:GetVarMaxHealth() <= self:GetVarHealth()
+	local shouldHide = self:GetVarMaxHealth() <= self:GetVarHealth() and not HUDCommons.IsInEditMode()
 	local alpha = 255
 
 	if shouldHide then
@@ -131,15 +131,15 @@ end
 
 local color_white = Color()
 
-local FillageColorAmmo = 				FFGSHUD:CreateColorN2('fillage_ammo', 'Fillage Color for Ammo', Color(80, 80, 80))
-local FillageColorAmmoShadow1 = 		FFGSHUD:CreateColorN2('fillage_ammo_s', 'Fillage Color for Ammo Shadow', Color(200, 0, 0))
+local FillageColorAmmo =                FFGSHUD:CreateColorN2('fillage_ammo', 'Fillage Color for Ammo', Color(80, 80, 80))
+local FillageColorAmmoShadow1 =         FFGSHUD:CreateColorN2('fillage_ammo_s', 'Fillage Color for Ammo Shadow', Color(200, 0, 0))
 
-local FillageColorAmmo_Select = 		FFGSHUD:CreateColorN2('fillage_ammo_se', 'Fillage Color for Ammo Select', FillageColorAmmo)
-local FillageColorAmmoShadow1_Select = 	FFGSHUD:CreateColorN2('fillage_ammo_s1se', 'Fillage Color for Ammo Shadow 1 Select', FillageColorAmmoShadow1)
-local FillageColorAmmoShadow2 = 		FFGSHUD:CreateColorN2('fillage_ammo_s2', 'Fillage Color for Ammo Shadow 2', FillageColorAmmoShadow1)
-local FillageColorAmmoShadow2_Select = 	FFGSHUD:CreateColorN2('fillage_ammo_s2se', 'Fillage Color for Ammo Shadow 2 Select', FillageColorAmmoShadow1)
-local ShadowEmpty = 					FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty', FillageColorAmmoShadow1)
-local ShadowEmpty_Select = 				FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty Select', FillageColorAmmoShadow1)
+local FillageColorAmmo_Select =         FFGSHUD:CreateColorN2('fillage_ammo_se', 'Fillage Color for Ammo Select', FillageColorAmmo)
+local FillageColorAmmoShadow1_Select =  FFGSHUD:CreateColorN2('fillage_ammo_s1se', 'Fillage Color for Ammo Shadow 1 Select', FillageColorAmmoShadow1)
+local FillageColorAmmoShadow2 =         FFGSHUD:CreateColorN2('fillage_ammo_s2', 'Fillage Color for Ammo Shadow 2', FillageColorAmmoShadow1)
+local FillageColorAmmoShadow2_Select =  FFGSHUD:CreateColorN2('fillage_ammo_s2se', 'Fillage Color for Ammo Shadow 2 Select', FillageColorAmmoShadow1)
+local ShadowEmpty =                     FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty', FillageColorAmmoShadow1)
+local ShadowEmpty_Select =              FFGSHUD:CreateColorN2('fillage_ammo_sempty', 'Fillage Color for Ammo Shadow Empty Select', FillageColorAmmoShadow1)
 
 local function calculateSelectAlpha(self, time)
 	if self.tryToSelectWeaponFadeIn > time then
@@ -185,7 +185,7 @@ function FFGSHUD:PaintWeaponStats()
 	end
 
 	local time = RealTimeL()
-	local hide = self:CanHideAmmoCounter()
+	local hide = self:CanHideAmmoCounter() and not HUDCommons.IsInEditMode()
 
 	if self:CanDisplayWeaponSelect2() and hide then
 		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time) or 0)

@@ -65,35 +65,51 @@ end
 
 function FFGSHUD:PaintTargetID(ply)
 	if not self.ENABLE_TARGETID:GetBool() then return end
+	local edit = HUDCommons.IsInEditMode() and not IsValid(self.targetID_Ply)
 
-	if not self.drawTargetID then return end
+	if not self.drawTargetID and not edit then return end
 	local ent = self.targetID_Ply
-	if not IsValid(self.targetID_Ply) then return end
+	if not IsValid(self.targetID_Ply) and not HUDCommons.IsInEditMode() then return end
 
-	local name = ent:Nick()
-	local health = ent:GetHealth()
-	local maxHealth = ent:GetMaxHealth()
-	local armor = ent:GetArmor()
-	local maxArmor = ent:GetMaxArmor()
-	local pteam = ent:Team() or 0
-	local color
+	local name, health, maxHealth, armor, maxArmor, pteam, color
+	local x, y = MousePos()
+
+	if edit then
+		name = 'Nickname'
+		health = 45
+		maxHealth = 125
+		armor = 50
+		maxArmor = 100
+		pteam = -1
+		self.targetID_Fade = RealTimeL() + 0.4
+		x, y = POS()
+	else
+		name = ent:Nick()
+		health = ent:GetHealth()
+		maxHealth = ent:GetMaxHealth()
+		armor = ent:GetArmor()
+		maxArmor = ent:GetMaxArmor()
+		pteam = ent:Team() or 0
+	end
 
 	if pteam > 0 and pteam ~= TEAM_UNASSIGNED then
 		color = Color(team.GetColor(pteam or 0) or color_white)
-	else
+	elseif IsValid(ent) then
 		--ent.__ffgshud_targetidcolor = ent.__ffgshud_targetidcolor or unassignedColor(ent:SteamID())
-		ent.__ffgshud_targetidcolor = ent.__ffgshud_targetidcolor or unassignedColor(ent:Nick())
+		ent.__ffgshud_targetidcolor = ent.__ffgshud_targetidcolor or unassignedColor(name)
 		color = Color(ent.__ffgshud_targetidcolor)
+	else
+		color = unassignedColor(name)
 	end
 
 	color.a = math.max((self.targetID_Fade - RealTimeL()) / 0.4 * 255, 0)
 
-	local x, y = MousePos()
-
-	if x == 0 and y == 0 then
-		x, y = POS()
-	else
-		y = y + ScreenScale(8)
+	if not edit then
+		if x == 0 and y == 0 then
+			x, y = POS()
+		else
+			y = y + ScreenScale(8)
+		end
 	end
 
 	local w, h = self:DrawShadowedTextCentered(self.TargetID_Name, name, x, y, color)

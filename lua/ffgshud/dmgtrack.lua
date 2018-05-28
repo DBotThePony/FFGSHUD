@@ -369,15 +369,70 @@ end
 net.receive('ffgs.damagedealed', damageDealed)
 
 local surface = surface
-local DRAWPOS = FFGSHUD:DefinePosition('lastdealed', 0.5, 0.85)
+local DRAWPOS = FFGSHUD:DefinePosition('lastdealed', 0.5, 0.85, false)
 local render = render
+
+local testingsColors2 = {
+
+}
+
+do
+	local testingsColors = {
+		Color(),
+		Color(255, 100, 200),
+		Color(0, 0, 0),
+		Color(131, 155, 255)
+	}
+
+	for i, color in ipairs(testingsColors) do
+		table.insert(testingsColors2, {
+			color = color,
+			part = 0.25
+		})
+	end
+end
+
+local color_black2 = Color(0, 0, 0)
 
 function FFGSHUD:DrawLastDamageDealed(ply)
 	if not self.ENABLE_DMG_DISPLAY:GetBool() then return end
 
 	local time = CurTimeL()
-	if hideAtEnd < time then return end
-	local x, y = ScrW() * 0.5, ScrH() * 0.85
+
+	if hideAtEnd < time then
+		if not HUDCommons.IsInEditMode() then return end
+		local x, y = DRAWPOS()
+		surface.SetFont(self.LastDamageDealed.BLURRY)
+		local textToDisplay = '-625'
+		local w, h = surface.GetTextSize(textToDisplay)
+
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black2)
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black2)
+		local amount = #colorsDraw
+
+		surface.SetFont(self.LastDamageDealed.REGULAR)
+		w, h = surface.GetTextSize(textToDisplay)
+		local boxX = x - w / 2
+		local BX, BY = boxX, y - ScreenSize(15)
+		local bh = ScreenSize(10)
+
+		for i, entry in ipairs(testingsColors2) do
+			-- performance
+			render.SetScissorRect(boxX, y - h * 2, boxX + w * entry.part, y + h, true)
+
+			surface.SetDrawColor(entry.color)
+			surface.DrawRect(BX, BY, w * entry.part, bh)
+			BX = BX + w * entry.part
+
+			boxX = boxX + w * entry.part
+			HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color)
+		end
+
+		render.SetScissorRect(0, 0, 0, 0, false)
+		return
+	end
+
+	local x, y = DRAWPOS()
 	surface.SetFont(self.LastDamageDealed.BLURRY)
 	local w, h = surface.GetTextSize(textToDisplay)
 

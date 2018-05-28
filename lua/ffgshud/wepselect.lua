@@ -99,7 +99,7 @@ function FFGSHUD:ShouldDrawWeaponSelection(element)
 	end
 end
 
-local DRAWPOS = FFGSHUD:DefinePosition('wepselect', 0.2, 0.08, false)
+local DRAWPOS, DRAWSIDE = FFGSHUD:DefinePosition('wepselect', 0.12, 0.11, false)
 local SLOT_ACTIVE = FFGSHUD:CreateColorN('wepselect_a', '', Color())
 local SLOT_INACTIVE = FFGSHUD:CreateColorN('wepselect_i', '', Color(137, 137, 137))
 local SLOT_INACTIVE_BOX = FFGSHUD:CreateColorN('wepselect_i', '', Color(80, 80, 80))
@@ -109,18 +109,21 @@ local WEAPON_FOCUSED = FFGSHUD:CreateColorN('wepselect_f', '', Color())
 local SLOT_BG = FFGSHUD:CreateColorN('wepselect_bg', '', Color(40, 40, 40))
 
 local TILT_MATRIX = Matrix()
+local TILT_MATRIX2 = Matrix()
 TILT_MATRIX:SetAngles(Angle(0, -1.5, 0))
+TILT_MATRIX2:SetAngles(Angle(0, 1.5, 0))
 local render = render
 local TEXFILTER = TEXFILTER
 
 function FFGSHUD:DrawWeaponSelection()
 	if not self.ENABLE_WEAPON_SELECT:GetBool() then return end
 
-	if not FFGSHUD.DrawWepSelection then return end
+	if not FFGSHUD.DrawWepSelection and not HUDCommons.IsInEditMode() then return end
 	local x, y = DRAWPOS()
+	local side = DRAWSIDE()
 	--local x, y = ScrWL() * 0.12, ScrHL() * 0.11
 	local spacing = ScreenSize(1.5)
-	local alpha = (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
+	local alpha = HUDCommons.IsInEditMode() and 255 or (1 - RealTimeL():progression(FFGSHUD.DrawWepSelectionFadeOutStart, FFGSHUD.DrawWepSelectionFadeOutEnd)) * 255
 	local inactive, bg, bgb = SLOT_INACTIVE(alpha), SLOT_BG(alpha * 0.75), SLOT_INACTIVE_BOX(alpha * 0.7)
 	local activeWeapon = LocalWeapon()
 	local boxSpacing = ScreenSize(8)
@@ -129,13 +132,21 @@ function FFGSHUD:DrawWeaponSelection()
 
 	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
 	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
-	cam.PushModelMatrix(TILT_MATRIX)
+	local TILT = false
+
+	if side == 'LEFT' then
+		cam.PushModelMatrix(TILT_MATRIX)
+		TILT = true
+	elseif side == 'RIGHT' then
+		cam.PushModelMatrix(TILT_MATRIX2)
+		TILT = true
+	end
 
 	for i = 1, 6 do
 		if i ~= FFGSHUD.LastSelectSlot then
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumber.REGULAR, x, y, inactive, bg)
 
-			for i = 1, #FFGSHUD.WeaponListInSlots[i] do
+			for i = 1, (FFGSHUD.WeaponListInSlots[i] and #FFGSHUD.WeaponListInSlots[i] or 0) do
 				HUDCommons.DrawBox(x - unshift, y + (i - 1) * (spacing + h * 0.35) + h, w, h * 0.35, bgb)
 			end
 
@@ -214,7 +225,10 @@ function FFGSHUD:DrawWeaponSelection()
 		end
 	end
 
-	cam.PopModelMatrix()
+	if TILT then
+		cam.PopModelMatrix()
+	end
+
 	render.PopFilterMin()
 	render.PopFilterMag()
 end

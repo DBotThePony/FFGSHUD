@@ -386,7 +386,7 @@ function FFGSHUD:HUDWeaponPickedUp(ent)
 	return true
 end
 
-local DRAWPOS = FFGSHUD:DefinePosition('history', 0.04, 0.4, false)
+local DRAWPOS, DRAWSIDE = FFGSHUD:DefinePosition('history', 0.04, 0.4, false)
 local Cosine = Cosine
 local Quintic = Quintic
 local HUDCommons = DLib.HUDCommons
@@ -406,12 +406,57 @@ local function redrawBox(self, x, y, w, h, color)
 	HUDCommons.DrawBox(x, y, w, h, color)
 end
 
-function FFGSHUD:HUDDrawPickupHistory()
-	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+local function redrawBoxCenter(self, x, y, w, h, color)
+	w = w * 1.2
 
+	if self.ENABLE_DISPERSION:GetBool() then
+		local color2 = Color(0, color.g * 0.3, color.b * 0.8, color.a)
+		local color3 = Color(color.r * 0.95, color.g * 0.35, color.b * 0.1, color.a)
+		HUDCommons.DrawBox(x - w / 2, y - (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color3)
+		HUDCommons.DrawBox(x - w / 2, y + (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color2)
+	end
+
+	HUDCommons.DrawBox(x - w / 2, y, w, h, color)
+end
+
+local function redrawBoxRight(self, x, y, w, h, color)
+	if self.ENABLE_DISPERSION:GetBool() then
+		local color2 = Color(0, color.g * 0.3, color.b * 0.8, color.a)
+		local color3 = Color(color.r * 0.95, color.g * 0.35, color.b * 0.1, color.a)
+		HUDCommons.DrawBox(x - w, y - (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color3)
+		HUDCommons.DrawBox(x - w, y + (self.PickupHistoryFont.REGULAR_ADDITIVE_SIZE_H * TEXT_DISPERSION_SHIFT):max(1):floor(), w, h, color2)
+	end
+
+	HUDCommons.DrawBox(x - w, y, w, h, color)
+end
+
+function FFGSHUD:HUDDrawPickupHistoryLeftTest()
 	local x, y = DRAWPOS()
-	--local x, y = ScrWL() * 0.04, ScrHL() * 0.4
+	local drawcolor = Color()
+	local w, h = self:DrawShadowedText(self.PickupHistoryFont, 'Sample text', x + ScreenSize(9), y, drawcolor)
+	redrawBox(self, x, y + h * 0.84, ScreenSize(48), ScreenSize(6), drawcolor)
+	redrawBox(self, x, y + h * 0.84 + ScreenSize(7), ScreenSize(24), ScreenSize(6), drawcolor)
+end
+
+function FFGSHUD:HUDDrawPickupHistoryRightTest()
+	local x, y = DRAWPOS()
+	local drawcolor = Color()
+	local w, h = self:DrawShadowedTextAligned(self.PickupHistoryFont, 'Sample text', x - ScreenSize(9), y, drawcolor)
+	redrawBoxRight(self, x, y + h * 0.84, ScreenSize(48), ScreenSize(6), drawcolor)
+	redrawBoxRight(self, x, y + h * 0.84 + ScreenSize(7), ScreenSize(24), ScreenSize(6), drawcolor)
+end
+
+function FFGSHUD:HUDDrawPickupHistoryCenterTest()
+	local x, y = DRAWPOS()
+	local drawcolor = Color()
+	local w, h = self:DrawShadowedTextCentered(self.PickupHistoryFont, 'Sample text', x, y, drawcolor)
+	redrawBoxCenter(self, x, y + h * 0.84, ScreenSize(48), ScreenSize(6), drawcolor)
+	redrawBoxCenter(self, x, y + h * 0.84 + ScreenSize(7), ScreenSize(24), ScreenSize(6), drawcolor)
+end
+
+function FFGSHUD:HUDDrawPickupHistoryLeft()
 	local time = RealTimeL()
+	local x, y = DRAWPOS()
 
 	for i, bucket in ipairs(self.PickupsHistory) do
 		if bucket.start > time then
@@ -465,6 +510,150 @@ function FFGSHUD:HUDDrawPickupHistory()
 		end
 
 		::CONTINUE::
+	end
+end
+
+function FFGSHUD:HUDDrawPickupHistoryRight()
+	local time = RealTimeL()
+	local x, y = DRAWPOS()
+
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > time then
+			goto CONTINUE
+		end
+
+		for i2, data in ipairs(bucket.list) do
+			if data.type == 'empty' then
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+
+					if data.slideIn < 1 then
+						redrawBoxRight(self, x, y, data.w * data.slideIn, data.h, drawcolor)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxRight(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
+				else
+					if data.slideIn < 1 then
+						redrawBoxRight(self, x, y, data.w * data.slideIn, data.h, color_white)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxRight(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
+				end
+			else
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+
+					if data.slideIn < 1 then
+						redrawBoxRight(self, x, y, data.w * data.slideIn, data.h, drawcolor)
+					else
+						self:DrawShadowedTextAligned(self.PickupHistoryFont, data.drawText, x - ScreenSize(9), y + data.hPadding, drawcolor)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxRight(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
+				else
+					if data.slideIn < 1 then
+						redrawBoxRight(self, x, y, data.w * data.slideIn, data.h, color_white)
+					else
+						self:DrawShadowedTextAligned(self.PickupHistoryFont, data.drawText, x - ScreenSize(9), y + data.hPadding, color_white)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxRight(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
+				end
+			end
+
+			y = y + data.h
+		end
+
+		::CONTINUE::
+	end
+end
+
+function FFGSHUD:HUDDrawPickupHistoryCenter()
+	local time = RealTimeL()
+	local x, y = DRAWPOS()
+
+	for i, bucket in ipairs(self.PickupsHistory) do
+		if bucket.start > time then
+			goto CONTINUE
+		end
+
+		for i2, data in ipairs(bucket.list) do
+			if data.type == 'empty' then
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+
+					if data.slideIn < 1 then
+						redrawBoxCenter(self, x, y, data.w * data.slideIn, data.h, drawcolor)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxCenter(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
+				else
+					if data.slideIn < 1 then
+						redrawBoxCenter(self, x, y, data.w * data.slideIn, data.h, color_white)
+					elseif data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxCenter(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
+				end
+			else
+				if data.death then
+					local drawcolor = Color(data.red, data.green, data.blue, data.alpha)
+
+					if data.slideIn < 1 then
+						redrawBoxCenter(self, x, y, data.w * data.slideIn, data.h, drawcolor)
+					else
+						self:DrawShadowedTextCentered(self.PickupHistoryFont, data.drawText, x, y + data.hPadding, drawcolor)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxCenter(self, x, y, data.w * (1 - data.slideOut), data.h, drawcolor)
+					end
+				else
+					if data.slideIn < 1 then
+						redrawBoxCenter(self, x, y, data.w * data.slideIn, data.h, color_white)
+					else
+						self:DrawShadowedTextCentered(self.PickupHistoryFont, data.drawText, x, y + data.hPadding, color_white)
+					end
+
+					if data.slideOut < 1 and data.slideOut ~= 0 then
+						redrawBoxCenter(self, x, y, data.w * (1 - data.slideOut), data.h, color_white)
+					end
+				end
+			end
+
+			y = y + data.h
+		end
+
+		::CONTINUE::
+	end
+end
+
+function FFGSHUD:HUDDrawPickupHistory()
+	if not self.ENABLE_PICKUP_HISTORY:GetBool() then return end
+
+	local side = DRAWSIDE()
+
+	if HUDCommons.IsInEditMode() then
+		if side == 'LEFT' then
+			self:HUDDrawPickupHistoryLeftTest()
+		elseif side == 'RIGHT' then
+			self:HUDDrawPickupHistoryRightTest()
+		else
+			self:HUDDrawPickupHistoryCenterTest()
+		end
+
+		return
+	end
+
+	if side == 'LEFT' then
+		self:HUDDrawPickupHistoryLeft()
+	elseif side == 'RIGHT' then
+		self:HUDDrawPickupHistoryRight()
+	else
+		self:HUDDrawPickupHistoryCenter()
 	end
 
 	return true
