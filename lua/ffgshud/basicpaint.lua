@@ -41,12 +41,18 @@ local PlayerName = FFGSHUD:CreateColorN('plyname', 'Player Name', Color())
 local HPColor = FFGSHUD:CreateColorN('plyhp', 'Player Health', Color())
 local ArmorColor = FFGSHUD:CreateColorN('armorcolor', 'Player Armor', Color())
 
+FFGSHUD.ENABLE_PLAYERSTATS = FFGSHUD:CreateConVar('playerstats', '1', 'Draw player stats')
+FFGSHUD.ENABLE_AMMO_INFO = FFGSHUD:CreateConVar('ammo', '1', 'Draw ammo stats')
+FFGSHUD.ENABLE_AMMO_INFO_SELECT = FFGSHUD:CreateConVar('ammo_select', '1', 'Draw upcoming weapon ammo stats')
+
 local pi = math.pi * 16
 local function RealTimeLAnim()
 	return RealTimeL() % pi
 end
 
 function FFGSHUD:PaintPlayerStats(ply)
+	if not self.ENABLE_PLAYERSTATS:GetBool() then return end
+
 	if self.isPlayingDeathAnim then
 		local x, y = POS_PLAYERSTATS()
 		local time = RealTimeL()
@@ -181,6 +187,10 @@ local AmmoStored2Color_Select = FFGSHUD:CreateColorN('ammostored2_s', 'Player Ar
 
 function FFGSHUD:PaintWeaponStats()
 	if not self:HasWeapon() then
+		return
+	end
+
+	if not self.ENABLE_AMMO_INFO:GetBool() then
 		return
 	end
 
@@ -330,6 +340,7 @@ function FFGSHUD:PaintWeaponStats()
 		end
 	end
 
+	if not self.ENABLE_AMMO_INFO_SELECT:GetBool() then return end
 	if not self:CanDisplayWeaponSelect() then return end
 
 	if not hide then
