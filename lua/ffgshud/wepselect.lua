@@ -129,6 +129,7 @@ function FFGSHUD:DrawWeaponSelection()
 	local boxSpacing = ScreenSize(8)
 	local boxSpacing2 = boxSpacing * 3
 	local unshift = ScreenSize(1.5)
+	local sH = ScrHL()
 
 	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
 	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
@@ -181,6 +182,7 @@ function FFGSHUD:DrawWeaponSelection()
 				surface.SetFont(self.SelectionText.REGULAR)
 
 				local isInActiveCategory = false
+				local weaponPoint = 0
 
 				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
 					if weapon:IsValid() then
@@ -188,6 +190,7 @@ function FFGSHUD:DrawWeaponSelection()
 						local W, H = surface.GetTextSize(name)
 
 						if weapon == FFGSHUD.SelectWeapon then
+							weaponPoint = i
 							if weapon ~= activeWeapon then
 								maxW = maxW:max(W + boxSpacing2)
 							else
@@ -202,8 +205,6 @@ function FFGSHUD:DrawWeaponSelection()
 						end
 					end
 				end
-
-				local boxSpacing = boxSpacing
 
 				if RIGHT then
 					if isInActiveCategory then
@@ -220,7 +221,16 @@ function FFGSHUD:DrawWeaponSelection()
 					x = x - ScreenSize(0.8)
 				end
 
-				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
+				local scrollStart, scrollEnd = 1, #FFGSHUD.WeaponListInSlot
+
+				if #FFGSHUD.WeaponListInSlot > 10 then
+					scrollEnd = math.min(#FFGSHUD.WeaponListInSlot, math.max(weaponPoint + 5, 11))
+					scrollStart = math.max(1, scrollEnd - 10)
+				end
+
+				for i = scrollStart, scrollEnd do
+					local weapon = FFGSHUD.WeaponListInSlot[i]
+
 					if weapon:IsValid() then
 						local name = getPrintName(weapon)
 						local W, H = surface.GetTextSize(name)
