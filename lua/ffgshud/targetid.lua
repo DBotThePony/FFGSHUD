@@ -18,7 +18,7 @@ local HUDCommons = DLib.HUDCommons
 local hook = hook
 local MousePos = gui.MousePos
 local team = team
-local ScreenSize = ScreenScale
+local ScreenSize = ScreenSize
 local color_white = color_white
 local math = math
 local RealTimeL = RealTimeL
@@ -108,7 +108,7 @@ function FFGSHUD:PaintTargetID(ply)
 		if x == 0 and y == 0 then
 			x, y = POS()
 		else
-			y = y + ScreenScale(8)
+			y = y + ScreenSize(8)
 		end
 	end
 

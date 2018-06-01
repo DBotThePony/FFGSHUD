@@ -50,7 +50,7 @@ local T_COLOR = Color(0, 0, 255)
 local function drawMarkers(self, x, y, angle, shiftby)
 	local color_white = color_white()
 	x, y = x:floor(), y:floor()
-	local mult = ScreenSize(1)
+	local mult = ScreenSize(1.25)
 
 	for i, dir in ipairs(directions) do
 		local lang = ((i + shiftby - 1) * 45)
@@ -65,7 +65,7 @@ local function drawMarkers(self, x, y, angle, shiftby)
 	end
 
 	y = y + ScreenSize(2)
-	local wide, tall = ScreenSize(1):max(1):round(), ScreenSize(4):round()
+	local wide, tall = ScreenSize(1):max(1):round(), ScreenSize(6):round()
 
 	for i = 1, (#directions - 2) * 4 + 1 do
 		local lang = ((i + shiftby - 1) * 15)
@@ -96,15 +96,16 @@ function FFGSHUD:DrawCompass(ply)
 	end
 
 	local x, y = DRAWPOS()
-	--local x, y = ScrWL() * 0.5, ScrHL() * 0.04
+
 	if self.ENABLE_DISPERSION:GetBool() then
 		surface.SetFont(self.CompassDirections.REGULAR_ADDITIVE)
 	else
 		surface.SetFont(self.CompassDirections.REGULAR)
 	end
+
 	surface.SetTextColor(color_white)
 
-	render.PushScissorRect(x - ScreenSize(135), y, x + ScreenSize(135), y + ScreenSize(40))
+	render.PushScissorRect(x - ScreenSize(180), y, x + ScreenSize(180), y + ScreenSize(80))
 
 	surface.SetDrawColor(170, 225, 150)
 	local wide, tall = ScreenSize(2):max(1):round(), ScreenSize(8):round()

@@ -139,10 +139,19 @@ function FFGSHUD:DrawWeaponSelection()
 		TILT = true
 	elseif side == 'RIGHT' then
 		cam.PushModelMatrix(TILT_MATRIX2)
+		x = x - ScreenSize(12)
+		y = y - ScreenSize(12)
 		TILT = true
 	end
 
-	for i = 1, 6 do
+	local RIGHT = side == 'RIGHT'
+	local iStart, iEnd, iStep = 1, 6, 1
+
+	if RIGHT then
+		iStart, iEnd, iStep = 6, 1, -1
+	end
+
+	for i = iStart, iEnd, iStep do
 		if i ~= FFGSHUD.LastSelectSlot then
 			local w, h = HUDCommons.WordBox(i, self.SelectionNumber.REGULAR, x, y, inactive, bg)
 
@@ -150,9 +159,21 @@ function FFGSHUD:DrawWeaponSelection()
 				HUDCommons.DrawBox(x - unshift, y + (i - 1) * (spacing + h * 0.35) + h, w, h * 0.35, bgb)
 			end
 
-			x = x + w + spacing
+			if RIGHT then
+				x = x - w - spacing
+			else
+				x = x + w + spacing
+			end
 		else
-			local w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x, y, SLOT_ACTIVE(alpha), bg)
+			local w, h = 0, 0
+
+			if not RIGHT then
+				w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x, y, SLOT_ACTIVE(alpha), bg)
+			else
+				surface.SetFont(self.SelectionNumberActive.REGULAR)
+				w, h = surface.GetTextSize(i)
+			end
+
 			local Y = y + h + spacing
 			local maxW = ScreenSize(90)
 
@@ -182,11 +203,36 @@ function FFGSHUD:DrawWeaponSelection()
 					end
 				end
 
+				local boxSpacing = boxSpacing
+
+				if RIGHT then
+					if isInActiveCategory then
+						w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x - maxW - ScreenSize(3.75), y, SLOT_ACTIVE(alpha), bg)
+					else
+						w, h = HUDCommons.WordBox(i, self.SelectionNumberActive.REGULAR, x - maxW + ScreenSize(1), y, SLOT_ACTIVE(alpha), bg)
+					end
+
+					x = x - w - maxW + ScreenSize(3)
+					Y = Y + ScreenSize(2)
+				end
+
+				if isInActiveCategory and RIGHT then
+					x = x - ScreenSize(0.8)
+				end
+
 				for i, weapon in ipairs(FFGSHUD.WeaponListInSlot) do
 					if weapon:IsValid() then
 						local name = getPrintName(weapon)
 						local W, H = surface.GetTextSize(name)
 						local X = x - unshift
+
+						if RIGHT then
+							X = x + unshift + ScreenSize(11)
+
+							if isInActiveCategory then
+								X = X - ScreenSize(4.2)
+							end
+						end
 
 						if weapon == FFGSHUD.SelectWeapon then
 							if weapon ~= activeWeapon then
@@ -214,13 +260,23 @@ function FFGSHUD:DrawWeaponSelection()
 					end
 				end
 
-				x = x + w + maxW - ScreenSize(6)
+				if not RIGHT then
+					x = x + w + maxW - ScreenSize(6)
+				end
 
 				if isInActiveCategory then
-					x = x + ScreenSize(4)
+					if RIGHT then
+						x = x - ScreenSize(4)
+					else
+						x = x + ScreenSize(4)
+					end
 				end
 			else
-				x = x + w + spacing
+				if RIGHT then
+					x = x - w + spacing
+				else
+					x = x + w + spacing
+				end
 			end
 		end
 	end

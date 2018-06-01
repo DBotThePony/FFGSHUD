@@ -30,7 +30,7 @@ local RealTimeL = RealTimeL
 local pi = math.pi * 16
 local Lerp = Lerp
 local lastDrawnHeight = 0
-local ScreenScale = ScreenScale
+local ScreenSize = ScreenSize
 local Quintic = Quintic
 
 local function RealTimeLAnim()
@@ -58,7 +58,7 @@ function FFGSHUD:DrawVehicleInfo()
 		end
 	end
 
-	lastDrawnHeight = ScreenScale(32)
+	lastDrawnHeight = ScreenSize(32)
 
 	local w, h = self:DrawShadowedTextUp(self.PlayerName, self:GetVarVehicleName(), x, y, VehicleName())
 	y = y - h * 0.83

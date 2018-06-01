@@ -23,7 +23,7 @@ local table = table
 local CurTimeL = CurTimeL
 local ScrWL, ScrHL = ScrWL, ScrHL
 local LerpCubic = LerpCubic
-local ScreenScale = ScreenScale
+local ScreenSize = ScreenSize
 local math = math
 
 FFGSHUD.ENABLE_GLITCHES = FFGSHUD:CreateConVar('glitch', '1', 'Enable HUD glitches on damage')
@@ -97,10 +97,10 @@ local function generateGlitches(iterations, frameRepeats, strength)
 	local rTime = CurTimeL()
 	local w, h = ScrWL(), ScrHL()
 	local initial = (rTime / repeats):floor()
-	minCut = ScreenScale(7) * strength
-	maxCut = ScreenScale(16) * strength
-	maxStrength = ScreenScale(24) * strength
-	maxDistort = ScreenScale(3.5) * strength
+	minCut = ScreenSize(7) * strength
+	maxCut = ScreenSize(16) * strength
+	maxStrength = ScreenSize(24) * strength
+	maxDistort = ScreenSize(3.5) * strength
 
 	for i = 1, iterations do
 		local data = {
@@ -149,8 +149,8 @@ local function generateGlitches(iterations, frameRepeats, strength)
 		-- smooth
 		--local nodes = #data.iterations
 		--for i = 1, nodes do
-		--	data.iterations[i][3] = math.tbezier(i / nodes, strengthValues)
-		--	data.iterations[i][8] = math.tbezier(i / nodes, distortsValues)
+		--  data.iterations[i][3] = math.tbezier(i / nodes, strengthValues)
+		--  data.iterations[i][8] = math.tbezier(i / nodes, distortsValues)
 		--end
 	end
 

@@ -73,13 +73,13 @@ function FFGSHUD:DrawCrosshair(ply)
 		CROSSHAIR_FADE = (CROSSHAIR_FADE - RealFrameTime() * 6):max(0)
 	end
 
-	local size = ScreenSize(2)
+	local size = ScreenSize(2.5)
 	local CrosshairColor = CrosshairColor(63 * CROSSHAIR_FADE)
 
 	draw.NoTexture()
 
 	for gapSize = 1, 3 do
-		local gap = size + ScreenSize(gapSize)
+		local gap = size + ScreenSize(gapSize) * 1.5
 
 		surface.SetDrawColor(CrosshairColor)
 		HUDCommons.DrawCircle(x - (gap / 2):floor(), y - (gap / 2):floor(), gap, 20)

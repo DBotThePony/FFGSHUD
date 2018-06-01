@@ -695,8 +695,8 @@ function FFGSHUD:ThinkPickupHistory()
 
 				local newData = {
 					type = 'empty',
-					w = ScreenSize(48),
-					h = ScreenSize(6),
+					w = ScreenSize(64),
+					h = ScreenSize(7),
 					start = startTime,
 					slideIn = 0,
 					slideOut = 0,
