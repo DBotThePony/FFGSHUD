@@ -45,6 +45,9 @@ FFGSHUD.ENABLE_PLAYERSTATS = FFGSHUD:CreateConVar('playerstats', '1', 'Draw play
 FFGSHUD.ENABLE_AMMO_INFO = FFGSHUD:CreateConVar('ammo', '1', 'Draw ammo stats')
 FFGSHUD.ENABLE_AMMO_INFO_SELECT = FFGSHUD:CreateConVar('ammo_select', '1', 'Draw upcoming weapon ammo stats')
 
+FFGSHUD.HIDE_HEALTH = FFGSHUD:CreateConVar('hide_health', '1', 'Hide health counter when health is full')
+FFGSHUD.HIDE_AMMO = FFGSHUD:CreateConVar('hide_ammo', '1', 'Hide ammo counter when clips are full')
+
 local pi = math.pi * 16
 local function RealTimeLAnim()
 	return RealTimeL() % pi
@@ -74,7 +77,7 @@ function FFGSHUD:PaintPlayerStats(ply)
 	--local shouldHide = not game.SinglePlayer() and sbox_godmode and sbox_godmode:GetBool() and self:GetVarMaxHealth() <= self:GetVarHealth() or
 	--  self:GetVarGod() and self:GetVarMaxHealth() <= self:GetVarHealth()
 
-	local shouldHide = self:GetVarMaxHealth() <= self:GetVarHealth() and not HUDCommons.IsInEditMode()
+	local shouldHide = self:GetVarMaxHealth() <= self:GetVarHealth() and not HUDCommons.IsInEditMode() and self.HIDE_HEALTH:GetBool()
 	local alpha = 255
 
 	if shouldHide then
@@ -195,7 +198,7 @@ function FFGSHUD:PaintWeaponStats()
 	end
 
 	local time = RealTimeL()
-	local hide = self:CanHideAmmoCounter() and not HUDCommons.IsInEditMode()
+	local hide = self:CanHideAmmoCounter() and not HUDCommons.IsInEditMode() and self.HIDE_AMMO:GetBool()
 
 	if self:CanDisplayWeaponSelect2() and hide then
 		color_white.a = calculateSelectAlpha(self, time):max(calculateHideAlpha(self, time) or 0)
