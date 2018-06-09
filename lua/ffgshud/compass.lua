@@ -40,7 +40,6 @@ local directions = {
 }
 
 local TOP_COLOR = Color(255, 90, 133, 200)
-local DEFAULT_COLOR = Color()
 local BOTTOM_COLOR = Color(35, 240, 240, 200)
 
 local F_COLOR = Color(255, 0, 0)
@@ -49,6 +48,8 @@ local T_COLOR = Color(0, 0, 255)
 
 local function drawMarkers(self, x, y, angle, shiftby)
 	local color_white = color_white()
+	TOP_COLOR.a = color_white.a
+	BOTTOM_COLOR.a = color_white.a
 	x, y = x:floor(), y:floor()
 	local mult = ScreenSize(1.25)
 
