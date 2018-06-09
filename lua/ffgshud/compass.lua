@@ -125,7 +125,7 @@ function FFGSHUD:DrawCompass(ply)
 
 	render.PopScissorRect()
 
-	self:DrawShadowedTextCentered(self.CompassAngle, angle:floor(), x, y + ScreenSize(10), color_white())
+	self:DrawShadowedTextCentered(self.CompassAngle, angle:floor(), x, y + ScreenSize(10), color_white)
 end
 
 FFGSHUD:AddPaintHook('DrawCompass')
