@@ -17,7 +17,7 @@ local net = net
 local DLib = DLib
 
 net.pool('ffgs.damagereceived')
-net.pool('ffgs.damagedealed')
+net.pool('ffgs.damagedealt')
 local IsValid = FindMetaTable('Entity').IsValid
 
 local function damagereceived(self, dmg)
@@ -67,14 +67,14 @@ local function damagereceived(self, dmg)
 	return true
 end
 
-local function damagedealed(ent, dmg)
+local function damagedealt(ent, dmg)
 	if dmg:GetDamage() == 0 then return end
 	local self = dmg:GetAttacker()
 	-- attacker is not a player
 	if ent == self or not IsValid(self) or type(self) ~= 'Player' then return end
 	-- entity is not alive
 	-- if type(ent) ~= 'Player' and type(ent) ~= 'Vehicle' and type(ent) ~= 'NPC' and type(ent) ~= 'NextBot' then return end
-	net.Start('ffgs.damagedealed', true)
+	net.Start('ffgs.damagedealt', true)
 	net.WriteUInt64(dmg:GetDamageType() or 0)
 	net.WriteFloat(dmg:GetDamage())
 	net.Send(self)
@@ -84,7 +84,7 @@ local function EntityTakeDamage(self, dmg)
 	local status = damagereceived(self, dmg)
 
 	if status or type(self) == 'Player' or type(self) == 'Vehicle' or type(self) == 'NPC' or type(self) == 'NextBot' then
-		damagedealed(self, dmg)
+		damagedealt(self, dmg)
 	end
 end
 

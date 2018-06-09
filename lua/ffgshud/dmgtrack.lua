@@ -245,7 +245,7 @@ end
 FFGSHUD:AddThinkHook('ThinkDamageSense')
 FFGSHUD:AddPaintHook('DrawDamageSense')
 
-FFGSHUD.ENABLE_DMG_DISPLAY = FFGSHUD:CreateConVar('dmg_display', '1', 'Enable Last Damage Dealed')
+FFGSHUD.ENABLE_DMG_DISPLAY = FFGSHUD:CreateConVar('dmg_display', '1', 'Enable Last Damage Dealt')
 
 local lastDamage = {}
 local colorsDraw = {}
@@ -350,7 +350,7 @@ local function rebuild()
 	textToDisplay = tostring(-amount:floor())
 end
 
-local function damageDealed()
+local function damageDealt()
 	if not FFGSHUD.ENABLE_DMG_DISPLAY:GetBool() then return end
 
 	local dmgtype = net.ReadUInt64()
@@ -366,10 +366,10 @@ local function damageDealed()
 	rebuild()
 end
 
-net.receive('ffgs.damagedealed', damageDealed)
+net.receive('ffgs.damagedealt', damageDealt)
 
 local surface = surface
-local DRAWPOS = FFGSHUD:DefinePosition('lastdealed', 0.5, 0.85, false)
+local DRAWPOS = FFGSHUD:DefinePosition('lastdealt', 0.5, 0.85, false)
 local render = render
 
 local testingsColors2 = {
@@ -394,7 +394,7 @@ end
 
 local color_black2 = Color(0, 0, 0)
 
-function FFGSHUD:DrawLastDamageDealed(ply)
+function FFGSHUD:DrawLastDamageDealt(ply)
 	if not self.ENABLE_DMG_DISPLAY:GetBool() then return end
 
 	local time = CurTimeL()
@@ -402,15 +402,15 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 	if hideAtEnd < time then
 		if not HUDCommons.IsInEditMode() then return end
 		local x, y = DRAWPOS()
-		surface.SetFont(self.LastDamageDealed.BLURRY)
+		surface.SetFont(self.LastDamageDealt.BLURRY)
 		local textToDisplay = '-625'
 		local w, h = surface.GetTextSize(textToDisplay)
 
-		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black2)
-		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black2)
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.BLURRY, x - w / 2, y, color_black2)
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.BLURRY, x - w / 2, y, color_black2)
 		local amount = #colorsDraw
 
-		surface.SetFont(self.LastDamageDealed.REGULAR)
+		surface.SetFont(self.LastDamageDealt.REGULAR)
 		w, h = surface.GetTextSize(textToDisplay)
 		local boxX = x - w / 2
 		local BX, BY = boxX, y - ScreenSize(15)
@@ -425,7 +425,7 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 			BX = BX + w * entry.part
 
 			boxX = boxX + w * entry.part
-			HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color)
+			HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.REGULAR, x - w / 2, y, entry.color)
 		end
 
 		render.SetScissorRect(0, 0, 0, 0, false)
@@ -433,17 +433,17 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 	end
 
 	local x, y = DRAWPOS()
-	surface.SetFont(self.LastDamageDealed.BLURRY)
+	surface.SetFont(self.LastDamageDealt.BLURRY)
 	local w, h = surface.GetTextSize(textToDisplay)
 
 	local alpha = 255 * (time < hideAtStart and time:progression(hideInStart, hideInEnd) or (1 - time:progression(hideAtStart, hideAtEnd)))
 	local color_black = Color(0, 0, 0, alpha)
 
-	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black)
-	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.BLURRY, x - w / 2, y, color_black)
+	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.BLURRY, x - w / 2, y, color_black)
+	HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.BLURRY, x - w / 2, y, color_black)
 	local amount = #colorsDraw
 
-	surface.SetFont(self.LastDamageDealed.REGULAR)
+	surface.SetFont(self.LastDamageDealt.REGULAR)
 	w, h = surface.GetTextSize(textToDisplay)
 	local boxX = x - w / 2
 	local BX, BY = boxX, y - ScreenSize(15)
@@ -458,7 +458,7 @@ function FFGSHUD:DrawLastDamageDealed(ply)
 		BX = BX + w * entry.part
 
 		boxX = boxX + w * entry.part
-		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealed.REGULAR, x - w / 2, y, entry.color)
+		HUDCommons.SimpleText(textToDisplay, self.LastDamageDealt.REGULAR, x - w / 2, y, entry.color)
 	end
 
 	render.SetScissorRect(0, 0, 0, 0, false)
@@ -466,7 +466,7 @@ end
 
 local MODE = FFGSHUD:CreateConVar('ldamage_mode', '1', 'Last Damage Dealt mode. 1 - display full damage until entrie fadeout. 0 - display time based last damage (update in real time)')
 
-function FFGSHUD:ThinkLastDamageDealed(ply)
+function FFGSHUD:ThinkLastDamageDealt(ply)
 	if not self.ENABLE_DMG_DISPLAY:GetBool() then return end
 
 	local time = CurTimeL()
@@ -517,5 +517,5 @@ function FFGSHUD:ThinkLastDamageDealed(ply)
 	end
 end
 
-FFGSHUD:AddThinkHook('ThinkLastDamageDealed')
-FFGSHUD:AddPaintHook('DrawLastDamageDealed')
+FFGSHUD:AddThinkHook('ThinkLastDamageDealt')
+FFGSHUD:AddPaintHook('DrawLastDamageDealt')

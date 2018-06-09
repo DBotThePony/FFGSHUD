@@ -100,7 +100,7 @@ FFGSHUD.BattleStats = FFGSHUD:CreateScalableFont('BattleStats', {
 	size = 34,
 })
 
-FFGSHUD.LastDamageDealed = FFGSHUD:CreateScalableFont('LastDamageDealed', {
+FFGSHUD.LastDamageDealt = FFGSHUD:CreateScalableFont('LastDamageDealt', {
 	font = 'Roboto',
 	size = 64,
 	weight = 600
