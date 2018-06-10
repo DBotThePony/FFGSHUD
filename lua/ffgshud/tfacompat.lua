@@ -17,14 +17,12 @@ local FFGSHUD = FFGSHUD
 local IsValid = IsValid
 local meta = FindMetaTable('Weapon')
 
-FFGSHUD:SoftPatchTickHook('weaponName', function(s, self, ply, weaponName, wep, ...)
+local function GetWeaponName(s, self, ply, weaponName, wep, ...)
 	if not meta.IsTFA or not IsValid(wep) or not meta.IsTFA(wep) then return weaponName, wep, ... end
+	if not wep.SelectiveFire and not wep.FireModeName and not wep:IsSafety() then return weaponName, wep, ... end
 
 	return ('(%s) %s'):format(wep:GetFireModeName(), weaponName), wep, ...
-end)
+end
 
-FFGSHUD:SoftPatchTickHook('weaponName_Select', function(s, self, ply, weaponName, wep, ...)
-	if not meta.IsTFA or not IsValid(wep) or not meta.IsTFA(wep) then return weaponName, wep, ... end
-
-	return ('(%s) %s'):format(wep:GetFireModeName(), weaponName), wep, ...
-end)
+FFGSHUD:SoftPatchTickHook('weaponName', GetWeaponName)
+FFGSHUD:SoftPatchTickHook('weaponName_Select', GetWeaponName)
