@@ -241,14 +241,14 @@ function FFGSHUD:OnGlitchEnd()
 	glitchPattern = {}
 end
 
-FFGSHUD:AddHookCustom('PreDrawHUD', 'PreDrawGlitch', nil, -7)
-FFGSHUD:AddHookCustom('PreDrawHUD', 'PostDrawGlitch', nil, 7)
+FFGSHUD:AddHookCustom('PreDrawHUD', 'PreDrawGlitch', nil, -5)
+FFGSHUD:AddHookCustom('PreDrawHUD', 'PostDrawGlitch', nil, 5)
 
-FFGSHUD:AddHookCustom('PostDrawHUD', 'PreDrawGlitch', nil, -7)
-FFGSHUD:AddHookCustom('PostDrawHUD', 'PostDrawGlitch', nil, 7)
+FFGSHUD:AddHookCustom('PostDrawHUD', 'PreDrawGlitch', nil, -5)
+FFGSHUD:AddHookCustom('PostDrawHUD', 'PostDrawGlitch', nil, 5)
 
-FFGSHUD:AddHookCustom('HUDPaint', 'PreDrawGlitch', nil, -7)
-FFGSHUD:AddHookCustom('HUDPaint', 'PostDrawGlitch', nil, 7)
+FFGSHUD:AddHookCustom('HUDPaint', 'PreDrawGlitch', nil, -5)
+FFGSHUD:AddHookCustom('HUDPaint', 'PostDrawGlitch', nil, 5)
 
---FFGSHUD:AddHookCustom('PreDrawPlayerHands', 'PreDrawGlitch', nil, -7)
---FFGSHUD:AddHookCustom('PostDrawPlayerHands', 'PostDrawGlitch', nil, 7)
+--FFGSHUD:AddHookCustom('PreDrawPlayerHands', 'PreDrawGlitch', nil, -5)
+--FFGSHUD:AddHookCustom('PostDrawPlayerHands', 'PostDrawGlitch', nil, 5)
